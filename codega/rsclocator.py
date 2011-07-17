@@ -49,7 +49,8 @@ class FileResourceLocator(ResourceLocatorBase):
 
         oldpath = sys.path
         try:
-            sys.path = self._paths
+            sys.path = list(self._paths)
+            sys.path.extend(oldpath)
             return __import__(modname)
 
         finally:
