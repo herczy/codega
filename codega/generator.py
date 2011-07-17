@@ -109,7 +109,7 @@ class PriorityGenerator(GeneratorBase):
 
         self._generators = []
 
-    def register(self, generator, priority = PriorityGenerator.PRI_BASE):
+    def register(self, generator, priority = 0):
         '''Register a generator
 
         Arguments:
