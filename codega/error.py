@@ -30,3 +30,9 @@ class ResourceError(ParameteredError):
 
     def __init__(self, msg, resource = None):
         super(ResourceError, self).__init__(msg, resource = resource)
+
+class TemplateNotFoundError(ParameteredError):
+    '''Thrown when a template is not found in the collection'''
+
+    def __init__(self, msg, tplset = None):
+        super(TemplateNotFoundError, self).__init__(msg, tplset = tplset)
