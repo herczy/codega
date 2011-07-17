@@ -36,3 +36,6 @@ class TemplateNotFoundError(ParameteredError):
 
     def __init__(self, msg, tplset = None):
         super(TemplateNotFoundError, self).__init__(msg, tplset = tplset)
+
+class VersionMismatchError(Exception):
+    '''The version isn't what it supposed to be'''

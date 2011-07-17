@@ -24,10 +24,16 @@ class ResourceLocatorBase(object):
 
         raise NotImplementedError("ResourceLocatorBase.import_module is abstract")
 
+    def open_writable_resource(self, name):
+        '''Open a resource for writing.'''
+
+        raise NotImplementedError("ResourceLocatorBase.open_writable_resource is abspath")
+
 class FileResourceLocator(ResourceLocatorBase):
     '''Class that helps locating files from the given paths.
 
-    Works in a similar fassion to sys.path except its not limited to Python modules.
+    Works in a similar fassion to sys.path except its not limited to Python modules. Note
+    that the first path is used as the destination directory for open_writable_resource
 
     Members:
     _paths -- List of paths to scan
@@ -35,10 +41,17 @@ class FileResourceLocator(ResourceLocatorBase):
 
     _paths = None
 
-    def __init__(self, paths):
+    def __init__(self, paths = []):
         super(ResourceLocatorBase, self).__init__()
 
         self._paths = list(paths)
+
+    def add_path(self, path, index = None):
+        if index is None:
+            self._paths.append(path)
+
+        else:
+            self._paths.insert(index, path)
 
     def import_module(self, modname):
         '''Imports a module from the given path list.
@@ -82,6 +95,13 @@ class FileResourceLocator(ResourceLocatorBase):
                 for fn in filenames:
                     yield os.path.join(relpath, fn)
 
+    def open_writable_resource(self, name):
+        '''Write data to the first path in list'''
+
+        write_path = self._paths[0]
+        full_filename = os.path.join(write_path, name)
+        return open(full_filename, 'w')
+
 class FallbackLocator(ResourceLocatorBase):
     '''Locator object containing a list of other locators.
 
@@ -94,10 +114,17 @@ class FallbackLocator(ResourceLocatorBase):
 
     _locators = None
 
-    def __init__(self, locators):
+    def __init__(self, locators = []):
         super(FallbackLocator, self).__init__()
 
-        self._locators = locators
+        self._locators = list(locators)
+
+    def add_locator(self, locator, index = None):
+        if index is None:
+            self._locators.append(locator)
+
+        else:
+            self._locators.insert(index, locator)
 
     def find(self, resource):
         for locator in self._locators:
@@ -122,12 +149,18 @@ class FallbackLocator(ResourceLocatorBase):
     def import_module(self, module):
         for locator in self._locators:
             try:
-                return locator.import_module(resource)
+                return locator.import_module(module)
 
-            except ImportError:
+            except ImportError, e:
+                if str(e) != "ImportError: No module named dumper":
+                    raise
+
                 pass
 
         raise ImportError("No module named %s" % module)
+
+    def open_writable_resource(self, name):
+        return self._locators[0].open_writable_resource(name, data)
 
 class ModuleLocator(FileResourceLocator):
     '''Locate files relative to module path'''
