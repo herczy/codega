@@ -66,9 +66,21 @@ class Builder(object):
                           help = 'Force rebuild')
         parser.add_option('-d', '--debug', default = False, action = 'store_true',
                           help = 'Produce debug output')
+        parser.add_option('--create-selfcontained', default = None, dest = 'selfcontained',
+                          help = 'Create self-contained codega script (contains the complete module plus the script)')
         opts, args = parser.parse_args()
 
         try:
+            if opts.selfcontained:
+                from compress import create_compressed_script
+                import os
+
+                out = open(opts.selfcontained, 'w')
+                create_compressed_script(out)
+                out.close()
+                os.chmod(opts.selfcontained, 0755)
+                exit()
+
             builder = Builder(opts.config)
             if opts.target:
                 map(lambda t: builder.build(t, force_rebuild = opts.force), opts.target)
