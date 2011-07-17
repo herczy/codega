@@ -83,8 +83,7 @@ class GeneratorModuleBase(ModuleBase):
         if not self.validate(source):
             raise ValueError("Source XML invalid")
 
-        obj = self._generators[gentype]()
-        obj(source, target)
+        self._generators[gentype]()(source, target)
 
 class FilterModuleBase(ModuleBase):
     '''Base class for filter modules
@@ -106,7 +105,7 @@ class FilterModuleBase(ModuleBase):
         return self._filter(source)
 
 def load_module(locator, name):
-    mod = locator.load_module(name)
+    mod = locator.import_module(name)
 
     if not hasattr(mod, '__module_class__'):
         raise ImportError("Module %s has no __module_class__" % name)
