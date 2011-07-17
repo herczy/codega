@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <!-- base element -->
+  <xs:element name="config">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- paths -->
+        <xs:element ref="paths" />
+
+        <!-- sources -->
+        <xs:element ref="source" minOccurs="1" maxOccurs="unbounded" />
+        
+        <!-- targets -->
+        <xs:element ref="target" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 
+    top-level elements
+  -->
+
+  <!-- paths -->
+  <xs:element name="paths">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="target" type="xs:string" />
+        <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- sources -->
+  <xs:element name="source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="xs:string" />
+        <xs:element name="filename" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- targets -->
+  <xs:element name="target">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="source" type="xs:string" />
+        <xs:element name="generator">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(:[a-zA-Z][a-zA-Z0-9]*)?" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="target" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

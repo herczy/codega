@@ -1,10 +1,11 @@
 '''Config file handler'''
 
 import stat
-import os
+import os, os.path
+from lxml import etree
 
 import source
-from rsclocator import FileResourceLocator, FallbackLocator
+from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 from version import Version
 from error import ResourceError, VersionMismatchError
 
@@ -137,6 +138,10 @@ class Config(object):
 
         if self._version <= Config.DEPRECATED_VERSION:
             raise VersionMismatchError("Configuration format deprecated")
+
+        xsd = source.load(filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+        xsd = etree.XMLSchema(xsd)
+        xsd.assertValid(self._raw_xml)
 
         for entry in self._raw_xml:
             if entry.tag == 'paths':
