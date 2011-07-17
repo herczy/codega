@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<config version="1.0">
+    <paths>
+        <target>./</target>
+        <path>./</path>
+    </paths>
+    <source>
+        <name>config</name>
+        <filename>codega.xml</filename>
+    </source>
+    <target>
+        <source>config</source>
+        <generator>dumper</generator>
+        <target>config.txt</target>
+    </target>
+</config>
