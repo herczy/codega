@@ -1,3 +1,5 @@
+'''Config file handler'''
+
 import stat
 import os
 
@@ -112,25 +114,6 @@ class Config(object):
     @property
     def copy_list(self):
         return self._copy_list
-
-    '''
-    def get_source(self, name):
-        for source in self._sources:
-            if source.name == name:
-                return source.name, load_xml(filename = source.filename, locator = self._locator)
-
-    def get_all_targets(self):
-        for target in self._targets:
-            yield target.source, load_generator(target.module), target.gentype, self._locator.open_writable_resource(target.target)
-
-    def get_target(self, targetfile):
-        for target in self._targets:
-            if target.target == targetfile:
-                return target.source, load_generator(target.module), target.gentype, self._locator.open_writable_resource(target.target)
-
-    def get_file_times(self):
-        pass
-    '''
 
     def __init__(self, data = None, filename = None, system_locator = None):
         self._sources = []

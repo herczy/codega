@@ -1,3 +1,5 @@
+'''Handle compressing the codega library and creating a script from it'''
+
 import os
 import sys
 import os.path
@@ -15,6 +17,12 @@ except ImportError:
     from StringIO import StringIO
 
 def create_compressed_script(target):
+    '''Create a script containing the compressed codega module and the main script
+
+    Arguments:
+    target -- Target file object
+    '''
+
     def exclude_files(filename):
         print filename, (filename[-4:] == '.pyc' or os.path.basename(filename)[0] == '.')
         return (filename[-4:] == '.pyc' or os.path.basename(filename)[0] == '.')

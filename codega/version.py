@@ -1,3 +1,5 @@
+'''Version handling'''
+
 class Version(object):
     '''Version value type
 

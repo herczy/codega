@@ -1,3 +1,5 @@
+'''codega specific exceptions'''
+
 class ParameteredError(Exception):
     '''Error with one or more parameters
 

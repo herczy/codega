@@ -1,3 +1,5 @@
+'''Build handling'''
+
 import sys
 
 import source

@@ -1,3 +1,11 @@
+'''Locator objects
+
+A locators purposes are the following:
+ * locate a file
+ * list the reachable resources
+ * import modules
+ * open a resource for writing
+'''
 import os, os.path
 import sys
 

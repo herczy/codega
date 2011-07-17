@@ -1,3 +1,11 @@
+'''Module handler classes
+
+This module handles the generator- and filter module loading and also has the base classes
+for these module types.
+
+A module must have a __module_class__ attribute containing the generator- or filter class.
+When loading, this will be instantiated.
+'''
 from lxml import etree
 
 try:
@@ -30,10 +38,18 @@ class ModuleBase(object):
         self._info = info
 
     def set_locator(self, locator):
+        '''Set the module locator
+
+        Arguments:
+        locator -- Module-specific locator
+        '''
+
         self._locator = locator
 
     @property
     def info(self):
+        '''Information getter property'''
+
         class _getter(object):
             def __getattr__(_, name):
                 return self._info[name]
@@ -105,6 +121,13 @@ class FilterModuleBase(ModuleBase):
         return self._filter(source)
 
 def load_module(locator, name):
+    '''Load a generic module
+
+    Arguments:
+    locator -- Module locator
+    name -- Module name
+    '''
+
     mod = locator.import_module(name)
 
     if not hasattr(mod, '__module_class__'):
@@ -113,6 +136,13 @@ def load_module(locator, name):
     return mod.__module_class__()
 
 def load_generator(locator, name):
+    '''Load a generator module
+
+    Arguments:
+    locator -- Module locator
+    name -- Module name
+    '''
+
     obj = load_module(locator, name)
 
     if not isinstance(obj, GeneratorModuleBase):
@@ -121,6 +151,13 @@ def load_generator(locator, name):
     return obj
 
 def load_filter(locator, name):
+    '''Load a filter module
+
+    Arguments:
+    locator -- Module locator
+    name -- Module name
+    '''
+
     obj = load_module(locator, name)
 
     if not isinstance(obj, FilterModuleBase):

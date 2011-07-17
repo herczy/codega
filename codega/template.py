@@ -1,7 +1,15 @@
+'''Handling templates and template sets.
+
+A template is an object that - given the proper bindings - can create some kind of output. A template
+set on the other hand is a collection of templates. All templates are accessed through a template set.
+
+This module also contains MakoTemplateset which loads mako templates. Further templates can be
+supported if needed.
+'''
 from mako.lookup import TemplateLookup as ExternalMakoTemplateLookup
 from mako.template import Template as ExternalMakoTemplate
 
-from errors import TemplateNotFoundError
+from error import TemplateNotFoundError
 
 class TemplateBase(object):
     '''Base class for templates
@@ -64,6 +72,7 @@ class MakoTemplate(TemplateBase):
 
     def render(self, bindings):
         return self._template.render(**self.bindings)
+    render.__doc__ = TemplateBase.render.__doc__
 
 class MakoTemplateset(TemplatesetBase):
     '''Mako templateset (a wrapper to mako.lookup.TemplateLookup)
@@ -87,3 +96,4 @@ class MakoTemplateset(TemplatesetBase):
         tpl = tpl.get_def(defname)
 
         return MakoTemplate(name, tpl)
+    get_template.__doc__ = TemplatesetBase.get_template.__doc__
