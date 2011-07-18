@@ -3,6 +3,15 @@
 load() loads an XML eigther from a file or a string'''
 from lxml import etree
 
+try:
+    from cStringIO import StringIO
+
+except ImportError, e:
+    if str(e) != 'No module named cStringIO':
+        raise
+
+    from StringIO import StringIO
+
 def load(data = None, filename = None, locator = None):
     '''Load an XML file
 
