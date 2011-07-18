@@ -90,7 +90,7 @@ class GeneratorModuleBase(ModuleBase):
             return True
 
         xsd_file = open(self._locator.find(self._validator))
-        xsd = lxml.etree.XMLSchema(lxml.etree.parse(xsd_file))
+        xsd = etree.XMLSchema(etree.parse(xsd_file))
         return xsd.validate(xml)
 
     def generate(self, source, gentype, target):
@@ -117,7 +117,7 @@ class FilterModuleBase(ModuleBase):
     _filter = None
 
     def __init__(self, name, filter_callable, **kwargs):
-        super(GeneratorModuleBase, self).__init__(name, **kwargs)
+        super(FilterModuleBase, self).__init__(name, **kwargs)
 
         self._filter = filter_callable
 
