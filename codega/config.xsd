@@ -46,7 +46,9 @@
   <xs:element name="target">
     <xs:complexType>
       <xs:sequence>
+
         <xs:element name="source" type="xs:string" />
+
         <xs:element name="generator">
           <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -54,8 +56,44 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+
         <xs:element name="target" type="xs:string" />
+
+        <xs:element name="settings" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:group ref="settings" />
+          </xs:complexType>
+        </xs:element>
+
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- settings -->
+  <xs:group name="settings">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+
+        <xs:element name="entry">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" />
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element ref="container" />
+
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="container">
+    <xs:complexType>
+      <xs:group ref="settings" />
+      <xs:attribute name="name" type="xs:string" />
     </xs:complexType>
   </xs:element>
 </xs:schema>

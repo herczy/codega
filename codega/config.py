@@ -9,6 +9,24 @@ from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 from version import Version
 from error import ResourceError, VersionMismatchError
 
+class ConfigSettings(object):
+    '''Settings defined in configuration'''
+
+    _data = None
+
+    def __init__(self, xml):
+        self._data = {}
+
+        for child in xml:
+            if child.tag == 'entry':
+                self._data[child.attrib['name']] = child.text
+
+            elif child.tag == 'container':
+                self._data[child.attrib['name']] = ConfigSettings(child)
+
+    def __getattr__(self, name):
+        return self._data[name]
+
 class ConfigSource(object):
     '''Source definitions
 
@@ -34,11 +52,19 @@ class ConfigTarget(object):
     parent -- Parent of entry
     name -- Name of the source (referenced by targets)
     filename -- Source file
+    settings -- Target settings
     '''
 
     def __init__(self, parent, xml):
         self.parent = parent
         self.source = xml.find('source').text
+
+        settings_xml = xml.find('settings')
+        if settings_xml is not None:
+            self.settings = ConfigSettings(settings_xml)
+
+        else:
+            self.settings = ConfigSettings(())
 
         gen = xml.find('generator').text
         if ':' in gen:
