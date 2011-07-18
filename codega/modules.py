@@ -17,40 +17,50 @@ except ImportError:
 from version import Version
 from rsclocator import ModuleLocator
 
-class ModuleBase(object):
-    '''Base class for different module types
+class Module(object):
+    '''Codega module.
+
+    A codega module contains specific information that can be used
+    to extend the base framework.
 
     Members:
-    _name -- Module name
-    _version -- Module version
-    _locator -- Module locator
-    _info -- Module information (a dict)
+    _module -- Imported module
+    _config -- Module configuration
+    _info -- Module information
     '''
 
-    _name = None
-    _version = None
-    _locator = None
+    _module = None
+    _config = None
     _info = None
 
-    def __init__(self, name, version = Version(0), info = {}):
-        self._name = name
-        self._version = version
-        self._info = info
+    def __init__(self, module, config):
+        self._module = module
+        self._config = config
+        self._info = {}
 
-    def set_locator(self, locator):
-        '''Set the module locator
+        self._parse_info(**self._module.__info__)
 
-        Arguments:
-        locator -- Module-specific locator
-        '''
+    def _parse_info(self, **kwargs):
+        '''Load module-related information'''
 
-        self._locator = locator
+        self._info.update(kwargs)
+
+    def set_config(self, config):
+        '''Set configuration for module'''
+
+        self._config = config
 
     @property
-    def locator(self):
-        '''Module-specific locator'''
+    def config(self):
+        '''Configuration to use module with'''
 
         return self._locator
+
+    @property
+    def module(self):
+        '''Imported module'''
+
+        return self._module
 
     @property
     def info(self):
@@ -62,8 +72,10 @@ class ModuleBase(object):
 
         return _getter()
 
-class GeneratorModuleBase(ModuleBase):
-    '''Base class for generator modules
+class GeneratorModule(Module):
+    '''Generator modules
+
+    Generator modules take an XML tree and generate some output.
 
     Members:
     _generators -- Dictionary of generator classes
@@ -73,11 +85,13 @@ class GeneratorModuleBase(ModuleBase):
     _generators = None
     _validator = None
 
-    def __init__(self, name, generators, validator = None, **kwargs):
-        super(GeneratorModuleBase, self).__init__(name, **kwargs)
+    def _parse_info(self, generators, validator = None, **kwargs):
+        '''Parse module info. A 'generators' key is necessary!'''
 
         self._generators = generators
         self._validator = validator
+
+        super(GeneratorModule, self)._parse_info(**kwargs)
 
     def validate(self, xml):
         '''Validate the XML source tree.
@@ -100,6 +114,7 @@ class GeneratorModuleBase(ModuleBase):
         source -- Source XML tree
         gentype -- Generator type to use
         target -- Destination file descriptor
+        context -- Additional builtin values
         '''
 
         if not self.validate(source):
@@ -107,8 +122,10 @@ class GeneratorModuleBase(ModuleBase):
 
         self._generators[gentype]()(source, target)
 
-class FilterModuleBase(ModuleBase):
-    '''Base class for filter modules
+class FilterModule(Module):
+    '''Filter modules.
+
+    Filter modules transform an XML or collect data from them for later use.
 
     Members:
     _filter -- Filter callable
@@ -116,57 +133,30 @@ class FilterModuleBase(ModuleBase):
 
     _filter = None
 
-    def __init__(self, name, filter_callable, **kwargs):
-        super(FilterModuleBase, self).__init__(name, **kwargs)
+    def _parse_info(self, filter_callable, **kwargs):
+        '''Parse module info. A 'filter' key is necessary!'''
 
         self._filter = filter_callable
+        super(FilterModuleBase, self)._parse_info(**kwargs)
 
     def filter(self, source):
         '''Filter the source'''
 
         return self._filter(source)
 
-def load_module(locator, name):
-    '''Load a generic module
+def load_module(name, locator, config, modtype):
+    '''Load a codega module
 
     Arguments:
-    locator -- Module locator
     name -- Module name
+    locator -- Module locator
+    config -- Configuration
+    modtype -- Module type class
     '''
 
     mod = locator.import_module(name)
 
-    if not hasattr(mod, '__module_class__'):
-        raise ImportError("Module %s has no __module_class__" % name)
+    if not issubclass(mod.__info__['type'], modtype):
+        raise ImportError("Module %s is of invalid type" % name)
 
-    return mod.__module_class__()
-
-def load_generator(locator, name):
-    '''Load a generator module
-
-    Arguments:
-    locator -- Module locator
-    name -- Module name
-    '''
-
-    obj = load_module(locator, name)
-
-    if not isinstance(obj, GeneratorModuleBase):
-        raise ImportError("Module %s is not a generator module" % name)
-
-    return obj
-
-def load_filter(locator, name):
-    '''Load a filter module
-
-    Arguments:
-    locator -- Module locator
-    name -- Module name
-    '''
-
-    obj = load_module(locator, name)
-
-    if not isinstance(obj, FilterModuleBase):
-        raise ImportError("Module %s is not a filter module" % name)
-
-    return obj
+    return mod.__info__['type'](mod, config)

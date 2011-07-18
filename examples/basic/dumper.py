@@ -1,5 +1,6 @@
-from codega.modules import GeneratorModuleBase
+from codega.modules import GeneratorModule
 from codega.generator import GeneratorBase
+from codega.version import Version
 
 from cStringIO import StringIO
 
@@ -31,8 +32,8 @@ class DumpGenerator(GeneratorBase):
 
         _(target, source)
 
-class DumperGenerator(GeneratorModuleBase):
-    def __init__(self):
-        super(DumperGenerator, self).__init__('dumper generator', generators = { None : DumpGenerator })
-
-__module_class__ = DumperGenerator
+__info__ = dict(
+    type = GeneratorModule,
+    generators = { None : DumpGenerator },
+    version = Version(1, 0)
+)

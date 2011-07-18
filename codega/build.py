@@ -4,7 +4,7 @@ import sys
 
 import source
 from config import Config
-from modules import load_generator, load_filter
+from modules import load_module, GeneratorModule
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 
 class Builder(object):
@@ -43,8 +43,8 @@ class Builder(object):
                 return
 
         source = self.load_source(target.source)
-        module = load_generator(self._config.locator, target.module)
-        module.set_locator(FallbackLocator([ModuleLocator(module), config.locator]))
+        module = load_module(target.module, self._config.locator, self._config, GeneratorModule)
+        module.set_config(self._config)
         module.validate(source)
         module.generate(source, target.gentype, open(target.target, 'w'))
 

@@ -12,5 +12,11 @@
         <source>config</source>
         <generator>dumper</generator>
         <target>config.txt</target>
+        <settings>
+          <entry name="test0">value0</entry>
+          <container name="test1">
+            <entry name="test2">value2</entry>
+          </container>
+        </settings>
     </target>
 </config>
