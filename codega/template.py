@@ -97,3 +97,39 @@ class MakoTemplateset(TemplatesetBase):
 
         return MakoTemplate(name, tpl)
     get_template.__doc__ = TemplatesetBase.get_template.__doc__
+
+#
+# Inline mako template
+#
+class InlineMakoTemplate(MakoTemplate):
+    '''Wrapper for mako templates.
+    
+    This class differs from MakoTemplate in that it parses the argument
+    as a mako template, without using a template set.
+    '''
+
+    def __init__(self, name, data):
+        super(InlineMakoTemplate, self).__init__(name, ExternalMakoTemplate(text = data))
+
+class DocstringMakoTemplate(InlineMakoTemplate):
+    '''Read a function or class docstring and parse it as a template'''
+
+    def __init__(self, name, fun):
+        tpl = fun.__doc__
+        while tpl[0] == '\n':
+            tpl = tpl[1:]
+
+        indent = 0
+        while tpl[indent] == ' ':
+            indent += 1
+
+        tpl_deindented = []
+        for line in tpl.split('\n'):
+            if line[:indent].strip():
+                # Add line without de-indentation
+                tpl_deindented.append(line)
+                continue
+
+            tpl_deindented.append(line[indent:])
+
+        super(DocstringMakoTemplate, self).__init__(name, tpl)
