@@ -270,18 +270,3 @@ def match_xpath(xpath):
 
 def match_all(source):
     return True
-
-'''
-
-class Lofasz(ObjectGenerator):
-    @function_generator(match_tag('/foo/bar'))
-    def gen_a(self, source, target):
-        return str(source)
-
-    @template_generator(match_all, priority = ObjectGenerator.PRI_FALLBACK)
-    def generic(self, source):
-        res = {}
-        res['source'] = source
-        return res
-
-'''
