@@ -196,7 +196,7 @@ class ObjectGenerator(PriorityGenerator):
         matcher = None
 
         def __init__(self, function, template, matcher, priority):
-            super(FunctionSubgenerator, self).__init__(priority)
+            super(TemplateSubgenerator, self).__init__(priority)
 
             self.function = function
             self.template = template
