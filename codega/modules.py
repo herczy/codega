@@ -47,6 +47,12 @@ class ModuleBase(object):
         self._locator = locator
 
     @property
+    def locator(self):
+        '''Module-specific locator'''
+
+        return self._locator
+
+    @property
     def info(self):
         '''Information getter property'''
 
