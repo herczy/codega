@@ -2,23 +2,58 @@
 
 This module is responsible for defining different generator classes. While the GeneratorBase
 only supplies the API, further generators have extended functionality.
+
+Special constants:
+PRI_HIGHEST -- Highest priority
+PRI_HIGH -- High priority
+PRI_BASE -- Base priority
+PRI_LOW -- Low priority
+PRI_LOWEST -- Lowest priority
+PRI_FALLBACK -- Fallback priority
 '''
 from lxml import etree
 
 import heapq
 import types
 
+from error import StateError
+from template import DocstringMakoTemplate
+
+PRI_HIGHEST = -100
+PRI_HIGH = -10
+PRI_BASE = 0
+PRI_LOW  = 10
+PRI_LOWEST = 100
+PRI_FALLBACK = 1000
+
 class GeneratorBase(object):
     '''Generator base class
 
     Arguments:
     _matcher -- Function that checks the source XML prior to generation
+    _priority -- Priority of the generator
+    _parent -- Parent of the generator or none for root generators
     '''
 
     _matcher = None
+    _priority = None
+    _parent = None
 
-    def __init__(self, matcher = None):
+    def __init__(self, matcher = None, priority = PRI_BASE):
         self._matcher = matcher
+        self._priority = priority
+
+    @property
+    def priority(self):
+        '''Priority property'''
+
+        return self._priority
+
+    @property
+    def parent(self):
+        '''Parent property'''
+
+        return self._parent
 
     def match(self, source):
         '''Check if the source node matches some criteria.
@@ -42,6 +77,20 @@ class GeneratorBase(object):
 
         raise NotImplementedError("GeneratorBase.generate is abstract")
 
+    def bind(self, parent):
+        '''Bind the generator to a parent.
+
+        A generator can only be bound once, after that it's bound forever.
+
+        Arguments:
+        parent -- Parent generator
+        '''
+
+        if self._parent is not None:
+            raise StateError("Generator already bound!")
+
+        self._parent = parent
+
     def __call__(self, source, target):
         if not self.match(source):
             raise ValueError("Source cannot be generated")
@@ -57,13 +106,18 @@ class FunctionGenerator(GeneratorBase):
 
     _function = None
 
-    def __init__(self, generator, matcher = None):
-        super(FunctionGenerator, self).__init__(matcher = matcher)
+    def __init__(self, generator, matcher = None, priority = PRI_BASE):
+        super(FunctionGenerator, self).__init__(matcher = matcher, priority = priority)
 
         self._function = generator
 
     def generate(self, source, target):
         self._function(source, target)
+
+    def bind(self, parent):
+        super(FunctionGenerator, self).bind(parent)
+
+        self._function = types.MethodType(self._function, parent)
 
 class TemplateGenerator(GeneratorBase):
     '''Generates output with a template.
@@ -76,8 +130,8 @@ class TemplateGenerator(GeneratorBase):
     _template = None
     _bindings = None
 
-    def __init__(self, template, bindings, matcher = None):
-        super(TemplateGenerator, self).__init__(matcher = matcher)
+    def __init__(self, template, bindings, matcher = None, priority = PRI_BASE):
+        super(TemplateGenerator, self).__init__(matcher = matcher, priority = priority)
 
         self._template = template
         self._bindings = bindings
@@ -85,36 +139,35 @@ class TemplateGenerator(GeneratorBase):
     def generate(self, source, target):
         target.write(self._template.render(self._bindings(source)))
 
+    def bind(self, parent):
+        super(TemplateGenerator, self).bind(parent)
+
+        self._bindings = types.MethodType(self._bindings, parent)
+
 class PriorityGenerator(GeneratorBase):
     '''A list of generators which are tried one-by-one until one can handle the source
 
     Members:
     _generators -- Heap-sorted list of generators. Items are in (priority, generator) format
-
-    Static members:
-    PRI_HIGHEST -- Highest priority
-    PRI_HIGH -- High priority
-    PRI_BASE -- Base priority
-    PRI_LOW -- Low priority
-    PRI_LOWEST -- Lowest priority
-    PRI_FALLBACK -- Fallback priority
     '''
-
-    PRI_HIGHEST = -100
-    PRI_HIGH = -10
-    PRI_BASE = 0
-    PRI_LOW  = 10
-    PRI_LOWEST = 100
-    PRI_FALLBACK = 1000
 
     _generators = None
 
-    def __init__(self, matcher = None):
-        super(PriorityGenerator, self).__init__(matcher = matcher)
+    def __internal_matcher(self, source):
+        '''Matching is done by aggregating the matchers of registered sub-generators'''
+
+        for pri, gen in self._generators:
+            if gen.match(source):
+                return True
+
+        return False
+
+    def __init__(self, priority = PRI_BASE):
+        super(PriorityGenerator, self).__init__(matcher = self.__internal_matcher, priority = priority)
 
         self._generators = []
 
-    def register(self, generator, priority = 0):
+    def register(self, generator):
         '''Register a generator
 
         Arguments:
@@ -125,7 +178,8 @@ class PriorityGenerator(GeneratorBase):
         if not isinstance(generator, GeneratorBase):
             raise TypeError("Invalid generator type (not subclass of GeneratorBase)")
 
-        heapq.heappush(self._generators, (priority, generator))
+        heapq.heappush(self._generators, (generator.priority, generator))
+        generator.bind(self)
 
     def generate(self, source, target):
         '''Try to generate source with each contained generator instance'''
@@ -137,93 +191,21 @@ class PriorityGenerator(GeneratorBase):
 
         raise ValueError("Source cannot be generated")
 
+#
+# Object generators
+#
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
 
-    class Subgenerator(object):
-        '''The ObjectGenerator scans for Subgenerators on instantiation
+    class UnboundSubgenerator(GeneratorBase):
+        '''These generators contain a function that need to be bound before usage'''
 
-        Members:
-        priority -- Priority of the generator
-        '''
+        _function = None
+        _args = None
+        _kwargs = None
 
-        priority = None
-
-        def __init__(self, priority):
-            self.priority = priority
-
-        def bind(self, instance):
-            '''Bind the subgenerator to the instance'''
-
-            raise NotImplementedError('ObjectGenerator.Subgenerator.bind is abstract')
-
-        def register(self, instance):
-            '''Register subgenerator to the instance'''
-
-            instance.register(self.bind(instance), priority = self.priority)
-
-    class FunctionSubgenerator(Subgenerator):
-        '''Object containing functions to be turned into generators
-
-        Members:
-        function -- Unbound function
-        matcher -- Generator matcher
-        '''
-
-        function = None
-        matcher = None
-
-        def __init__(self, function, matcher, priority):
-            super(FunctionSubgenerator, self).__init__(priority)
-
-            self.function = function
-            self.matcher = matcher
-
-        def bind(self, instance):
-            return FunctionGenerator(types.MethodType(self.function, instance), matcher = self.matcher)
-
-    class TemplateSubgenerator(Subgenerator):
-        '''Object containing functions to be turned into generators
-
-        Members:
-        template -- Template to use with rendering
-        function -- Unbound binding-generator function
-        matcher -- Generator matcher
-        '''
-
-        template = None
-        function = None
-        matcher = None
-
-        def __init__(self, function, template, matcher, priority):
-            super(TemplateSubgenerator, self).__init__(priority)
-
-            self.function = function
-            self.template = template
-            self.matcher = matcher
-
-        def bind(self, instance):
-            return FunctionGenerator(self.template, types.MethodType(self.function, instance), matcher = self.matcher)
-
-    class ObjectSubgenerator(Subgenerator):
-        '''Object containing functions to be turned into generators
-
-        Members:
-        instance -- Generator instance
-        '''
-
-        instance = None
-
-        def __init__(self, function, priority):
-            super(ObjectGenerator, self).__init__(priority)
-
-            self.function = function
-
-        def bind(self, instance):
-            return instance
-
-    def __init__(self, matcher = None):
-        super(ObjectGenerator, self).__init__(matcher = matcher)
+    def __init__(self, priority = PRI_BASE):
+        super(ObjectGenerator, self).__init__(priority = priority)
 
         self._collect()
 
@@ -233,24 +215,23 @@ class ObjectGenerator(PriorityGenerator):
         for attr in dir(self):
             val = getattr(self, attr)
 
-            if isinstance(val, ObjectGenerator.Subgenerator):
-                val.register(self)
+            if isinstance(val, GeneratorBase):
+                self.register(val)
 
-    @classmethod
-    def generator(cls, matcher = None, priority = PriorityGenerator.PRI_BASE, template = None):
-        '''Decorator to create a generator from a function'''
+def generator(matcher = None, priority = PRI_BASE, template = None):
+    '''Decorator to create a generator from a function'''
 
-        def __decorator(func):
-            if template is not None:
-                return cls.TemplateSubgenerator(func, template, matcher, priority)
+    def __decorator(func):
+        if template is not None:
+            return TemplateGenerator(template, func, matcher = matcher, priority = priority)
 
-            if func.__doc__ is not None:
-                inline = DocstringMakoTemplate(func)
-                return cls.TemplateSubgenerator(func, inline, matcher, priority)
+        if func.__doc__ is not None:
+            inline = DocstringMakoTemplate(func)
+            return TemplateGenerator(inline, func, matcher = matcher, priority = priority)
 
-            return cls.FunctionSubgenerator(func, matcher, priority)
+        return FunctionGenerator(func, matcher = matcher, priority = priority)
 
-        return __decorator
+    return __decorator
 
 def match_tag(tag):
     def __matcher(source):

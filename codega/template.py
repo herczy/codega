@@ -6,10 +6,12 @@ set on the other hand is a collection of templates. All templates are accessed t
 This module also contains MakoTemplateset which loads mako templates. Further templates can be
 supported if needed.
 '''
+from mako.runtime import Context as ExternalMakoContext
 from mako.lookup import TemplateLookup as ExternalMakoTemplateLookup
 from mako.template import Template as ExternalMakoTemplate
 
 from error import TemplateNotFoundError
+from stringio import StringIO
 
 class TemplateBase(object):
     '''Base class for templates
@@ -71,7 +73,13 @@ class MakoTemplate(TemplateBase):
         self._template = template
 
     def render(self, bindings):
-        return self._template.render(**self.bindings)
+        buf = StringIO()
+        bindings['template'] = self
+        context = ExternalMakoContext(buf, **bindings)
+        self._template.render_context(context)
+
+        return buf.getvalue()
+
     render.__doc__ = TemplateBase.render.__doc__
 
 class MakoTemplateset(TemplatesetBase):
@@ -114,7 +122,7 @@ class InlineMakoTemplate(MakoTemplate):
 class DocstringMakoTemplate(InlineMakoTemplate):
     '''Read a function or class docstring and parse it as a template'''
 
-    def __init__(self, name, fun):
+    def __init__(self, fun):
         tpl = fun.__doc__
         while tpl[0] == '\n':
             tpl = tpl[1:]
@@ -132,4 +140,5 @@ class DocstringMakoTemplate(InlineMakoTemplate):
 
             tpl_deindented.append(line[indent:])
 
-        super(DocstringMakoTemplate, self).__init__(name, tpl)
+        tpl = '\n'.join(tpl_deindented)
+        super(DocstringMakoTemplate, self).__init__(fun.__name__, tpl)

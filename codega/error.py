@@ -41,3 +41,6 @@ class TemplateNotFoundError(ParameteredError):
 
 class VersionMismatchError(Exception):
     '''The version isn't what it supposed to be'''
+
+class StateError(Exception):
+    '''The state of the object is not what it's supposed to be'''
