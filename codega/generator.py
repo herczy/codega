@@ -237,20 +237,18 @@ class ObjectGenerator(PriorityGenerator):
                 val.register(self)
 
     @classmethod
-    def function_generator(cls, matcher = None, priority = PriorityGenerator.PRI_BASE):
+    def generator(cls, matcher = None, priority = PriorityGenerator.PRI_BASE, template = None):
         '''Decorator to create a generator from a function'''
 
         def __decorator(func):
+            if template is not None:
+                return cls.TemplateSubgenerator(func, template, matcher, priority)
+
+            if func.__doc__ is not None:
+                inline = DocstringMakoTemplate(func)
+                return cls.TemplateSubgenerator(func, inline, matcher, priority)
+
             return cls.FunctionSubgenerator(func, matcher, priority)
-
-        return __decorator
-
-    @classmethod
-    def template_generator(cls, template, matcher = None, priority = PriorityGenerator.PRI_BASE):
-        '''Decorator to create a generator from a template. The function is used to generate the bindings'''
-
-        def __decorator(func):
-            return cls.TemplateSubgenerator(func, template, matcher, priority)
 
         return __decorator
 
