@@ -4,8 +4,18 @@ import sys
 
 import source
 from config import Config
-from modules import load_module, GeneratorModule
+from generator import GeneratorBase
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
+
+class Context(object):
+    builder = None
+    config = None
+    target = None
+
+    def __init__(self, builder, config, target):
+        self.builder = builder
+        self.config = config
+        self.target = target
 
 class Builder(object):
     '''Object used for building the target files'''
@@ -14,6 +24,16 @@ class Builder(object):
         self._system_locator = FileResourceLocator('./')
         self._config = Config(filename = config_file, system_locator = self._system_locator)
         self._sources = {}
+
+    def load_generator(self, module, clsname):
+        mod = self._config.locator.import_module(module)
+        cls = getattr(mod, clsname)
+
+        if not issubclass(cls, GeneratorBase):
+            print cls
+            raise ImportError("%s:%s is not a generator" % (module, clsname))
+
+        return cls
 
     def find_source(self, source_name):
         for source in self._config.sources:
@@ -43,10 +63,14 @@ class Builder(object):
                 return
 
         source = self.load_source(target.source)
-        module = load_module(target.module, self._config.locator, self._config, GeneratorModule)
-        module.set_config(self._config)
-        module.validate(source)
-        module.generate(source, target.gentype, open(target.target, 'w'))
+
+        generator_class = self.load_generator(target.module, target.gentype)
+        generator = generator_class()
+
+        context = Context(self, self._config, target)
+
+        generator.validate(source, context)
+        generator.generate(source, open(target.target, 'w'), context)
 
     def build(self, target, force_rebuild = False):
         target = self.find_target(target)

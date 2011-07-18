@@ -16,7 +16,7 @@ def indent(txt):
     return '\n'.join(res)
 
 class DumpGenerator(GeneratorBase):
-    def generate(self, source, target):
+    def generate(self, source, target, context):
         def _(d, x):
             print >>d, '%s: %s' % (x.tag, ', '.join(map(lambda a: '%s = %r' % a, x.attrib.iteritems())))
             if x.text:
@@ -31,9 +31,3 @@ class DumpGenerator(GeneratorBase):
             print >>d, '}'
 
         _(target, source)
-
-__info__ = dict(
-    type = GeneratorModule,
-    generators = { None : DumpGenerator },
-    version = Version(1, 0)
-)

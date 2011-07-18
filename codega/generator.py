@@ -55,6 +55,14 @@ class GeneratorBase(object):
 
         return self._parent
 
+    def validate(self, source, context):
+        '''Validate source
+
+        Arguments:
+        source -- Source node
+        context -- Validation context
+        '''
+
     def match(self, source):
         '''Check if the source node matches some criteria.
 
@@ -67,12 +75,13 @@ class GeneratorBase(object):
 
         return self._matcher(source)
 
-    def generate(self, source, target):
+    def generate(self, source, target, context):
         '''Generate output and write it to target
 
         Arguments:
         source -- Source XML tree
         target -- Target file object (an object with write)
+        context -- Generation context
         '''
 
         raise NotImplementedError("GeneratorBase.generate is abstract")
@@ -91,11 +100,11 @@ class GeneratorBase(object):
 
         self._parent = parent
 
-    def __call__(self, source, target):
+    def __call__(self, source, target, context):
         if not self.match(source):
             raise ValueError("Source cannot be generated")
 
-        self.generate(source, target)
+        self.generate(source, target, context)
 
 class FunctionGenerator(GeneratorBase):
     '''A function is provided to do the generation
@@ -111,8 +120,8 @@ class FunctionGenerator(GeneratorBase):
 
         self._function = generator
 
-    def generate(self, source, target):
-        self._function(source, target)
+    def generate(self, source, target, context):
+        self._function(source, target, context)
 
     def bind(self, parent):
         super(FunctionGenerator, self).bind(parent)
@@ -136,8 +145,8 @@ class TemplateGenerator(GeneratorBase):
         self._template = template
         self._bindings = bindings
 
-    def generate(self, source, target):
-        target.write(self._template.render(self._bindings(source)))
+    def generate(self, source, target, context):
+        target.write(self._template.render(self._bindings(source, context)))
 
     def bind(self, parent):
         super(TemplateGenerator, self).bind(parent)
@@ -181,12 +190,12 @@ class PriorityGenerator(GeneratorBase):
         heapq.heappush(self._generators, (generator.priority, generator))
         generator.bind(self)
 
-    def generate(self, source, target):
+    def generate(self, source, target, context):
         '''Try to generate source with each contained generator instance'''
 
         for pri, gen in self._generators:
             if gen.match(source):
-                gen.generate(source, target)
+                gen.generate(source, target, context)
                 return
 
         raise ValueError("Source cannot be generated")

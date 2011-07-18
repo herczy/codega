@@ -10,7 +10,7 @@
     </source>
     <target>
         <source>config</source>
-        <generator>dumper</generator>
+        <generator>dumper:DumpGenerator</generator>
         <target>config.txt</target>
         <settings>
           <entry name="test0">value0</entry>
