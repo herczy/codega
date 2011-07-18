@@ -156,7 +156,7 @@ class Config(object):
         self._locator.add_locator(self._config_locator)
         self._locator.add_locator(self._system_locator)
 
-        self._raw_xml = source.load(filename = filename, locator = self._system_locator)
+        self._raw_xml = source.load(filename = filename, locator = self._system_locator).getroot()
         self._version = Version.load_from_string(self._raw_xml.get('version', '1.0'))
 
         if self._version > Config.CURRENT_VERSION:
@@ -165,9 +165,7 @@ class Config(object):
         if self._version <= Config.DEPRECATED_VERSION:
             raise VersionMismatchError("Configuration format deprecated")
 
-        xsd = source.load(filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
-        xsd = etree.XMLSchema(xsd)
-        xsd.assertValid(self._raw_xml)
+        source.validate(self._raw_xml, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
         for entry in self._raw_xml:
             if entry.tag == 'paths':

@@ -29,4 +29,15 @@ def load(data = None, filename = None, locator = None):
 
         source = open(filename)
 
-    return etree.parse(source).getroot()
+    return etree.parse(source)
+
+def validate(xml, *args, **kwargs):
+    '''Load an XSD file and validate XML with it
+
+    Arguments:
+    xml -- The XML to validate
+    args, kwargs -- Arguments passed to load
+    '''
+
+    xsd = etree.XMLSchema(load(*args, **kwargs))
+    xsd.assertValid(xml)
