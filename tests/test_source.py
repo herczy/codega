@@ -10,8 +10,9 @@ xml_content = """<?xml version="1.0" ?>\n<entry>Hello</entry>\n"""
 
 class TestSource(TestCase):
     def check(self, xml):
-        self.assertEqual(xml.tag, 'entry')
-        self.assertEqual(xml.text, 'Hello')
+        root = xml.getroot()
+        self.assertEqual(root.tag, 'entry')
+        self.assertEqual(root.text, 'Hello')
 
     def test_load_data(self):
         self.check(load(data = xml_content))

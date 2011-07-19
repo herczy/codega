@@ -6,11 +6,11 @@ import tempfile
 from codega.generator import *
 
 class SimpleGenerator(GeneratorBase):
-    def generate(self, source, target):
-        print >>target, 'SimpleGenerator', repr(source)
+    def generate(self, source, target, context):
+        print >>target, 'SimpleGenerator', repr(source), repr(context)
 
-def fungen(source, target):
-    print >>target, 'fungen', repr(source)
+def fungen(source, target, context):
+    print >>target, 'fungen', repr(source), repr(context)
 
 class TemplateMockup(object):
     def render(self, bindings):
@@ -18,7 +18,7 @@ class TemplateMockup(object):
 
 class TemplateMockupOther(object):
     def render(self, bindings):
-        return 'template %s source = %r' % (bindings['name'], bindings['source'])
+        return 'template %s context %r source = %r' % (bindings['name'], bindings['context'], bindings['source'])
 
 class FileMockup(object):
     def __init__(self):
@@ -32,31 +32,31 @@ class FileMockup(object):
 
 class MyObjectGenerator(ObjectGenerator):
     @generator(matcher = lambda s: s == 0)
-    def generator_0(self, source, target):
+    def generator_0(self, source, target, context):
         # No template, no document, this should be a FunctionGenerator
-        print >>target, 'FunctionSubgenerator %r' % source
+        print >>target, 'FunctionSubgenerator %r context %r' % (source, context)
 
     @generator(matcher = lambda s: s == 1)
-    def generator_1(self, source):
+    def generator_1(self, source, context):
         '''
-        Hello ${name}! source = ${repr(source)}
+        Hello ${name}! source = ${repr(source)} context = ${cgctx}
         '''
 
         # No template but docstring exists, this should be a TemplateGenerator
         # with an inline mako template (DocstringMakoTemplate)
-        return dict(name = 'testrunner!', source = source)
+        return dict(name = 'testrunner!', source = source, cgctx = context)
 
     @generator(matcher = lambda s: s == 2, template = TemplateMockupOther())
-    def generator_2(self, source):
+    def generator_2(self, source, context):
         # Template explicitly specified
-        return dict(name = 'testrunner!', source = source)
+        return dict(name = 'testrunner!', source = source, context = context)
 
 class TestGenerators(TestCase):
     matcher = lambda self, src: src == 0
 
-    def check(self, obj, source, expected):
+    def check(self, obj, source, context, expected):
         dst = FileMockup()
-        obj(source, dst)
+        obj(source, dst, context)
         self.assertEqual(str(dst), expected)
 
     def test_base(self):
@@ -65,8 +65,8 @@ class TestGenerators(TestCase):
         self.assertTrue(p.parent == None)
         self.assertTrue(p.match(0))
         self.assertFalse(p.match(1))
-        self.check(p, 0, 'SimpleGenerator 0\n')
-        self.assertRaises(ValueError, p, 1, None)
+        self.check(p, 0, 1, 'SimpleGenerator 0 1\n')
+        self.assertRaises(ValueError, p, 1, None, None)
 
     def test_function(self):
         p = FunctionGenerator(fungen, matcher = self.matcher)
@@ -74,18 +74,18 @@ class TestGenerators(TestCase):
         self.assertTrue(p.parent == None)
         self.assertTrue(p.match(0))
         self.assertFalse(p.match(1))
-        self.check(p, 0, 'fungen 0\n')
-        self.assertRaises(ValueError, p, 1, None)
+        self.check(p, 0, 1, 'fungen 0 1\n')
+        self.assertRaises(ValueError, p, 1, None, None)
 
     def test_template(self):
         tpl = TemplateMockup()
-        p = TemplateGenerator(tpl, lambda x: x, matcher = self.matcher)
+        p = TemplateGenerator(tpl, lambda x, c: [x, c], matcher = self.matcher)
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
         self.assertTrue(p.match(0))
         self.assertFalse(p.match(1))
-        self.check(p, 0, 'template 0')
-        self.assertRaises(ValueError, p, 1, None)
+        self.check(p, 0, 1, 'template [0, 1]')
+        self.assertRaises(ValueError, p, 1, None, None)
 
     def test_priority_generator(self):
         p0 = SimpleGenerator(matcher = lambda s: s == 0)
@@ -114,10 +114,10 @@ class TestGenerators(TestCase):
         self.assertTrue(p.match(2))
         self.assertFalse(p.match(3))
 
-        self.check(p, 0, 'SimpleGenerator 0\n')
-        self.check(p, 1, 'SimpleGenerator 1\n')
-        self.check(p, 2, 'SimpleGenerator 2\n')
-        self.assertRaises(ValueError, p, 4, None)
+        self.check(p, 0, 1, 'SimpleGenerator 0 1\n')
+        self.check(p, 1, 1, 'SimpleGenerator 1 1\n')
+        self.check(p, 2, 1, 'SimpleGenerator 2 1\n')
+        self.assertRaises(ValueError, p, 4, None, None)
 
     def test_object_generator(self):
         p = MyObjectGenerator()
@@ -129,7 +129,7 @@ class TestGenerators(TestCase):
         self.assertTrue(p.match(2))
         self.assertFalse(p.match(3))
 
-        self.check(p, 0, 'FunctionSubgenerator 0\n')
-        self.check(p, 1, 'Hello testrunner!! source = 1\n')
-        self.check(p, 2, 'template testrunner! source = 2')
-        self.assertRaises(ValueError, p, 4, None)
+        self.check(p, 0, 1, 'FunctionSubgenerator 0 context 1\n')
+        self.check(p, 1, 1, 'Hello testrunner!! source = 1 context = 1\n')
+        self.check(p, 2, 1, 'template testrunner! context 1 source = 2')
+        self.assertRaises(ValueError, p, 4, None, None)
