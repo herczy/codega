@@ -193,7 +193,11 @@ class PriorityGenerator(GeneratorBase):
     def generate(self, source, target, context):
         '''Try to generate source with each contained generator instance'''
 
-        for pri, gen in self._generators:
+        heap = list(self._generators)
+
+        while heap:
+            pri, gen = heapq.heappop(heap)
+
             if gen.match(source):
                 gen.generate(source, target, context)
                 return
