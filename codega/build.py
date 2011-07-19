@@ -32,9 +32,9 @@ class Builder(object):
 
         raise KeyError("Source %s does not exist" % source.name)
 
-    def find_target(self, target_file):
+    def find_target(self, target_file, generator = None):
         for target in self._config.targets:
-            if target.target == target_file:
+            if target.target == target_file and (not generator or target.generator == generator):
                 return target
 
         raise KeyError("Target %s does not exist" % target.target)
