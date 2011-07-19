@@ -24,7 +24,6 @@ def create_compressed_script(target):
     '''
 
     def exclude_files(filename):
-        print filename, (filename[-4:] == '.pyc' or os.path.basename(filename)[0] == '.')
         return (filename[-4:] == '.pyc' or os.path.basename(filename)[0] == '.')
 
     def compress(path):
