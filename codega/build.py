@@ -30,7 +30,6 @@ class Builder(object):
         cls = getattr(mod, clsname)
 
         if not issubclass(cls, GeneratorBase):
-            print cls
             raise ImportError("%s:%s is not a generator" % (module, clsname))
 
         return cls
