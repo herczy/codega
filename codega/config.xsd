@@ -52,7 +52,7 @@
         <xs:element name="generator">
           <xs:simpleType>
             <xs:restriction base="xs:string">
-              <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(:[a-zA-Z][a-zA-Z0-9]*)?" />
+              <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*:[a-zA-Z][a-zA-Z0-9]*" />
             </xs:restriction>
           </xs:simpleType>
         </xs:element>

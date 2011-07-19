@@ -66,12 +66,8 @@ class ConfigTarget(object):
         else:
             self.settings = ConfigSettings(())
 
-        gen = xml.find('generator').text
-        if ':' in gen:
-            self.module, self.gentype = gen.split(':', 1)
-
-        else:
-            self.module, self.gentype = gen, None
+        self.generator = xml.find('generator').text
+        self.module, self.gentype = self.generator.split(':', 1)
 
         self.target = xml.find('target').text
 
