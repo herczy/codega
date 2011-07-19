@@ -6,16 +6,7 @@ import source
 from config import Config
 from generator import GeneratorBase
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
-
-class Context(object):
-    builder = None
-    config = None
-    target = None
-
-    def __init__(self, builder, config, target):
-        self.builder = builder
-        self.config = config
-        self.target = target
+from context import Context
 
 class Builder(object):
     '''Object used for building the target files'''
@@ -66,7 +57,7 @@ class Builder(object):
         generator_class = self.load_generator(target.module, target.gentype)
         generator = generator_class()
 
-        context = Context(self, self._config, target)
+        context = Context(self, self._config, source, target)
 
         generator.validate(source, context)
         generator.generate(source, open(target.target, 'w'), context)
