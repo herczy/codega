@@ -43,7 +43,11 @@ class ConfigSource(object):
 
     @property
     def mtime(self):
-        return os.stat(self.parent.locator.find(self.filename))[stat.ST_MTIME]
+        try:
+            return os.stat(self.parent.locator.find(self.filename))[stat.ST_MTIME]
+
+        except ResourceError:
+            return 0
 
 class ConfigTarget(object):
     '''Target definitions
@@ -78,12 +82,6 @@ class ConfigTarget(object):
 
         except ResourceError:
             return 0
-
-        except OSError, e:
-            if e.code == 2:
-                return 0
-
-            raise
 
 class Config(object):
     '''Configuration object
