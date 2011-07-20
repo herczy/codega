@@ -42,10 +42,4 @@ class Context(object):
         return self._target.settings
 
     def map(self, generator, sources):
-        res = []
-        for source in sources:
-            target = StringIO()
-            generator(source, target, self)
-            res.append(target.getvalue())
-
-        return res
+        return map(lambda source: generator(source, self), sources)
