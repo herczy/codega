@@ -18,12 +18,15 @@ class Builder(object):
 
     def load_generator(self, module, clsname):
         mod = self._config.locator.import_module(module)
-        cls = getattr(mod, clsname)
+        gen = getattr(mod, clsname)
 
-        if not issubclass(cls, GeneratorBase):
-            raise ImportError("%s:%s is not a generator" % (module, clsname))
+        if isinstance(gen, GeneratorBase):
+            return gen
 
-        return cls
+        if not issubclass(gen, GeneratorBase):
+            return gen()
+
+        raise ImportError("%s:%s is not a generator class or instance" % (module, clsname))
 
     def find_source(self, source_name):
         for source in self._config.sources:
@@ -54,9 +57,7 @@ class Builder(object):
 
         source = self.load_source(target.source)
 
-        generator_class = self.load_generator(target.module, target.gentype)
-        generator = generator_class()
-
+        generator = self.load_generator(target.module, target.gentype)
         context = Context(self, self._config, source, target)
 
         generator.validate(source, context)
