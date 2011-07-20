@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+release()
+{
+  NAME="codega-$2.tar.gz"
+
+  echo -n "git archive (treeid $1 archive $NAME) "
+  git archive $1 | gzip > $NAME
+
+  echo -n "self-contained (codega-$2) "
+  ./cgpack "codega-$2"
+}
+
+treeid=${1:-snapshot}
+version=`cat VERSION`
+
+if [ "$treeid" = "snapshot" ]
+then
+  snapshotid=`date +%Y%m%d.%H%M`
+  tag="v$version-$snapshotid"
+
+  echo -n "Creating snapshot $snapshotid... "
+  release HEAD "$version-$snapshotid"
+  echo "done"
+
+  git tag -f $tag
+else
+  tag="v$version"
+
+  echo -n "Creating release $snapshotid... "
+  release ${treeid} ${version}
+  echo "done"
+
+  git tag -f ${tag}
+fi

@@ -20,7 +20,7 @@ then generating the serialize/deserialize code in various languages,
 but mostly C/C++. However it can be easily used for other purposes
 """,
         license="""BSD""",
-        version = "1.0",
+        version = open("VERSION").read(),
         author = "Viktor Hercinger",
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
