@@ -13,12 +13,14 @@ def fungen(source, context):
     return 'fungen %r %r' % (source, context)
 
 class TemplateMockup(object):
-    def render(self, bindings):
-        return 'template %r' % bindings
+    def __init__(self, fmt, *keylist):
+        self._fmt = fmt
+        self._keylist = keylist
 
-class TemplateMockupOther(object):
     def render(self, bindings):
-        return 'template %s context %r source = %r' % (bindings['name'], bindings['context'], bindings['source'])
+        bound = dict((k, bindings[k]) for k in self._keylist)
+        return self._fmt % bound
+        #return 'template %s context %r source = %r' % (bindings['name'], bindings['context'], bindings['source'])
 
 class FileMockup(object):
     def __init__(self):
@@ -30,23 +32,21 @@ class FileMockup(object):
     def __str__(self):
         return self.value
 
+template_1 = TemplateMockup('template #1 (context = %(context)r, source = %(source)r, name = %(name)r', 'context', 'source', 'name')
+template_2 = TemplateMockup('template #2 (context = %(context)r, source = %(source)r, name = %(name)r', 'context', 'source', 'name')
+
 class MyObjectGenerator(ObjectGenerator):
-    @generator(matcher = lambda s: s == 0)
+    @FunctionGenerator.decorate(matcher = lambda s: s == 0)
     def generator_0(self, source, context):
         # No template, no document, this should be a FunctionGenerator
         return 'FunctionSubgenerator %r context %r' % (source, context)
 
-    @generator(matcher = lambda s: s == 1)
+    @TemplateGenerator.decorate(matcher = lambda s: s == 1, template = template_1)
     def generator_1(self, source, context):
-        '''
-        Hello ${name}! source = ${repr(source)} context = ${cgctx}
-        '''
+        # Template explicitly specified
+        return dict(name = 'testrunner!', source = source, context = context)
 
-        # No template but docstring exists, this should be a TemplateGenerator
-        # with an inline mako template (DocstringMakoTemplate)
-        return dict(name = 'testrunner!', source = source, cgctx = context)
-
-    @generator(matcher = lambda s: s == 2, template = TemplateMockupOther())
+    @TemplateGenerator.decorate(matcher = lambda s: s == 2, template = template_2)
     def generator_2(self, source, context):
         # Template explicitly specified
         return dict(name = 'testrunner!', source = source, context = context)
@@ -76,13 +76,13 @@ class TestGenerators(TestCase):
         self.assertRaises(ValueError, p, 1, None)
 
     def test_template(self):
-        tpl = TemplateMockup()
-        p = TemplateGenerator(tpl, lambda x, c: [x, c], matcher = self.matcher)
+        tpl = TemplateMockup('template %(value)s %(context)s', 'value', 'context')
+        p = TemplateGenerator(tpl, lambda x, c: dict(value = x, context = c), matcher = self.matcher)
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
         self.assertTrue(p.match(0))
         self.assertFalse(p.match(1))
-        self.check(p, 0, 1, 'template [0, 1]')
+        self.check(p, 0, 1, 'template 0 1')
         self.assertRaises(ValueError, p, 1, None)
 
     def test_priority_generator(self):
@@ -127,7 +127,7 @@ class TestGenerators(TestCase):
         self.assertTrue(p.match(2))
         self.assertFalse(p.match(3))
 
-        self.check(p, 0, 1, 'FunctionSubgenerator 0 context 1')
-        self.check(p, 1, 1, 'Hello testrunner!! source = 1 context = 1\n')
-        self.check(p, 2, 1, 'template testrunner! context 1 source = 2')
+        self.check(p, 0, 1, "FunctionSubgenerator 0 context 1")
+        self.check(p, 1, 1, "template #1 (context = 1, source = 1, name = 'testrunner!'")
+        self.check(p, 2, 1, "template #2 (context = 1, source = 2, name = 'testrunner!'")
         self.assertRaises(ValueError, p, 4, None)

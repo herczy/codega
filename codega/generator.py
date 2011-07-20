@@ -17,7 +17,6 @@ import heapq
 import types
 
 from error import StateError
-from template import DocstringMakoTemplate
 
 PRI_HIGHEST = -100
 PRI_HIGH = -10
@@ -127,6 +126,20 @@ class FunctionGenerator(GeneratorBase):
 
         self._function = types.MethodType(self._function, parent)
 
+    @staticmethod
+    def decorate(matcher = None, priority = PRI_BASE):
+        '''Creates a FunctionGenerator from the decorated function
+
+        Arguments:
+        matcher -- Generator matcher
+        priority -- Generator function
+        '''
+
+        def __decorator(func):
+            return FunctionGenerator(func, matcher = matcher, priority = priority)
+
+        return __decorator
+
 class TemplateGenerator(GeneratorBase):
     '''Generates output with a template.
 
@@ -151,6 +164,21 @@ class TemplateGenerator(GeneratorBase):
         super(TemplateGenerator, self).bind(parent)
 
         self._bindings = types.MethodType(self._bindings, parent)
+
+    @staticmethod
+    def decorate(template, matcher = None, priority = PRI_BASE):
+        '''Creates a FunctionGenerator from the decorated function
+
+        Arguments:
+        template -- Template for the generator
+        matcher -- Generator matcher
+        priority -- Generator function
+        '''
+
+        def __decorator(func):
+            return TemplateGenerator(template, func, matcher = matcher, priority = priority)
+
+        return __decorator
 
 class PriorityGenerator(GeneratorBase):
     '''A list of generators which are tried one-by-one until one can handle the source
@@ -228,21 +256,6 @@ class ObjectGenerator(PriorityGenerator):
 
             if isinstance(val, GeneratorBase):
                 self.register(val)
-
-def generator(matcher = None, priority = PRI_BASE, template = None):
-    '''Decorator to create a generator from a function'''
-
-    def __decorator(func):
-        if template is not None:
-            return TemplateGenerator(template, func, matcher = matcher, priority = priority)
-
-        if func.__doc__ is not None:
-            inline = DocstringMakoTemplate(func)
-            return TemplateGenerator(inline, func, matcher = matcher, priority = priority)
-
-        return FunctionGenerator(func, matcher = matcher, priority = priority)
-
-    return __decorator
 
 def match_tag(tag):
     def __matcher(source):

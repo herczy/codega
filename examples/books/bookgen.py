@@ -1,8 +1,10 @@
 from codega.template import *
 from codega.generator import *
 
+from codega.cgextra.makowrapper import inline
+
 class BookGenerator(ObjectGenerator):
-    @generator(matcher = match_tag('bookshelf'))
+    @inline(matcher = match_tag('bookshelf'))
     def generator_main(self, source, context):
         '''
         #include <stdio.h>
@@ -39,7 +41,7 @@ class BookGenerator(ObjectGenerator):
 
         return dict(books = context.map(self, source))
 
-    @generator(matcher = match_tag('book'))
+    @inline(matcher = match_tag('book'))
     def generator_book(self, source, context):
         '''{ "${str(title)}", "${str(author)}", "${str(published)}" },'''
 
