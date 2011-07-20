@@ -25,6 +25,6 @@ but mostly C/C++. However it can be easily used for other purposes
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
         maintainer_email = "hercinger.viktor@gmail.com",
-        packages = [ 'codega' ],
+        packages = [ 'codega', 'codega.cgextra' ],
         package_data = { 'codega' : [ 'config.xsd' ] },
         scripts = [ 'cgmake', 'cgpack' ])
