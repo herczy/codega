@@ -8,5 +8,6 @@ except ImportError:
     import sys, os.path
     sys.path.append(os.path.dirname(__file__))
 
+# MARK -- this comment is important, cgpack will copy-paste the code below this
 from codega.build import Builder
 Builder.main()

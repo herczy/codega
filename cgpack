@@ -47,9 +47,30 @@ def create_compressed_script(target):
 
         return '\n'.join(res)
 
+    def load_main_code():
+        '''Load cgmake code'''
+
+        cgmake = []
+        start = False
+
+        for i in open(os.path.join(current_dir, 'cgmake')):
+            i = i.rstrip()
+
+            if i[:6] == '# MARK':
+                start = True
+                continue
+
+            if not start:
+                continue
+
+            cgmake.append(i)
+
+        return '\n'.join(cgmake)
+
     data = compress(os.path.join(current_dir, 'codega'))
     checksum = checksum(data)
     split = split_data(data)
+    main_code = load_main_code()
 
     print >>target, '''#!/usr/bin/env python
 
@@ -88,8 +109,7 @@ def check_decompress():
 sys.path.insert(0, outdir)
 check_decompress()
 
-from codega.build import Builder
-Builder.main()
+%(main_code)s
 
 %(split)s
 ''' % locals()
