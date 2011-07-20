@@ -23,7 +23,7 @@ class Builder(object):
         if isinstance(gen, GeneratorBase):
             return gen
 
-        if not issubclass(gen, GeneratorBase):
+        if issubclass(gen, GeneratorBase):
             return gen()
 
         raise ImportError("%s:%s is not a generator class or instance" % (module, clsname))
