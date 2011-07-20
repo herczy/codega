@@ -256,32 +256,3 @@ class ObjectGenerator(PriorityGenerator):
 
             if isinstance(val, GeneratorBase):
                 self.register(val)
-
-def match_tag(tag):
-    def __matcher(source):
-        return source.tag == tag
-
-    return __matcher
-
-def match_xpath(xpath):
-    xpath = etree.XPath(xpath)
-
-    def __matcher(source):
-        return source in xpath(source)
-
-    return __matcher
-
-def match_class(cls):
-    def __matcher(source):
-        return isinstance(source, cls)
-
-    return __matcher
-
-def match_comment(source):
-    return isinstance(source, etree._Comment)
-
-def match_all(source):
-    return True
-
-def match_invert(fun):
-    return lambda *args, **kwargs: not fun(*args, **kwargs)
