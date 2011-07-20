@@ -1,4 +1,3 @@
-from codega.modules import GeneratorModule
 from codega.generator import GeneratorBase
 from codega.version import Version
 
@@ -16,7 +15,7 @@ def indent(txt):
     return '\n'.join(res)
 
 class DumpGenerator(GeneratorBase):
-    def generate(self, source, target, context):
+    def generate(self, source, context):
         def _(d, x):
             print >>d, '%s: %s' % (x.tag, ', '.join(map(lambda a: '%s = %r' % a, x.attrib.iteritems())))
             if x.text:
@@ -30,4 +29,6 @@ class DumpGenerator(GeneratorBase):
 
             print >>d, '}'
 
-        _(target, source)
+        io = StringIO()
+        _(io, source)
+        return io.getvalue()

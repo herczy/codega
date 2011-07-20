@@ -59,9 +59,11 @@ class Builder(object):
 
         generator = self.load_generator(target.module, target.gentype)
         context = Context(self, self._config, source, target)
+        destination = open(target.target, 'w')
 
         generator.validate(source, context)
-        generator.generate(source, open(target.target, 'w'), context)
+        destination.write(generator.generate(source, context))
+        destination.close()
 
     def build(self, target, force_rebuild = False):
         target = self.find_target(target)

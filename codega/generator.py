@@ -75,12 +75,11 @@ class GeneratorBase(object):
 
         return self._matcher(source)
 
-    def generate(self, source, target, context):
-        '''Generate output and write it to target
+    def generate(self, source, context):
+        '''Generate output and return it
 
         Arguments:
         source -- Source XML tree
-        target -- Target file object (an object with write)
         context -- Generation context
         '''
 
@@ -100,11 +99,11 @@ class GeneratorBase(object):
 
         self._parent = parent
 
-    def __call__(self, source, target, context):
+    def __call__(self, source, context):
         if not self.match(source):
             raise ValueError("Source cannot be generated")
 
-        self.generate(source, target, context)
+        return self.generate(source, context)
 
 class FunctionGenerator(GeneratorBase):
     '''A function is provided to do the generation
@@ -120,8 +119,8 @@ class FunctionGenerator(GeneratorBase):
 
         self._function = generator
 
-    def generate(self, source, target, context):
-        self._function(source, target, context)
+    def generate(self, source, context):
+        return self._function(source, context)
 
     def bind(self, parent):
         super(FunctionGenerator, self).bind(parent)
@@ -145,8 +144,8 @@ class TemplateGenerator(GeneratorBase):
         self._template = template
         self._bindings = bindings
 
-    def generate(self, source, target, context):
-        target.write(self._template.render(self._bindings(source, context)))
+    def generate(self, source, context):
+        return self._template.render(self._bindings(source, context))
 
     def bind(self, parent):
         super(TemplateGenerator, self).bind(parent)
@@ -190,7 +189,7 @@ class PriorityGenerator(GeneratorBase):
         heapq.heappush(self._generators, (generator.priority, generator))
         generator.bind(self)
 
-    def generate(self, source, target, context):
+    def generate(self, source, context):
         '''Try to generate source with each contained generator instance'''
 
         heap = list(self._generators)
@@ -199,8 +198,7 @@ class PriorityGenerator(GeneratorBase):
             pri, gen = heapq.heappop(heap)
 
             if gen.match(source):
-                gen.generate(source, target, context)
-                return
+                return gen.generate(source, context)
 
         raise ValueError("Source cannot be generated")
 
@@ -260,5 +258,17 @@ def match_xpath(xpath):
 
     return __matcher
 
+def match_class(cls):
+    def __matcher(source):
+        return isinstance(source, cls)
+
+    return __matcher
+
+def match_comment(source):
+    return isinstance(source, etree._Comment)
+
 def match_all(source):
     return True
+
+def match_invert(fun):
+    return lambda *args, **kwargs: not fun(*args, **kwargs)
