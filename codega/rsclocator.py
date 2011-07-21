@@ -161,7 +161,7 @@ class FallbackLocator(ResourceLocatorBase):
                 return locator.import_module(module)
 
             except ImportError, e:
-                if str(e) != "ImportError: No module named dumper":
+                if str(e) != "No module named %s" % module:
                     raise
 
                 pass
