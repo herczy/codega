@@ -38,6 +38,7 @@
       <xs:sequence>
         <xs:element name="name" type="xs:string" />
         <xs:element name="filename" type="xs:string" />
+        <xs:element name="parser" type="class_locator" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -49,13 +50,7 @@
 
         <xs:element name="source" type="xs:string" />
 
-        <xs:element name="generator">
-          <xs:simpleType>
-            <xs:restriction base="xs:string">
-              <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*:[a-zA-Z_][a-zA-Z0-9_]*" />
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:element>
+        <xs:element name="generator" type="class_locator" />
 
         <xs:element name="target" type="xs:string" />
 
@@ -96,4 +91,12 @@
       <xs:attribute name="name" type="xs:string" />
     </xs:complexType>
   </xs:element>
+
+  <!-- other -->
+
+  <xs:simpleType name="class_locator">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*:[a-zA-Z_][a-zA-Z0-9_]*" />
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>

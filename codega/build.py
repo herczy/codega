@@ -49,7 +49,9 @@ class Builder(object):
     def load_source(self, source_name):
         if not self._sources.has_key(source_name):
             src = self.find_source(source_name)
-            self._sources[source_name] = XmlSource().load(filename = src.filename, locator = self._config.locator).getroot()
+            src_mod = self._config.locator.import_module(src.module)
+            parser = getattr(src_mod, src.parser)
+            self._sources[source_name] = parser().load(filename = src.filename, locator = self._config.locator).getroot()
 
         return self._sources[source_name]
 

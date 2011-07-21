@@ -41,6 +41,14 @@ class ConfigSource(object):
         self.name = xml.find('name').text
         self.filename = xml.find('filename').text
 
+        source_parser = xml.find('parser')
+        if source_parser is not None:
+            self.module, self.parser = source_parser.text.split(':', 1)
+
+        else:
+            self.module = 'codega.source'
+            self.parser = 'XmlSource'
+
     @property
     def mtime(self):
         try:
