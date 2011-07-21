@@ -5,4 +5,14 @@
     <author>Isaac Asimov</author>
     <pubdate>1952</pubdate>
   </book>
+  <book>
+    <title>Solaris</title>
+    <author>Stanislaw Lem</author>
+    <pubdate>1961</pubdate>
+  </book>
+  <book>
+    <title>Hitchhikers guide to the galaxy</title>
+    <author>Douglas N. Adams</author>
+    <pubdate>1979</pubdate>
+  </book>
 </bookshelf>
