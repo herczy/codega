@@ -1,0 +1,162 @@
+#!/usr/bin/env python
+
+# Check if we're developing
+try:
+    import codega
+
+except ImportError:
+    import sys, os.path
+    sys.path.append(os.path.dirname(__file__))
+
+# MARK -- this comment is important, cgx pack will copy-paste the code below this
+import sys
+def command_help(argv):
+    '''Display command list'''
+
+    global commands
+
+    def _(h):
+        print >>sys.stderr, h
+
+    _('Codega run-time script')
+    _('')
+    _('Commands supported:')
+    for cmd, fun in commands.iteritems():
+        _('  % -15s  %s' % (cmd, fun.__doc__.strip().split('\n', 1)[0]))
+
+def command_build(argv):
+    '''Build codega targets listed in the make file'''
+
+    from codega.build import Builder
+    Builder.main('build', argv)
+
+def command_pack(argv):
+    import os
+    import os.path
+    import sys
+    import stat
+    import time
+
+    from hashlib import sha256
+    from tarfile import TarFile
+    from base64 import b64encode
+
+    try:
+        from cStringIO import StringIO
+
+    except ImportError:
+        from StringIO import StringIO
+
+    current_dir = os.path.dirname(__file__)
+    def create_compressed_script(target):
+        '''Create a script containing the compressed codega module and the main script
+
+        Arguments:
+        target -- Target file object
+        '''
+
+        def exclude_files(filename):
+            return (filename[-4:] == '.pyc' or os.path.basename(filename)[0] == '.')
+
+        def compress(path):
+            output = StringIO()
+            tar = TarFile.open(fileobj = output, mode = 'w:bz2')
+            tar.add(path, arcname = 'codega', exclude = exclude_files)
+            tar.close()
+            return output.getvalue()
+
+        def checksum(data):
+            return sha256(data).hexdigest()
+
+        def split_data(data, line_width = 80):
+            enc = b64encode(data)
+            res = []
+            while enc:
+                line = '#>>' + enc[:line_width] + '<<'
+                enc = enc[line_width:]
+                res.append(line)
+
+            return '\n'.join(res)
+
+        def load_main_code():
+            '''Load cgmake code'''
+
+            cgmake = []
+            start = False
+
+            for i in open(__file__):
+                i = i.rstrip()
+
+                if i[:6] == '# MARK':
+                    start = True
+                    continue
+
+                if not start:
+                    continue
+
+                cgmake.append(i)
+
+            return '\n'.join(cgmake)
+
+        data = compress(os.path.join(current_dir, 'codega'))
+        checksum = checksum(data)
+        split = split_data(data)
+        main_code = load_main_code()
+
+        print >>target, '''#!/usr/bin/env python
+
+import os
+import os.path
+import tarfile
+import sys
+import base64
+
+outdir = '.codega-%(checksum)s'
+outdir = os.path.join(os.path.dirname(__file__), outdir)
+
+def check_decompress():
+    global outdir
+
+    try:
+        from cStringIO import StringIO
+
+    except ImportError:
+        from StringIO import StringIO
+
+    if os.path.isdir(outdir) and os.path.isdir(os.path.join(outdir, 'codega')):
+        return
+
+    if not os.path.isdir(outdir):
+        if os.path.exists(outdir):
+            raise Exception("%%s exists but is not a directory" %% outdir)
+
+        data = ''.join(map(lambda l: l[3:-3], filter(lambda l: l[:3] == '#>>' and l[-3:] == '<<\\n', open(__file__))))
+        data = base64.b64decode(data)
+
+        os.mkdir(outdir)
+        inobj = StringIO(data)
+        tarfile.open(fileobj = inobj, mode = 'r:*').extractall(path = outdir)
+
+sys.path.insert(0, outdir)
+check_decompress()
+
+%(main_code)s
+
+%(split)s
+''' % locals()
+
+    if len(argv) != 2:
+        print >>sys.stderr, "Usage: %s pack <output>" % sys.argv[0]
+        exit(1)
+
+    out = open(argv[1], 'w')
+    create_compressed_script(out)
+    out.close()
+    os.chmod(argv[1], 0755)
+
+if __name__ == '__main__':
+    command_names = filter(lambda fun: fun[:8] == 'command_', dir())
+    commands = dict((fun[8:], globals()[fun]) for fun in command_names)
+
+    cmd = sys.argv[1] if len(sys.argv) > 1 else 'help'
+    commands[cmd](sys.argv[1:])

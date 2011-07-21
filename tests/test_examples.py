@@ -13,7 +13,7 @@ def add_example_test(name, path):
         cur = os.getcwd()
         try:
             os.chdir(os.path.join(exampledir, f))
-            os.system('../../cgmake -d -f 2>%s' % fn)
+            os.system('../../cgx build -d -f 2>%s' % fn)
 
         finally:
             os.chdir(cur)

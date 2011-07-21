@@ -81,7 +81,7 @@ class Builder(object):
             self.__build(target, force_rebuild = force_rebuild)
 
     @staticmethod
-    def main():
+    def main(cmdname, argv):
         import optparse
 
         parser = optparse.OptionParser(usage = '%prog <options>')
@@ -93,7 +93,7 @@ class Builder(object):
                           help = 'Force rebuild')
         parser.add_option('-d', '--debug', default = False, action = 'store_true',
                           help = 'Produce debug output')
-        opts, args = parser.parse_args()
+        opts, args = parser.parse_args(argv)
 
         try:
             builder = Builder(opts.config)
