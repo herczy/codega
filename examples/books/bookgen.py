@@ -34,7 +34,7 @@ class BookGenerator(ObjectGenerator):
 
         const Books booklist[] = {
         % for book in books:
-        ${book}
+          ${book}
         % endfor
           { NULL, NULL, NULL },
         };
