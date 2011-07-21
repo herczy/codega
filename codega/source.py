@@ -5,39 +5,57 @@ from lxml import etree
 
 from stringio import StringIO
 
-def load(data = None, filename = None, locator = None):
-    '''Load an XML file
+class SourceBase(object):
+    '''A source should parse a file (or list of files) and create an XML etree.'''
 
-    Arguments:
-    data -- If set, the parser will parse this string
-    filename -- If set, the parser will load this file
-    locator -- A locator for finding filename
-    '''
+    def load_from_fileobj(self, fileobj):
+        '''Load XML etree from the supplied file object
 
-    if data is None and filename is None:
-        raise ValueError("Function requires eighter a source or a filename, none specified")
+        Arguments:
+        fileobj -- Raw data for source. Is a file object (StringIO, file, etc.)
+        '''
 
-    if data is not None and filename is not None:
-        raise ValueError("Function requires eighter a source or a filename, both specified")
+        raise NotImplementedError("SourceBase.load_from_data is abstract")
 
-    if data is not None:
-        source = StringIO(data)
+    def load(self, data = None, filename = None, locator = None):
+        '''Load some source
 
-    else:
-        if locator is not None:
-            filename = locator.find(filename)
+        Arguments:
+        data -- If set, the parser will parse this string
+        filename -- If set, the parser will load this file
+        locator -- A locator for finding filename
+        '''
 
-        source = open(filename)
+        if data is None and filename is None:
+            raise ValueError("Function requires eighter a source or a filename, none specified")
 
-    return etree.parse(source)
+        if data is not None and filename is not None:
+            raise ValueError("Function requires eighter a source or a filename, both specified")
 
-def validate(xml, *args, **kwargs):
-    '''Load an XSD file and validate XML with it
+        if data is not None:
+            source = StringIO(data)
 
-    Arguments:
-    xml -- The XML to validate
-    args, kwargs -- Arguments passed to load
-    '''
+        else:
+            if locator is not None:
+                filename = locator.find(filename)
 
-    xsd = etree.XMLSchema(load(*args, **kwargs))
-    xsd.assertValid(xml)
+            source = open(filename)
+
+        return self.load_from_fileobj(source)
+
+    def validate(self, xml, *args, **kwargs):
+        '''Load an XSD source and validate XML with it
+
+        Arguments:
+        xml -- The XML to validate
+        args, kwargs -- Arguments passed to load
+        '''
+
+        xsd = etree.XMLSchema(self.load(*args, **kwargs))
+        xsd.assertValid(xml)
+
+class XmlSource(SourceBase):
+    '''XML source. This is the default source'''
+
+    def load_from_fileobj(self, fileobj):
+        return etree.parse(fileobj)

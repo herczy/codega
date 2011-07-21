@@ -2,7 +2,7 @@
 
 import sys
 
-import source
+from source import XmlSource
 from config import Config
 from generator import GeneratorBase
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
@@ -13,7 +13,9 @@ class Builder(object):
 
     def __init__(self, config_file):
         self._system_locator = FileResourceLocator('./')
-        self._config = Config(filename = config_file, system_locator = self._system_locator)
+
+        raw = XmlSource().load(filename = config_file, locator = self._system_locator).getroot()
+        self._config = Config(raw, system_locator = self._system_locator)
         self._sources = {}
 
     def load_generator(self, module, clsname):
@@ -45,7 +47,7 @@ class Builder(object):
     def load_source(self, source_name):
         if not self._sources.has_key(source_name):
             src = self.find_source(source_name)
-            self._sources[source_name] = source.load(filename = src.filename, locator = self._config.locator).getroot()
+            self._sources[source_name] = XmlSource().load(filename = src.filename, locator = self._config.locator).getroot()
 
         return self._sources[source_name]
 

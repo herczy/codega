@@ -4,7 +4,7 @@ import stat
 import os, os.path
 from lxml import etree
 
-import source
+from source import XmlSource
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 from version import Version
 from error import ResourceError, VersionMismatchError
@@ -136,7 +136,7 @@ class Config(object):
     def copy_list(self):
         return self._copy_list
 
-    def __init__(self, data = None, filename = None, system_locator = None):
+    def __init__(self, config_source, system_locator = None):
         self._sources = []
         self._targets = []
         self._copy_list = []
@@ -150,16 +150,16 @@ class Config(object):
         self._locator.add_locator(self._config_locator)
         self._locator.add_locator(self._system_locator)
 
-        self._raw_xml = source.load(filename = filename, locator = self._system_locator).getroot()
+        self._raw_xml = config_source
         self._version = Version.load_from_string(self._raw_xml.get('version', '1.0'))
+
+        XmlSource().validate(self._raw_xml, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
         if self._version > Config.CURRENT_VERSION:
             raise VersionMismatchError("Configuration is more recent than supported")
 
         if self._version <= Config.DEPRECATED_VERSION:
             raise VersionMismatchError("Configuration format deprecated")
-
-        source.validate(self._raw_xml, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
         for entry in self._raw_xml:
             if entry.tag == 'paths':
