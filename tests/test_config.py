@@ -33,7 +33,7 @@ class TestConfigSettings(TestCase):
         cont = self.xml.add_child(XMLMockup('container', name = 'test1'))
         cont.add_child(XMLMockup('entry', text = 'test2value', name = 'test2'))
 
-        self.settings = ConfigSettings(self.xml)
+        self.settings = ConfigSettings(self, self.xml)
 
     def test_values(self):
         self.assertEqual(self.settings.test0, 'test0value')

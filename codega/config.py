@@ -9,39 +9,58 @@ from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 from version import Version
 from error import ResourceError, VersionMismatchError
 
-class ConfigSettings(object):
+class ConfigNodeBase(object):
+    '''Base class for configuration nodes
+
+    Members:
+    parent -- Config node parent
+    raw_xml -- Raw XML
+    '''
+
+    parent = None
+    raw_xml = None
+
+    def __init__(self, parent, xml):
+        self.parent = parent
+        self.raw_xml = xml
+        self._parse()
+
+    def _parse(self):
+        '''Parse the XML'''
+
+        raise NotImplementedError("ConfigNodeBase._parse is abstract")
+
+class ConfigSettings(ConfigNodeBase):
     '''Settings defined in configuration'''
 
     _data = None
 
-    def __init__(self, xml):
+    def _parse(self):
         self._data = {}
 
-        for child in xml:
+        for child in self.raw_xml:
             if child.tag == 'entry':
                 self._data[child.attrib['name']] = child.text
 
             elif child.tag == 'container':
-                self._data[child.attrib['name']] = ConfigSettings(child)
+                self._data[child.attrib['name']] = ConfigSettings(self, child)
 
     def __getattr__(self, name):
         return self._data[name]
 
-class ConfigSource(object):
+class ConfigSource(ConfigNodeBase):
     '''Source definitions
 
     Members:
-    parent -- Parent of entry
     name -- Name of the source (referenced by targets)
     filename -- Source file
     '''
 
-    def __init__(self, parent, xml):
-        self.parent = parent
-        self.name = xml.find('name').text
-        self.filename = xml.find('filename').text
+    def _parse(self):
+        self.name = self.raw_xml.find('name').text
+        self.filename = self.raw_xml.find('filename').text
 
-        source_parser = xml.find('parser')
+        source_parser = self.raw_xml.find('parser')
         if source_parser is not None:
             self.module, self.parser = source_parser.text.split(':', 1)
 
@@ -57,31 +76,29 @@ class ConfigSource(object):
         except ResourceError:
             return 0
 
-class ConfigTarget(object):
+class ConfigTarget(ConfigNodeBase):
     '''Target definitions
 
     Members:
-    parent -- Parent of entry
     name -- Name of the source (referenced by targets)
     filename -- Source file
     settings -- Target settings
     '''
 
-    def __init__(self, parent, xml):
-        self.parent = parent
-        self.source = xml.find('source').text
+    def _parse(self):
+        self.source = self._xml.find('source').text
 
-        settings_xml = xml.find('settings')
+        settings_xml = self._xml.find('settings')
         if settings_xml is not None:
             self.settings = ConfigSettings(settings_xml)
 
         else:
             self.settings = ConfigSettings(())
 
-        self.generator = xml.find('generator').text
+        self.generator = self._xml.find('generator').text
         self.module, self.gentype = self.generator.split(':', 1)
 
-        self.target = xml.find('target').text
+        self.target = self._xml.find('target').text
 
     @property
     def mtime(self):
