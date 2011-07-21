@@ -169,7 +169,7 @@ class FallbackLocator(ResourceLocatorBase):
         raise ImportError("No module named %s" % module)
 
     def open_writable_resource(self, name):
-        return self._locators[0].open_writable_resource(name, data)
+        return self._locators[0].open_writable_resource(name)
 
 class ModuleLocator(FileResourceLocator):
     '''Locate files relative to module path'''
