@@ -1,6 +1,7 @@
 '''Build handling'''
 
 import sys
+import os.path
 
 from source import XmlSource
 from config import Config
@@ -12,7 +13,8 @@ class Builder(object):
     '''Object used for building the target files'''
 
     def __init__(self, config_file):
-        self._system_locator = FileResourceLocator('./')
+        base_path = os.path.abspath(os.path.dirname(config_file))
+        self._system_locator = FileResourceLocator([ base_path ])
 
         raw = XmlSource().load(filename = config_file, locator = self._system_locator).getroot()
         self._config = Config(raw, system_locator = self._system_locator)

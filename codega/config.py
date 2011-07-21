@@ -165,10 +165,10 @@ class Config(object):
             if entry.tag == 'paths':
                 for path in entry:
                     if path.tag == 'target':
-                        self._write_locator.add_path(path.text)
+                        self._write_locator.add_path(self._system_locator.find(path.text))
 
                     elif path.tag == 'path':
-                        self._config_locator.add_path(path.text)
+                        self._config_locator.add_path(self._system_locator.find(path.text))
 
             elif entry.tag == 'source':
                 self._sources.append(ConfigSource(self, entry))
