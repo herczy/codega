@@ -88,7 +88,7 @@ class FileResourceLocator(ResourceLocatorBase):
         for path in self._paths:
             dest = os.path.join(path, resource)
 
-            if os.path.isfile(dest):
+            if os.path.exists(dest):
                 return dest
 
         raise ResourceError("Resource could not be located", resource = resource)
