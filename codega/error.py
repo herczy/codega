@@ -44,3 +44,6 @@ class VersionMismatchError(Exception):
 
 class StateError(Exception):
     '''The state of the object is not what it's supposed to be'''
+
+class ConfigError(Exception):
+    '''The configuration is invalid'''

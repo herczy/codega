@@ -49,18 +49,17 @@ class TestConfigSource(TestCase):
             def locator(self):
                 return FileResourceLocator('/tmp')
 
+        fd, self.fn = tempfile.mkstemp()
         self.xml = XMLMockup('source')
         self.xml.add_child(XMLMockup('name', 'test'))
-        self.xml.add_child(XMLMockup('filename', 'testfile'))
+        self.xml.add_child(XMLMockup('filename', self.fn))
         self.source = ConfigSource(ParentMockup(), self.xml)
 
     def test_values(self):
         self.assertEqual(self.source.name, 'test')
-        self.assertEqual(self.source.filename, 'testfile')
+        self.assertEqual(self.source.filename, self.fn)
 
     def test_mtime(self):
-        self.assertEqual(self.source.mtime, 0)
-
-        fd, fn = tempfile.mkstemp()
-        self.source.filename = fn
         self.assertNotEqual(self.source.mtime, 0)
+        self.source.filename = 'aaa'
+        self.assertEqual(self.source.mtime, 0)

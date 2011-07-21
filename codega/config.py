@@ -9,6 +9,9 @@ from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
 from version import Version
 from error import ResourceError, VersionMismatchError
 
+def filetime(locator, fname):
+    return os.stat(locator.find(fname))[stat.ST_MTIME]
+
 class ConfigNodeBase(object):
     '''Base class for configuration nodes
 
@@ -29,6 +32,15 @@ class ConfigNodeBase(object):
         '''Parse the XML'''
 
         raise NotImplementedError("ConfigNodeBase._parse is abstract")
+
+    def check(self, **kwargs):
+        '''Check if the given attributes'''
+
+        for key, value in kwargs.iteritems():
+            if getattr(self, key) != value:
+                return False
+
+        return True
 
 class ConfigSettings(ConfigNodeBase):
     '''Settings defined in configuration'''
@@ -54,11 +66,23 @@ class ConfigSource(ConfigNodeBase):
     Members:
     name -- Name of the source (referenced by targets)
     filename -- Source file
+
+    targets -- Related targets
     '''
+
+    name = None
+    filename = None
+    targets = None
+
+    def __init__(self, parent, xml):
+        super(ConfigSource, self).__init__(parent, xml)
+
+        self.targets = []
 
     def _parse(self):
         self.name = self.raw_xml.find('name').text
-        self.filename = self.raw_xml.find('filename').text
+        relative_filename = self.raw_xml.find('filename').text
+        self.filename = self.parent.locator.find(relative_filename)
 
         source_parser = self.raw_xml.find('parser')
         if source_parser is not None:
@@ -71,39 +95,47 @@ class ConfigSource(ConfigNodeBase):
     @property
     def mtime(self):
         try:
-            return os.stat(self.parent.locator.find(self.filename))[stat.ST_MTIME]
+            return filetime(self.parent.locator, self.filename)
 
         except ResourceError:
             return 0
 
-class ConfigTarget(ConfigNodeBase):
-    '''Target definitions
+    @property
+    def data(self):
+        if not hasattr(self, '_data_raw'):
+            module = self.parent.locator.import_module(self.module)
+            parser = getattr(module, self.parser)
+            self._data_raw = parser().load(filename = self.filename, locator = self.parent.locator).getroot()
 
-    Members:
-    name -- Name of the source (referenced by targets)
-    filename -- Source file
-    settings -- Target settings
-    '''
+        return self._data_raw
+
+    def add_target(self, target):
+        self.targets.append(target)
+
+class ConfigTarget(ConfigNodeBase):
+    '''Target definitions'''
+
+    sourceref = None
 
     def _parse(self):
-        self.source = self._xml.find('source').text
+        self.source = self.raw_xml.find('source').text
 
-        settings_xml = self._xml.find('settings')
+        settings_xml = self.raw_xml.find('settings')
         if settings_xml is not None:
-            self.settings = ConfigSettings(settings_xml)
+            self.settings = ConfigSettings(self, settings_xml)
 
         else:
-            self.settings = ConfigSettings(())
+            self.settings = ConfigSettings(self, etree.Element('settings'))
 
-        self.generator = self._xml.find('generator').text
+        self.generator = self.raw_xml.find('generator').text
         self.module, self.gentype = self.generator.split(':', 1)
 
-        self.target = self._xml.find('target').text
+        self.target = self.raw_xml.find('target').text
 
     @property
     def mtime(self):
         try:
-            return os.stat(self.parent.write_locator.find(self.target))[stat.ST_MTIME]
+            return filetime(self.parent.write_locator, self.target)
 
         except ResourceError:
             return 0
@@ -140,26 +172,6 @@ class Config(object):
     _sources = None
     _targets = None
     _copy_list = None
-
-    @property
-    def locator(self):
-        return self._locator
-
-    @property
-    def write_locator(self):
-        return self._write_locator
-
-    @property
-    def sources(self):
-        return self._sources
-
-    @property
-    def targets(self):
-        return self._targets
-
-    @property
-    def copy_list(self):
-        return self._copy_list
 
     def __init__(self, config_source, system_locator = None):
         self._sources = []
@@ -200,3 +212,74 @@ class Config(object):
 
             elif entry.tag == 'target':
                 self._targets.append(ConfigTarget(self, entry))
+
+        for target in self.targets:
+            source = list(self.find_source(name = target.source))
+
+            # Note: these will be validated in the XSD
+            if len(source) == 0:
+                raise ConfigError('Cannot find source %s' % target.source)
+
+            if len(source) > 1:
+                raise ConfigError('Config contains more than one source %s' % target.source)
+
+            source = source[0]
+
+            # Resolve dependencies
+            source.add_target(target)
+            target.sourceref = source
+
+    @staticmethod
+    def load(name, parser = XmlSource):
+        base_path = os.path.abspath(os.path.dirname(name))
+        config_name = os.path.basename(name)
+
+        system_locator = FileResourceLocator([ base_path ])
+        raw_config = parser().load(filename = config_name, locator = system_locator).getroot()
+
+        return Config(raw_config, system_locator = system_locator)
+
+    @property
+    def locator(self):
+        return self._locator
+
+    @property
+    def write_locator(self):
+        return self._write_locator
+
+    @property
+    def sources(self):
+        return self._sources
+
+    @property
+    def targets(self):
+        return self._targets
+
+    @property
+    def copy_list(self):
+        return self._copy_list
+
+    def find_source(self, **kwargs):
+        for entry in self.sources:
+            if entry.check(**kwargs):
+                yield entry
+
+    def find_target(self, **kwargs):
+        for entry in self.targets:
+            if entry.check(**kwargs):
+                yield entry
+
+    def find_need_rebuild(self):
+        import codega
+        modloc = ModuleLocator(codega)
+        basetime = 0
+
+        for rsc in modloc.list_resources():
+            basetime = max(basetime, filetime(modloc, rsc))
+
+        for target in self.targets:
+            target_mt = target.mtime
+            source_mt = target.sourceref.mtime
+
+            if (source_mt > target_mt) or (basetime > target_mt):
+                yield target

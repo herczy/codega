@@ -4,26 +4,19 @@ class Context(object):
     '''Generator context object
 
     Members:
-    _builder -- The builder object
     _config -- The configuration used
     _source -- Source config entry used by generator
     _target -- Target config entry used by generator
     '''
 
-    _builder = None
     _config = None
     _source = None
     _target = None
 
-    def __init__(self, builder, config, source, target):
-        self._builder = builder
+    def __init__(self, config, source, target):
         self._config = config
         self._source = source
         self._target = target
-
-    @property
-    def builder(self):
-        return self._builder
 
     @property
     def config(self):
