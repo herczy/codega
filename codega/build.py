@@ -14,9 +14,10 @@ class Builder(object):
 
     def __init__(self, config_file):
         base_path = os.path.abspath(os.path.dirname(config_file))
+        config_name = os.path.basename(config_file)
         self._system_locator = FileResourceLocator([ base_path ])
 
-        raw = XmlSource().load(filename = config_file, locator = self._system_locator).getroot()
+        raw = XmlSource().load(filename = config_name, locator = self._system_locator).getroot()
         self._config = Config(raw, system_locator = self._system_locator)
         self._sources = {}
 
