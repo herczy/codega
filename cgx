@@ -99,6 +99,8 @@ def command_pack(argv):
     except ImportError:
         from StringIO import StringIO
 
+    import codega
+
     current_dir = os.path.dirname(__file__)
     def create_compressed_script(target):
         '''Create a script containing the compressed codega module and the main script
@@ -150,7 +152,7 @@ def command_pack(argv):
 
             return '\n'.join(cgmake)
 
-        data = compress(os.path.join(current_dir, 'codega'))
+        data = compress(os.path.dirname(codega.__file__))
         checksum = checksum(data)
         split = split_data(data)
         main_code = load_main_code()
