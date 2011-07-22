@@ -236,13 +236,6 @@ class PriorityGenerator(GeneratorBase):
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
 
-    class UnboundSubgenerator(GeneratorBase):
-        '''These generators contain a function that need to be bound before usage'''
-
-        _function = None
-        _args = None
-        _kwargs = None
-
     def __init__(self, priority = PRI_BASE):
         super(ObjectGenerator, self).__init__(priority = priority)
 
