@@ -1,6 +1,7 @@
 from unittest import TestCase, TestSuite
 import os
 import os.path
+import sys
 import tempfile
 
 class TestExamples(TestCase):
@@ -13,13 +14,16 @@ def add_example_test(name, path):
         cur = os.getcwd()
         try:
             os.chdir(os.path.join(exampledir, f))
-            os.system('../../cgx build -d -f 2>%s' % fn)
+            rc = os.system('../../cgx make -f 2>%s' % fn)
 
         finally:
             os.chdir(cur)
 
-        data = os.read(fd, 100000)
-        self.assertNotEqual(data[:7], 'Error: ')
+        if rc != 0:
+            print >>sys.stderr, "stderr output from 'cgx build -f'"
+            sys.stderr.write(open(fn, 'r').read())
+
+        self.assertEqual(rc, 0)
 
     setattr(TestExamples, 'test_example_%s' % name, __run)
 

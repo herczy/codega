@@ -73,3 +73,4 @@ class CommandBuild(OptparsedCommand):
 
         target = config.targets[0]
         build_target(config, target)
+        return True

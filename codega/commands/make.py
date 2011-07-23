@@ -63,3 +63,5 @@ class CommandMake(OptparsedCommand):
 
         for target in build_list:
             build_target(config, target)
+
+        return True
