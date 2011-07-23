@@ -1,7 +1,6 @@
 from unittest import TestCase, TestSuite
 import os
 import os.path
-import tempfile
 
 from codega.rsclocator import FileResourceLocator
 from codega.config import *
@@ -49,7 +48,7 @@ class TestConfigSource(TestCase):
             def locator(self):
                 return FileResourceLocator('/tmp')
 
-        fd, self.fn = tempfile.mkstemp()
+        fd, self.fn = make_tempfile()
         self.xml = XMLMockup('source')
         self.xml.add_child(XMLMockup('name', 'test'))
         self.xml.add_child(XMLMockup('filename', self.fn))

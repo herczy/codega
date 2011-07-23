@@ -2,14 +2,13 @@ from unittest import TestCase, TestSuite
 import os
 import os.path
 import sys
-import tempfile
 
 class TestExamples(TestCase):
     pass
 
 def add_example_test(name, path):
     def __run(self):
-        fd, fn = tempfile.mkstemp()
+        fd, fn = make_tempfile()
 
         cur = os.getcwd()
         try:

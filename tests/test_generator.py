@@ -1,7 +1,6 @@
 from unittest import TestCase, TestSuite
 import os
 import os.path
-import tempfile
 
 from codega.generator import *
 
