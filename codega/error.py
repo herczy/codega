@@ -27,6 +27,9 @@ class ParameteredError(Exception):
         parms.insert(0, 'message = %r' % self.message)
         return '%s(%s)' % (self.__class__.__name__, ', '.join(parms))
 
+    def __getattr__(self, name):
+        return self._parameters[name]
+
 class ResourceError(ParameteredError):
     '''Resource error, thrown when a resource is not found'''
 
