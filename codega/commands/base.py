@@ -129,6 +129,10 @@ class CommandContainer(CommandBase):
         return True
 
     def execute(self):
+        if len(self._args) == 0:
+            print >>sys.stderr, "Missing command"
+            return False
+
         cmd, passon = self._args[0], self._args[1:]
 
         if not self._commands.has_key(cmd):
