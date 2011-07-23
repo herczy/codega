@@ -3,7 +3,7 @@ from pack import CommandPack
 from make import CommandMake
 from build import CommandBuild
 
-from ordereddict import OrderedDict
+from codega.ordereddict import OrderedDict
 
 class CommandMain(CommandContainer):
     def __init__(self, name, helpstring = None):
