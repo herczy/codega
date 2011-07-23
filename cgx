@@ -14,4 +14,8 @@ import codega.logger
 from codega.commands import CommandMain
 
 codega.logger.prepare()
-CommandMain('cgx', helpstring = 'codega run-time script').run(sys.argv[1:])
+rc = 0
+if not CommandMain('cgx', helpstring = 'codega run-time script').run(sys.argv[1:]):
+    rc = 1
+
+exit(rc)
