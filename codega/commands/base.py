@@ -136,7 +136,7 @@ class CommandContainer(CommandBase):
         cmd, passon = self._args[0], self._args[1:]
 
         if not self._commands.has_key(cmd):
-            logger.error('Command %s not found', cmd)
+            print >>sys.stderr, 'Command %s not found' % cmd
             return False
 
         return self._commands[cmd].run(passon)
