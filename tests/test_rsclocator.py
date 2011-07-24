@@ -15,11 +15,11 @@ def test_list_base(self):
 
 class FileLocatorTest(TestCase):
     def setUp(self):
-        self.locator = FileResourceLocator([ path0, path1 ])
+        self.locator = FileResourceLocator(path0)
 
     def test_find(self):
         self.assertEqual(self.locator.find('test_rsclocator.py'), os.path.join(path0, 'test_rsclocator.py'))
-        self.assertEqual(self.locator.find('tests.py'), os.path.join(path1, 'tests.py'))
+        self.assertEqual(self.locator.find('test_examples.py'), os.path.join(path0, 'test_examples.py'))
 
         self.assertRaises(ResourceError, self.locator.find, 'aaaaaaa')
 
@@ -40,7 +40,7 @@ class FallbackLocatorTest(TestCase):
     def setUp(self):
         self.module = __import__('codega.rsclocator')
         self.path = os.path.dirname(self.module.__file__)
-        self.locator = FallbackLocator([ FileResourceLocator([ path0, path1 ]), ModuleLocator(self.module) ])
+        self.locator = FallbackLocator([ FileResourceLocator(path0), FileResourceLocator(path1), ModuleLocator(self.module) ])
 
     def test_find(self):
         self.assertEqual(self.locator.find('test_rsclocator.py'), os.path.join(path0, 'test_rsclocator.py'))

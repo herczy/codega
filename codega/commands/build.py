@@ -40,7 +40,7 @@ def build_config(source, parser, target, generator):
     xml.append(xml_source)
     xml.append(xml_target)
 
-    rsc = FileResourceLocator([ '.' ])
+    rsc = FileResourceLocator('.')
     return Config(xml, system_locator = rsc)
 
 class CommandBuild(OptparsedCommand):

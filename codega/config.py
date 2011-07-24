@@ -3,6 +3,7 @@
 import stat
 import os, os.path
 from lxml import etree
+import logging
 
 from source import XmlSource
 from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
@@ -144,6 +145,7 @@ class Config(object):
     '''Configuration object
 
     Members:
+    _logger -- Config logger
     _config_locator -- File resource locators
     _write_locator -- Write locator
     _system_locator -- System locator (last priority)
@@ -161,6 +163,8 @@ class Config(object):
     CURRENT_VERSION = Version.load_from_string('1.0')
     DEPRECATED_VERSION = Version.load_from_string('0')
 
+    _logger = None
+
     _config_locator = None
     _write_locator = None
     _system_locator = None
@@ -174,24 +178,27 @@ class Config(object):
     _copy_list = None
 
     def __init__(self, config_source, system_locator = None):
+        self._logger = logging.getLogger('config')
+
         self._sources = []
         self._targets = []
         self._copy_list = []
 
-        self._config_locator = FileResourceLocator()
-        self._write_locator = FileResourceLocator()
+        self._config_locator = FallbackLocator()
+        self._write_locator = None
         self._system_locator = system_locator if system_locator is not None else FileResourceLocator()
 
         self._locator = FallbackLocator()
-        self._locator.add_locator(self._write_locator)
         self._locator.add_locator(self._config_locator)
         self._locator.add_locator(self._system_locator)
 
         self._raw_xml = config_source
         self._version = Version.load_from_string(self._raw_xml.get('version', '1.0'))
 
+        self._logger.debug('Validating config XML')
         XmlSource().validate(self._raw_xml, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
+        self._logger.debug('Checking version of config (current=%s minimal=%s maximal=%s)', self._version, Config.DEPRECATED_VERSION, Config.CURRENT_VERSION)
         if self._version > Config.CURRENT_VERSION:
             raise VersionMismatchError("Configuration is more recent than supported")
 
@@ -202,10 +209,13 @@ class Config(object):
             if entry.tag == 'paths':
                 for path in entry:
                     if path.tag == 'target':
-                        self._write_locator.add_path(self._system_locator.find(path.text))
+                        self._logger.debug('Set target path: %r', path.text)
+                        self._write_locator = FileResourceLocator(self._system_locator.find(path.text))
+                        self._locator.add_locator(self._write_locator, index = 0)
 
                     elif path.tag == 'path':
-                        self._config_locator.add_path(self._system_locator.find(path.text))
+                        self._logger.debug('Added search path: %r', path.text)
+                        self._config_locator.add_locator(FileResourceLocator(self._system_locator.find(path.text)))
 
             elif entry.tag == 'source':
                 self._sources.append(ConfigSource(self, entry))
@@ -213,6 +223,10 @@ class Config(object):
             elif entry.tag == 'target':
                 self._targets.append(ConfigTarget(self, entry))
 
+        # We should always check this from the XSD, so here we only
+        assert self._write_locator is not None
+
+        self._logger.debug('Cross-referencing sources and targets')
         for target in self.targets:
             source = list(self.find_source(name = target.source))
 
@@ -229,14 +243,17 @@ class Config(object):
             source.add_target(target)
             target.sourceref = source
 
+            self._logger.debug('Source %s paired with target %r', source.name, target.source)
+
     @staticmethod
     def load(name, parser = XmlSource):
         base_path = os.path.abspath(os.path.dirname(name))
         config_name = os.path.basename(name)
 
-        system_locator = FileResourceLocator([ base_path ])
+        system_locator = FileResourceLocator(base_path)
         raw_config = parser().load(filename = config_name, locator = system_locator).getroot()
 
+        logging.debug('Loading config %r with parser %r (base search path = %r)', name, parser.__name__, base_path)
         return Config(raw_config, system_locator = system_locator)
 
     @property

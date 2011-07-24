@@ -38,40 +38,31 @@ class ResourceLocatorBase(object):
         raise NotImplementedError("ResourceLocatorBase.open_writable_resource is abspath")
 
 class FileResourceLocator(ResourceLocatorBase):
-    '''Class that helps locating files from the given paths.
+    '''Class that helps locating files from the given path.
 
-    Works in a similar fassion to sys.path except its not limited to Python modules. Note
-    that the first path is used as the destination directory for open_writable_resource
+    In this case the locator tries to locate a path relative to the one set.
 
     Members:
     _paths -- List of paths to scan
     '''
 
-    _paths = None
+    _path = None
 
-    def __init__(self, paths = []):
+    def __init__(self, path):
         super(ResourceLocatorBase, self).__init__()
 
-        self._paths = list(paths)
-
-    def add_path(self, path, index = None):
-        if index is None:
-            self._paths.append(path)
-
-        else:
-            self._paths.insert(index, path)
+        self._path = path
 
     def import_module(self, modname):
-        '''Imports a module from the given path list.
+        '''Imports a module. This function extends the system path list temporarly to do this.
 
         Arguments:
         modname -- Module name, Python style
         '''
 
-        oldpath = sys.path
+        oldpath = list(sys.path)
         try:
-            sys.path = list(self._paths)
-            sys.path.extend(oldpath)
+            sys.path.insert(0, self._path)
             __import__(modname)
             return sys.modules[modname]
 
@@ -79,36 +70,33 @@ class FileResourceLocator(ResourceLocatorBase):
             sys.path = oldpath
 
     def find(self, resource):
-        '''Find a resource in the given path list.
+        '''Find a resource in the given path.
 
         Arguments:
         resource -- Relative resource path
         '''
 
-        for path in self._paths:
-            dest = os.path.join(path, resource)
+        dest = os.path.join(self._path, resource)
 
-            if os.path.exists(dest):
-                return dest
+        if not os.path.exists(dest):
+            raise ResourceError("Resource could not be located", resource = resource)
 
-        raise ResourceError("Resource could not be located", resource = resource)
+        return dest
 
     def list_resources(self):
-        '''List file resources reachable from given paths'''
+        '''List file resources reachable from the given path'''
 
-        for path in self._paths:
-            abspath = os.path.abspath(path)
-            for dirpath, dirnames, filenames in os.walk(abspath):
-                relpath = dirpath[len(abspath) + 1:]
+        abspath = os.path.abspath(self._path)
+        for dirpath, dirnames, filenames in os.walk(abspath):
+            relpath = dirpath[len(abspath) + 1:]
 
-                for fn in filenames:
-                    yield os.path.join(relpath, fn)
+            for fn in filenames:
+                yield os.path.join(relpath, fn)
 
     def open_writable_resource(self, name):
         '''Write data to the first path in list'''
 
-        write_path = self._paths[0]
-        full_filename = os.path.join(write_path, name)
+        full_filename = os.path.join(self._path, name)
         return open(full_filename, 'w')
 
 class FallbackLocator(ResourceLocatorBase):
@@ -176,4 +164,4 @@ class ModuleLocator(FileResourceLocator):
 
     def __init__(self, module):
         path = os.path.dirname(module.__file__)
-        super(ModuleLocator, self).__init__([ path ])
+        super(ModuleLocator, self).__init__(path)

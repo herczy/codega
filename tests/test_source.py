@@ -25,7 +25,7 @@ class TestSource(TestCase):
         self.check(self.source.load(filename = name))
 
     def test_load_file_with_locator(self):
-        loc = FileResourceLocator(['/tmp'])
+        loc = FileResourceLocator('/tmp')
         fd, name = make_tempfile()
         os.write(fd, xml_content)
         self.check(self.source.load(filename = os.path.basename(name), locator = loc))
