@@ -177,7 +177,7 @@ class Config(object):
     _targets = None
     _copy_list = None
 
-    def __init__(self, config_source, system_locator = None):
+    def __init__(self, config_source, system_locator):
         self._logger = logging.getLogger('config')
 
         self._sources = []
@@ -186,7 +186,7 @@ class Config(object):
 
         self._config_locator = FallbackLocator()
         self._write_locator = None
-        self._system_locator = system_locator if system_locator is not None else FileResourceLocator()
+        self._system_locator = system_locator
 
         self._locator = FallbackLocator()
         self._locator.add_locator(self._config_locator)
