@@ -32,11 +32,6 @@ class ResourceLocatorBase(object):
 
         raise NotImplementedError("ResourceLocatorBase.import_module is abstract")
 
-    def open_writable_resource(self, name):
-        '''Open a resource for writing.'''
-
-        raise NotImplementedError("ResourceLocatorBase.open_writable_resource is abspath")
-
 class FileResourceLocator(ResourceLocatorBase):
     '''Class that helps locating files from the given path.
 
@@ -92,12 +87,6 @@ class FileResourceLocator(ResourceLocatorBase):
 
             for fn in filenames:
                 yield os.path.join(relpath, fn)
-
-    def open_writable_resource(self, name):
-        '''Write data to the first path in list'''
-
-        full_filename = os.path.join(self._path, name)
-        return open(full_filename, 'w')
 
 class FallbackLocator(ResourceLocatorBase):
     '''Locator object containing a list of other locators.
@@ -155,9 +144,6 @@ class FallbackLocator(ResourceLocatorBase):
                 pass
 
         raise ImportError("No module named %s" % module)
-
-    def open_writable_resource(self, name):
-        return self._locators[0].open_writable_resource(name)
 
 class ModuleLocator(FileResourceLocator):
     '''Locate files relative to module path'''

@@ -1,6 +1,6 @@
 from UserDict import DictMixin
 
-class OrderedDict(DictMixin):
+class OrderedDict(object, DictMixin):
     '''Implements an ordered dictionary.
 
     The keys are always in the order they were added (or explicitly specified)

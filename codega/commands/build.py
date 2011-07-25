@@ -1,47 +1,11 @@
 import sys
 import optparse
 
-from codega.rsclocator import FileResourceLocator
-from codega.config import Config
-from codega.generator import GeneratorBase
-from codega.context import Context
-from codega.error import ResourceError
+from codega.config import *
+from codega.build import Builder
 from codega import logger
 
 from base import OptparsedCommand
-from make import build_target
-
-def build_config(source, parser, target, generator):
-    from lxml import etree
-
-    def make_text_node(tag, text):
-        element = etree.Element(tag)
-        element.text = text
-        return element
-
-    xml_paths = etree.Element('paths')
-    xml_paths.append(make_text_node('target', '.'))
-    xml_paths.append(make_text_node('path', '.'))
-
-    xml_source = etree.Element('source')
-    xml_source.append(make_text_node('name', 'source'))
-    xml_source.append(make_text_node('filename', source))
-    if parser is not None:
-        xml_source.append(make_text_node('parser', parser))
-
-    xml_target = etree.Element('target')
-    xml_target.append(make_text_node('source', 'source'))
-    xml_target.append(make_text_node('generator', generator))
-    xml_target.append(make_text_node('target', target))
-
-    xml = etree.Element('config')
-    xml.attrib['version'] = '1.0'
-    xml.append(xml_paths)
-    xml.append(xml_source)
-    xml.append(xml_target)
-
-    rsc = FileResourceLocator('.')
-    return Config(xml, system_locator = rsc)
 
 class CommandBuild(OptparsedCommand):
     def __init__(self):
@@ -54,8 +18,9 @@ class CommandBuild(OptparsedCommand):
                                  help = 'Specify the target file (default: sys.stdout)'),
             optparse.make_option('-g', '--generator', default = None,
                                  help = 'Specify the generator in <module>:<source class> format'),
-            optparse.make_option('-d', '--debug', default = False, action = 'store_true',
-                                 help = 'Produce debug output'),
+
+            optparse.make_option('-c', '--config', default = None,
+                                 help = 'Write the equivalent config to the given file'),
         ]
 
         super(CommandBuild, self).__init__('build', options, helpstring = 'Build the source with specified generator')
@@ -69,8 +34,34 @@ class CommandBuild(OptparsedCommand):
             print >>sys.stderr, 'Missing generator'
             return False
 
-        config = build_config(self.opts.source, self.opts.parser, self.opts.target, self.opts.generator)
+        config = Config()
 
-        target = config.targets[0]
-        build_target(config, target)
+        # Create source object
+        source = Source(config)
+        source.name = 'source'
+        source.filename = self.opts.source
+        if self.opts.parser:
+            source.parser.load_from_string(self.opts.parser)
+        config.sources[source.name] = source
+
+        # Create target object
+        target = Target(config)
+        target.source = 'source'
+        target.filename = self.opts.target
+        target.generator.load_from_string(self.opts.generator)
+        config.targets[target.filename] = target
+
+        config.paths.destination = '.'
+        config.paths.paths.append('.')
+        config.version = Version(1, 0)
+
+        conf_xml = save_config(config)
+        logger.debug('Equivalent configuration:')
+        map(lambda line: logger.debug(line), conf_xml.split('\n'))
+        if self.opts.config:
+            conf_file = open(self.opts.config, 'w')
+            conf_file.write(conf_xml)
+            conf_file.close()
+
+        Builder().build(config, target, force = True)
         return True

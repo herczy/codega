@@ -19,6 +19,7 @@ def make_tempfile(*args, **kwargs):
     return fd, fn
 __builtin__.make_tempfile = make_tempfile
 
+runlist = list(sys.argv[1:])
 try:
     mypath = os.path.abspath(os.path.dirname(__file__))
     testdir = os.path.join(mypath, 'tests')
@@ -27,7 +28,14 @@ try:
 
     loader = TestLoader()
     suites = []
-    for f in os.listdir(testdir):
+
+    if runlist:
+        files = map(lambda s: 'test_%s.py' % s, runlist)
+
+    else:
+        files = list(os.listdir(testdir))
+
+    for f in files:
         modname, ext = os.path.splitext(f)
 
         if modname[:5] != 'test_':

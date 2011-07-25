@@ -1,35 +1,14 @@
 import sys
+import os
+import os.path
 import optparse
 
-from codega.rsclocator import FileResourceLocator
-from codega.config import Config
-from codega.generator import GeneratorBase
-from codega.context import Context
+from codega.config import parse_config
 from codega.error import ResourceError
+from codega.build import Builder
 from codega import logger
 
 from base import OptparsedCommand
-
-def build_target(config, target):
-    generator = load_generator(config, target.module, target.gentype)
-    context = Context(config, target.sourceref, target)
-    destination = sys.stdout if target.target == 'sys.stdout' else config.locator.open_writable_resource(target.target)
-
-    generator.validate(target.sourceref.data, context)
-    destination.write(generator.generate(target.sourceref.data, context))
-    destination.close()
-
-def load_generator(config, module, clsname):
-    mod = config.locator.import_module(module)
-    gen = getattr(mod, clsname)
-
-    if isinstance(gen, GeneratorBase):
-        return gen
-
-    if issubclass(gen, GeneratorBase):
-        return gen()
-
-    raise ImportError("%s:%s is not a generator class or instance" % (module, clsname))
 
 class CommandMake(OptparsedCommand):
     _arg = None
@@ -49,19 +28,18 @@ class CommandMake(OptparsedCommand):
     def execute(self):
         # Load configuration file
         try:
-            config = Config.load(self.opts.config)
+            logger.info('Loading config file %r', self.opts.config)
+            config = parse_config(filename = self.opts.config)
 
         except ResourceError, rsc_error:
             print >>sys.stderr, 'Config file not found: %r' % rsc_error.resource
             return False
 
-        if self.opts.force:
-            build_list = list(config.targets)
+        if self.opts.target:
+            build_list = [config.targets[t] for t in self.opts.target]
 
         else:
-            build_list = list(config.find_need_rebuild())
+            build_list = config.targets.values()
 
-        for target in build_list:
-            build_target(config, target)
-
+        Builder().build_list(config, build_list, force = self.opts.target)
         return True

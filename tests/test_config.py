@@ -1,64 +1,66 @@
 from unittest import TestCase, TestSuite
+
 import os
 import os.path
+from lxml import etree
 
-from codega.rsclocator import FileResourceLocator
 from codega.config import *
 
-class XMLMockup(object):
-    def __init__(self, tag, text = '', **attributes):
-        self.tag = tag
-        self.attrib = attributes
-        self.text = text
+def flatten(text):
+    return ''.join(filter(lambda p: not p.isspace(), text))
 
-        self.children = []
+def coldiff(t0, t1):
+    if t0 == t1:
+        return
 
-    def add_child(self, child):
-        self.children.append(child)
-        return child
+    for i in xrange(min(len(t0), len(t1))):
+        if t0[i] != t1[i]:
+            print i, t0[i], t1[i]
+            break
 
-    def __iter__(self):
-        return iter(self.children)
+    print 'length'
 
-    def find(self, name):
-        for ch in self.children:
-            if ch.tag == name:
-                return ch
+class TestVisitors(TestCase):
+    def test_visitor(self):
+        path = os.path.join(os.path.dirname(__file__), 'data')
+        for item in os.listdir(path):
+            fn, ext = os.path.splitext(item)
+            if ext != '.xml':
+                continue
 
-class TestConfigSettings(TestCase):
-    def setUp(self):
-        self.xml = XMLMockup('settings')
-        self.xml.add_child(XMLMockup('entry', text = 'test0value', name = 'test0'))
-        cont = self.xml.add_child(XMLMockup('container', name = 'test1'))
-        cont.add_child(XMLMockup('entry', text = 'test2value', name = 'test2'))
+            name, expect = os.path.splitext(fn)
+            item_path = os.path.join(path, item)
 
-        self.settings = ConfigSettings(self, self.xml)
+            try:
+                cfg = parse_config(filename = item_path)
 
-    def test_values(self):
-        self.assertEqual(self.settings.test0, 'test0value')
-        self.assertEqual(self.settings.test1.test2, 'test2value')
-        self.assertTrue(isinstance(self.settings.test1, ConfigSettings))
+            except Exception, e:
+                if expect != '.fail':
+                    raise
 
-        self.assertRaises(KeyError, getattr, self.settings, 'test3')
+            else:
+                self.assertEqual(expect, '.succ')
 
-class TestConfigSource(TestCase):
-    def setUp(self):
-        class ParentMockup(object):
-            @property
-            def locator(self):
-                return FileResourceLocator('/tmp')
+                if hasattr(self, 'check_%s' % name):
+                    getattr(self, 'check_%s' % name)(cfg)
 
-        fd, self.fn = make_tempfile()
-        self.xml = XMLMockup('source')
-        self.xml.add_child(XMLMockup('name', 'test'))
-        self.xml.add_child(XMLMockup('filename', self.fn))
-        self.source = ConfigSource(ParentMockup(), self.xml)
+                parse_config(data = save_config(cfg))
+                self.assertEqual(flatten(save_config(cfg)), flatten(open(item_path).read()))
 
-    def test_values(self):
-        self.assertEqual(self.source.name, 'test')
-        self.assertEqual(self.source.filename, self.fn)
+    def check_parse00(self, cfg):
+        self.assertEqual(cfg.paths.destination, './')
+        self.assertEqual(cfg.paths.paths, ['./'])
 
-    def test_mtime(self):
-        self.assertNotEqual(self.source.mtime, 0)
-        self.source.filename = 'aaa'
-        self.assertEqual(self.source.mtime, 0)
+        self.assertEqual(cfg.sources['config'].name, 'config')
+        self.assertEqual(cfg.sources['config'].filename, 'codega.xml')
+        self.assertEqual(cfg.sources['config'].parser.module, 'codega.source')
+        self.assertEqual(cfg.sources['config'].parser.reference, 'XmlSource')
+
+        target = cfg.targets['config.txt']
+        self.assertEqual(target.source, 'config')
+        self.assertEqual(target.generator.module, 'dumper')
+        self.assertEqual(target.generator.reference, 'DumpGenerator')
+        self.assertEqual(target.filename, 'config.txt')
+
+        self.assertEqual(target.settings.test0, 'value0')
+        self.assertEqual(target.settings.test1.test2, 'value2')

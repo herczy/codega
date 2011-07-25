@@ -104,6 +104,12 @@ class GeneratorBase(object):
 
         return self.generate(source, context)
 
+    @classmethod
+    def run(cls, tree, context):
+        generator = cls()
+        generator.validate(tree, context)
+        return generator.generate(tree, context)
+
 class FunctionGenerator(GeneratorBase):
     '''A function is provided to do the generation
 

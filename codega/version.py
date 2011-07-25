@@ -18,6 +18,19 @@ class Version(object):
     MINOR_VERSION = 1
     PATCH_VERSION = 2
 
+    @classmethod
+    def load_from_string(self, string):
+        '''Parse version information from a string.
+
+        Note that this can be extended to parse strings in different ways but here we'll be using
+        this simple method until a different, more complex version parser is needed.
+
+        Arguments:
+        string -- Version string
+        '''
+
+        return Version(*map(lambda s: s if s else '0', string.split('.')))
+
     def __init__(self, *components):
         try:
             self._components = map(int, components)
@@ -62,19 +75,6 @@ class Version(object):
 
         return 0
 
-    @classmethod
-    def load_from_string(self, string):
-        '''Parse version information from a string.
-
-        Note that this can be extended to parse strings in different ways but here we'll be using
-        this simple method until a different, more complex version parser is needed.
-
-        Arguments:
-        string -- Version string
-        '''
-
-        return Version(*map(lambda s: s if s else '0', string.split('.')))
-
     def __str__(self):
         '''Get version string'''
 
@@ -84,3 +84,6 @@ class Version(object):
         '''Get version representation'''
 
         return 'Version(%s)' % self
+
+    def dup(self):
+        return Version(*self._components)

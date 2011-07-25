@@ -1,302 +1,486 @@
-'''Config file handler'''
+import re
 
-import stat
-import os, os.path
 from lxml import etree
-import logging
 
+import logger
+from error import StateError
+from ordereddict import OrderedDict, DictMixin
+from visitor import *
 from source import XmlSource
-from rsclocator import FileResourceLocator, FallbackLocator, ModuleLocator
+from rsclocator import *
 from version import Version
-from error import ResourceError, VersionMismatchError
 
-def filetime(locator, fname):
-    return os.stat(locator.find(fname))[stat.ST_MTIME]
+module_validator = re.compile(r'[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*')
+classname_validator = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
 
-class ConfigNodeBase(object):
+def config_property(name, property_type = basestring, enable_change = True):
+    if enable_change:
+        def setter(self, value):
+            if not isinstance(value, property_type):
+                raise TypeError("Config attributes can only be strings")
+
+            setattr(self, name, value)
+
+        def deleter(self):
+            setattr(self, name, None)
+
+    else:
+        def setter(self, value):
+            raise AttributeError("Attribute cannot be set")
+
+        def deleter(self, value):
+            raise AttributeError("Attribute cannot be deleted")
+
+    def getter(self):
+        return getattr(self, name)
+
+    return property(getter, setter, deleter)
+
+def build_element(tag, attributes = {}, text = '', children = []):
+    res = etree.Element(tag)
+    res.text = text
+    for k, v in attributes.iteritems():
+        res.attrib[k] = v
+    res.extend(children)
+    return res
+
+class NodeBase(object):
     '''Base class for configuration nodes
 
     Members:
-    parent -- Config node parent
-    raw_xml -- Raw XML
+    _parent -- Config node parent
     '''
 
-    parent = None
-    raw_xml = None
+    _parent = None
+    parent = property(lambda self: self._parent)
 
-    def __init__(self, parent, xml):
-        self.parent = parent
-        self.raw_xml = xml
-        self._parse()
+    def __init__(self, parent = None):
+        self._parent = parent
 
-    def _parse(self):
-        '''Parse the XML'''
+class Settings(NodeBase, DictMixin):
+    '''Target settings.
 
-        raise NotImplementedError("ConfigNodeBase._parse is abstract")
+    Uses a recursive container as data but it is not one. This is so because
+    we want to avoid having double inheritance (other than with mixins).
 
-    def check(self, **kwargs):
-        '''Check if the given attributes'''
-
-        for key, value in kwargs.iteritems():
-            if getattr(self, key) != value:
-                return False
-
-        return True
-
-class ConfigSettings(ConfigNodeBase):
-    '''Settings defined in configuration'''
+    Members:
+    _data -- The recursive container
+    '''
 
     _data = None
 
-    def _parse(self):
-        self._data = {}
+    class RecursiveContainer(OrderedDict):
+        '''Implements a recursive container. The keys are ordered'''
+        data = config_property('_data', enable_change = False)
 
-        for child in self.raw_xml:
-            if child.tag == 'entry':
-                self._data[child.attrib['name']] = child.text
+        def __setitem__(self, key, value):
+            if not isinstance(key, basestring):
+                raise KeyError("RecursiveContainer can only have string keys")
 
-            elif child.tag == 'container':
-                self._data[child.attrib['name']] = ConfigSettings(self, child)
+            if not isinstance(value, basestring) and not isinstance(value, Settings.RecursiveContainer):
+                raise TypeError("RecursiveContainer can only contain RecursiveContainers and strings")
 
-    def __getattr__(self, name):
-        return self._data[name]
+            super(Settings.RecursiveContainer, self).__setitem__(key, value)
 
-class ConfigSource(ConfigNodeBase):
-    '''Source definitions
+        __getattr__ = OrderedDict.__getitem__
+
+    data = config_property('_data', enable_change = False)
+
+    @property
+    def empty(self):
+        return len(self._data) == 0
+
+    def __init__(self, parent = None):
+        super(Settings, self).__init__(parent)
+
+        self._data = Settings.RecursiveContainer()
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
+    def __delitem__(self, key):
+        del self._data[key]
+
+    __getattr__ = __getitem__
+
+class ModuleReference(NodeBase):
+    '''Refers to a class that's used by the config
 
     Members:
-    name -- Name of the source (referenced by targets)
-    filename -- Source file
+    _module -- Module the entry is referring to
+    _reference -- Class reference in the module
 
-    targets -- Related targets
+    _module_def -- Default module
+    _reference_def -- Default reference
     '''
 
-    name = None
-    filename = None
-    targets = None
+    _module = None
+    _reference = None
 
-    def __init__(self, parent, xml):
-        super(ConfigSource, self).__init__(parent, xml)
-
-        self.targets = []
-
-    def _parse(self):
-        self.name = self.raw_xml.find('name').text
-        relative_filename = self.raw_xml.find('filename').text
-        self.filename = self.parent.locator.find(relative_filename)
-
-        source_parser = self.raw_xml.find('parser')
-        if source_parser is not None:
-            self.module, self.parser = source_parser.text.split(':', 1)
-
-        else:
-            self.module = 'codega.source'
-            self.parser = 'XmlSource'
+    _module_def = None
+    _reference_def = None
 
     @property
-    def mtime(self):
-        try:
-            return filetime(self.parent.locator, self.filename)
+    def module(self):
+        if self._module is None:
+            return self._module_def
 
-        except ResourceError:
-            return 0
+        return self._module
 
-    @property
-    def data(self):
-        if not hasattr(self, '_data_raw'):
-            module = self.parent.locator.import_module(self.module)
-            parser = getattr(module, self.parser)
-            self._data_raw = parser().load(filename = self.filename, locator = self.parent.locator).getroot()
+    @module.setter
+    def module(self, value):
+        if not isinstance(value, basestring):
+            raise TypeError("Config attributes can only be strings")
 
-        return self._data_raw
+        if not module_validator.match(value):
+            raise TypeError("Config attribute value invalid")
 
-    def add_target(self, target):
-        self.targets.append(target)
+        self._module = value
 
-class ConfigTarget(ConfigNodeBase):
-    '''Target definitions'''
-
-    sourceref = None
-
-    def _parse(self):
-        self.source = self.raw_xml.find('source').text
-
-        settings_xml = self.raw_xml.find('settings')
-        if settings_xml is not None:
-            self.settings = ConfigSettings(self, settings_xml)
-
-        else:
-            self.settings = ConfigSettings(self, etree.Element('settings'))
-
-        self.generator = self.raw_xml.find('generator').text
-        self.module, self.gentype = self.generator.split(':', 1)
-
-        self.target = self.raw_xml.find('target').text
+    @module.deleter
+    def module(self):
+        self._module = None
 
     @property
-    def mtime(self):
-        try:
-            return filetime(self.parent.write_locator, self.target)
+    def reference(self):
+        if self._reference is None:
+            return self._reference_def
 
-        except ResourceError:
-            return 0
+        return self._reference
 
-class Config(object):
-    '''Configuration object
+    @reference.setter
+    def reference(self, value):
+        if not isinstance(value, basestring):
+            raise TypeError("Config attributes can only be strings")
+
+        if not classname_validator.match(value):
+            raise TypeError("Config attribute value invalid")
+
+        self._reference = value
+
+    @reference.deleter
+    def reference(self):
+        self._reference = None
+
+    @property
+    def is_default(self):
+        return self._module is None or self._reference is None
+
+    def __init__(self, parent = None, module_def = None, reference_def = None):
+        super(ModuleReference, self).__init__(parent)
+
+        self._module_def = module_def
+        self._reference_def = reference_def
+
+    def load(self, locator):
+        return getattr(locator.import_module(self.module), self.reference)
+
+    def load_from_string(self, string):
+        self.module, self.reference = string.split(':')
+
+    def __str__(self):
+        return '%s:%s' % (self.module, self.reference)
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self)
+
+class Source(NodeBase):
+    '''Config source entry
+
+    A source entry specifies the source filename, generator, etc.
 
     Members:
-    _logger -- Config logger
-    _config_locator -- File resource locators
-    _write_locator -- Write locator
-    _system_locator -- System locator (last priority)
-    _raw_xml -- The unmodified source XML
-    _version -- Configuration version, should be checked if changed
-    _sources -- Dictionary of source entries
-    _targets -- List of target entries
-    _copy_list -- List of files to copy (from _config_locator)
-
-    Static members:
-    CURRENT_VERSION -- Current config version
-    DEPRECATED_VERSION -- Versions below this are considered deprecated, they aren't supported
+    _name -- Source name
+    _parser -- Parser class reference
+    _filename -- Source file name
     '''
 
-    CURRENT_VERSION = Version.load_from_string('1.0')
-    DEPRECATED_VERSION = Version.load_from_string('0')
+    _name = None
+    _parser = None
+    _filename = None
 
-    _logger = None
+    name = config_property('_name')
+    parser = config_property('_parser', enable_change = False)
+    filename = config_property('_filename')
 
-    _config_locator = None
-    _write_locator = None
-    _system_locator = None
+    def __init__(self, parent = None):
+        super(Source, self).__init__(parent)
+
+        self._parser = ModuleReference(self, 'codega.source', 'XmlSource')
+
+class Target(NodeBase):
+    '''Config target entry
+
+    Members:
+    _source -- Target source reference (by name)
+    _filename -- Target file name
+    _generator -- Target generator
+    _settings -- Target-specific settings
+    '''
+
+    _source = None
+    _filename = None
+    _generator = None
+    _settings = None
+
+    source = config_property('_source')
+    filename = config_property('_filename')
+    generator = config_property('_generator', enable_change = False)
+    settings = config_property('_settings', enable_change = False)
+
+    def __init__(self, parent = None):
+        super(Target, self).__init__(parent)
+
+        self._settings = Settings(self)
+        self._generator = ModuleReference(self)
+
+class PathList(NodeBase):
+    '''List of paths
+
+    Members:
+    _destination -- Destination directory
+    _paths -- Search paths
+
+    _locator_hash -- Internal value, the hash of the destination and
+                     path list used for determining if a new locator
+                     needs to be created
+    _locator -- Locator from the path list
+    '''
+
+    _destination = None
+    _paths = None
+    _locator_hash = None
     _locator = None
 
-    _raw_xml = None
-    _version = None
-
-    _sources = None
-    _targets = None
-    _copy_list = None
-
-    def __init__(self, config_source, system_locator):
-        self._logger = logging.getLogger('config')
-
-        self._sources = []
-        self._targets = []
-        self._copy_list = []
-
-        self._config_locator = FallbackLocator()
-        self._write_locator = None
-        self._system_locator = system_locator
-
-        self._locator = FallbackLocator()
-        self._locator.add_locator(self._config_locator)
-        self._locator.add_locator(self._system_locator)
-
-        self._raw_xml = config_source
-        self._version = Version.load_from_string(self._raw_xml.get('version', '1.0'))
-
-        self._logger.debug('Validating config XML')
-        XmlSource().validate(self._raw_xml, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
-
-        self._logger.debug('Checking version of config (current=%s minimal=%s maximal=%s)', self._version, Config.DEPRECATED_VERSION, Config.CURRENT_VERSION)
-        if self._version > Config.CURRENT_VERSION:
-            raise VersionMismatchError("Configuration is more recent than supported")
-
-        if self._version <= Config.DEPRECATED_VERSION:
-            raise VersionMismatchError("Configuration format deprecated")
-
-        for entry in self._raw_xml:
-            if entry.tag == 'paths':
-                for path in entry:
-                    if path.tag == 'target':
-                        self._logger.debug('Set target path: %r', path.text)
-                        self._write_locator = FileResourceLocator(self._system_locator.find(path.text))
-                        self._locator.add_locator(self._write_locator, index = 0)
-
-                    elif path.tag == 'path':
-                        self._logger.debug('Added search path: %r', path.text)
-                        self._config_locator.add_locator(FileResourceLocator(self._system_locator.find(path.text)))
-
-            elif entry.tag == 'source':
-                self._sources.append(ConfigSource(self, entry))
-
-            elif entry.tag == 'target':
-                self._targets.append(ConfigTarget(self, entry))
-
-        # We should always check this from the XSD, so here we only
-        assert self._write_locator is not None
-
-        self._logger.debug('Cross-referencing sources and targets')
-        for target in self.targets:
-            source = list(self.find_source(name = target.source))
-
-            # Note: these will be validated in the XSD
-            if len(source) == 0:
-                raise ConfigError('Cannot find source %s' % target.source)
-
-            if len(source) > 1:
-                raise ConfigError('Config contains more than one source %s' % target.source)
-
-            source = source[0]
-
-            # Resolve dependencies
-            source.add_target(target)
-            target.sourceref = source
-
-            self._logger.debug('Source %s paired with target %r', source.name, target.source)
-
-    @staticmethod
-    def load(name, parser = XmlSource):
-        base_path = os.path.abspath(os.path.dirname(name))
-        config_name = os.path.basename(name)
-
-        system_locator = FileResourceLocator(base_path)
-        raw_config = parser().load(filename = config_name, locator = system_locator).getroot()
-
-        logging.debug('Loading config %r with parser %r (base search path = %r)', name, parser.__name__, base_path)
-        return Config(raw_config, system_locator = system_locator)
+    destination = config_property('_destination')
+    paths = config_property('_paths', enable_change = False)
 
     @property
     def locator(self):
+        obj_hash = hash((self._destination, ) + tuple(self._paths))
+        if self._locator is None or self._locator_hash != obj_hash:
+            self._locator = FallbackLocator()
+            for path in self._paths:
+                self._locator.add_locator(FileResourceLocator(path))
+
+            self._locator_hash = obj_hash
+
         return self._locator
 
-    @property
-    def write_locator(self):
-        return self._write_locator
+    def __init__(self, parent = None):
+        super(PathList, self).__init__(parent)
+
+        self._paths = []
+
+class Config(NodeBase):
+    '''Complete configuration
+
+    Members:
+    _version -- Config version
+    _paths -- Path list
+    _sources -- Dict of sources
+    _targets -- Dict of targets
+
+    _dependencies -- Dependencies between targets and sources
+    '''
+
+    class SourceCollection(OrderedDict):
+        '''Source list, checks for types and possible dependencies'''
+
+        def __init__(self, parent):
+            super(Config.SourceCollection, self).__init__()
+
+            self._parent = parent
+
+        def __setitem__(self, key, value):
+            if not isinstance(value, Source):
+                raise TypeError("Cannot add non-source objects to source list")
+
+            value.name = key
+            super(Config.SourceCollection, self).__setitem__(key, value)
+
+        def __delitem__(self, key):
+            if key in self._parent._dependencies.values():
+                raise StateError("Source %s can not be deleted, it has dependencies" % key)
+
+            del self._sources[key]
+
+    class TargetCollection(OrderedDict):
+        '''Target list, checks for types and possible dependencies'''
+
+        def __init__(self, parent):
+            super(Config.TargetCollection, self).__init__()
+
+            self._parent = parent
+
+        def __setitem__(self, key, value):
+            if not isinstance(value, Target):
+                raise TypeError("Cannot add non-source objects to source list")
+
+            if not self._parent.sources.has_key(value.source):
+                raise StateError("Source %s does not exist" % value.source)
+
+            value.name = key
+            super(Config.TargetCollection, self).__setitem__(key, value)
+            self._parent._dependencies[value.filename] = value.source
+
+        def __delitem__(self, key):
+            del self._parent._dependencies[self._targets[key]]
+            del self._targets[key]
+
+    _version = None
+    _paths = None
+    _sources = None
+    _targets = None
+    _dependencies = None
+    paths = config_property('_paths', enable_change = False)
+    sources = config_property('_sources', enable_change = False)
+    targets = config_property('_targets', enable_change = False)
 
     @property
-    def sources(self):
-        return self._sources
+    def version(self):
+        return self._version.dup()
 
-    @property
-    def targets(self):
-        return self._targets
+    @version.setter
+    def version(self, value):
+        if isinstance(value, Version):
+            self._version = value.dup()
 
-    @property
-    def copy_list(self):
-        return self._copy_list
+        else:
+            self._version = Version.load_from_string(value)
 
-    def find_source(self, **kwargs):
-        for entry in self.sources:
-            if entry.check(**kwargs):
-                yield entry
+    def __init__(self):
+        super(Config, self).__init__()
 
-    def find_target(self, **kwargs):
-        for entry in self.targets:
-            if entry.check(**kwargs):
-                yield entry
+        self._paths = PathList(self)
+        self._sources = Config.SourceCollection(self)
+        self._targets = Config.TargetCollection(self)
+        self._dependencies = {}
 
-    def find_need_rebuild(self):
-        import codega
-        modloc = ModuleLocator(codega)
-        basetime = 0
+class ParseVisitor(Visitor):
+    def visit_ModuleReference(self, node, xml_node):
+        node.load_from_string(xml_node.text)
 
-        for rsc in modloc.list_resources():
-            basetime = max(basetime, filetime(modloc, rsc))
+    def visit_Source(self, node, xml_node):
+        node.name = xml_node.find('name').text
+        node.filename = xml_node.find('filename').text
 
-        for target in self.targets:
-            target_mt = target.mtime
-            source_mt = target.sourceref.mtime
+        parser = xml_node.find('parser')
+        if parser is not None:
+            self.visit(node.parser, parser)
 
-            if (source_mt > target_mt) or (basetime > target_mt):
-                yield target
+    def visit_Settings(self, node, xml_node):
+        def _parse_settings(current_node, current_xml_node):
+            for chld in current_xml_node:
+                if chld.tag == 'entry':
+                    current_node[chld.attrib['name']] = chld.text
+
+                else:
+                    node = current_node[chld.attrib['name']] = Settings.RecursiveContainer()
+                    _parse_settings(node, chld)
+
+        _parse_settings(node.data, xml_node)
+
+    def visit_Target(self, node, xml_node):
+        node.source = xml_node.find('source').text
+        node.filename = xml_node.find('target').text
+        self.visit(node.generator, xml_node.find('generator'))
+
+        settings_xml = xml_node.find('settings')
+        if settings_xml is not None:
+            self.visit(node.settings, settings_xml)
+
+    def visit_PathList(self, node, xml_node):
+        for chld in xml_node:
+            if chld.tag == 'target':
+                node.destination = chld.text
+
+            else:
+                node.paths.append(chld.text)
+
+    def visit_Config(self, node, xml_node):
+        node.version = xml_node.attrib['version']
+        for chld in xml_node:
+            if chld.tag == 'paths':
+                self.visit(node.paths, chld)
+
+            elif chld.tag == 'source':
+                source = Source(node)
+                self.visit(source, chld)
+                node.sources[source.name] = source
+
+            elif chld.tag == 'target':
+                target = Target(node)
+                self.visit(target, chld)
+                node.targets[target.filename] = target
+
+class SaveVisitor(Visitor):
+    def visit_ModuleReference(self, node):
+        return '%s:%s' % (node.module, node.reference)
+
+    def visit_Source(self, node):
+        res = build_element('source', children = [
+                  build_element('name', text = node.name),
+                  build_element('filename', text = node.filename),
+              ])
+
+        if not node.parser.is_default:
+            res.append(build_element('parser', text = self.visit(node.parser)))
+
+        return res
+
+    def visit_Settings(self, node):
+        def _save_settings(current_node):
+            res = []
+            for name, value in current_node.data.iteritems():
+                if isinstance(value, basestring):
+                    res.append(build_element('entry', attributes = { 'name' : name }, text = value))
+
+                else:
+                    res.append(build_element('container', attributes = { 'name' : name }, children = _save_settings(value)))
+
+            return res
+
+        return build_element('settings', children = _save_settings(node))
+
+    def visit_Target(self, node):
+        res = etree.Element('target')
+        res.append(build_element('source', text = node.source))
+        res.append(build_element('generator', text = self.visit(node.generator)))
+        res.append(build_element('target', text = node.filename))
+        res.append(self.visit(node.settings))
+
+        return res
+
+    def visit_PathList(self, node):
+        res = build_element('paths')
+        res.append(build_element('target', text = node.destination))
+        for path in node.paths:
+            res.append(build_element('path', text = path))
+
+        return res
+
+    def visit_Config(self, node):
+        res = etree.Element('config')
+        res.attrib['version'] = str(node.version)
+        res.append(self.visit(node.paths))
+        res.extend([self.visit(source) for source in node.sources.values()])
+        res.extend([self.visit(target) for target in node.targets.values()])
+
+        return res
+
+def parse_config(*args, **kwargs):
+    logger.debug('Loading config (arguments: (%s))', ', '.join(map(repr, args) + list('%s = %r' % p for p in kwargs.iteritems())))
+    config = Config()
+    xml_root = XmlSource().load(*args, **kwargs).getroot()
+    XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+
+    ParseVisitor().visit(config, xml_root)
+
+    return config
+
+def save_config(config):
+    return etree.tostring(SaveVisitor().visit(config), pretty_print = True)
