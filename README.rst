@@ -4,16 +4,17 @@ codega
 What is codega?
 ----
 
-codega is a code-generator which creates C/C++/Python/etc. code from an XML file. The XML file can
-be used to specify structures (among other things) in the protocol.
+codega is a code-generator framework for creating C/C++/Python/etc. code from an XML source. This XML file
+source can have any format desired if the appropriate generator is written.
 
 What stage is it in?
 ----
 
-It's in the very beginning. It doesn't do much yet beyond parsing a few rudimentary node types and
-dumping them. It can be tried out:
+It's in the beginning. At this point it's unstable, many features get added or removed on a whim (but after proper
+planning, of course :) ) It doesn't do much yet beyond providing a framework and having a few examples. You can
+try it out:
 
-    $ ./cgmake -c examples/basic/codega.xml
+    $ ./cgx make -c examples/basic/codega.xml
 
 Where can I find it?
 ----
