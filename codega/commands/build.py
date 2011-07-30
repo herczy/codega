@@ -14,8 +14,8 @@ class CommandBuild(OptparsedCommand):
                                  help = 'Specify the source file'),
             optparse.make_option('-p', '--parser', default = 'codega.source:XmlSource',
                                  help = 'Specify the parser in <module>:<source class> format (default: %default)'),
-            optparse.make_option('-t', '--target', default = 'sys.stdout',
-                                 help = 'Specify the target file (default: sys.stdout)'),
+            optparse.make_option('-t', '--target', default = 'codega.out',
+                                 help = 'Specify the target file (default: %default)'),
             optparse.make_option('-g', '--generator', default = None,
                                  help = 'Specify the generator in <module>:<source class> format'),
 
