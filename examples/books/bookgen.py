@@ -4,7 +4,7 @@ from codega.generator import *
 from codega.cgextra.makowrapper import inline
 from codega.cgextra import matcher
 
-class BookGenerator(ObjectGenerator):
+class CBookGenerator(ObjectGenerator):
     @inline(matcher = matcher.tag('bookshelf'))
     def generator_main(self, source, context):
         '''
@@ -45,6 +45,37 @@ class BookGenerator(ObjectGenerator):
     @inline(matcher = matcher.tag('book'))
     def generator_book(self, source, context):
         '''{ "${str(title)}", "${str(author)}", "${str(published)}" },'''
+
+        bindings = Bindings()
+
+        bindings.title = source.find('title').text
+        bindings.author = source.find('author').text
+        bindings.published = source.find('pubdate').text
+
+        return bindings
+
+class HtmlBookGenerator(ObjectGenerator):
+    @inline(matcher = matcher.tag('bookshelf'))
+    def generator_main(self, source, context):
+        '''
+        <html>
+         <head><title>My bookshelf</title></head>
+        <body>
+        <h1>Contents of bookshelf</h1>
+        <ul>
+        % for book in books:
+          <li>${book}</li>
+        % endfor
+        </ul>
+        </body>
+        </html>
+        '''
+
+        return dict(books = context.map(self, source))
+
+    @inline(matcher = matcher.tag('book'))
+    def generator_book(self, source, context):
+        '''${str(author)} - ${str(title)} (${str(published)})'''
 
         bindings = Bindings()
 
