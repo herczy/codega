@@ -4,7 +4,7 @@ import os.path
 import optparse
 
 from codega.config import parse_config
-from codega.error import ResourceError
+from codega.error import ResourceError, ParseError
 from codega.build import Builder
 from codega import logger
 
@@ -31,8 +31,12 @@ class CommandMake(OptparsedCommand):
             logger.info('Loading config file %r', self.opts.config)
             config = parse_config(filename = self.opts.config)
 
+        except ParseError, parse_error:
+            logger.error('Parse error (at line %s): %s' % (parse_error.lineno, parse_error.message))
+            return False
+
         except ResourceError, rsc_error:
-            print >>sys.stderr, 'Config file not found: %r' % rsc_error.resource
+            logger.error('Config file not found: %r' % rsc_error.resource)
             return False
 
         if self.opts.target:

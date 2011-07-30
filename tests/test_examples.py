@@ -13,7 +13,7 @@ def add_example_test(name, path):
         cur = os.getcwd()
         try:
             os.chdir(os.path.join(exampledir, f))
-            rc = os.system('../../cgx make -f 2>%s' % fn)
+            rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
 
         finally:
             os.chdir(cur)

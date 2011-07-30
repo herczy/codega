@@ -27,11 +27,11 @@ class CommandBuild(OptparsedCommand):
 
     def execute(self):
         if not self.opts.source:
-            print >>sys.stderr, 'Missing source'
+            logger.error('Missing source')
             return False
 
         if not self.opts.generator:
-            print >>sys.stderr, 'Missing generator'
+            logger.error('Missing generator')
             return False
 
         config = Config()

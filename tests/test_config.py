@@ -4,21 +4,13 @@ import os
 import os.path
 from lxml import etree
 
+import codega
+
+from codega.source import XmlSource
 from codega.config import *
 
 def flatten(text):
     return ''.join(filter(lambda p: not p.isspace(), text))
-
-def coldiff(t0, t1):
-    if t0 == t1:
-        return
-
-    for i in xrange(min(len(t0), len(t1))):
-        if t0[i] != t1[i]:
-            print i, t0[i], t1[i]
-            break
-
-    print 'length'
 
 class TestVisitors(TestCase):
     def test_visitor(self):
@@ -36,6 +28,9 @@ class TestVisitors(TestCase):
 
             except Exception, e:
                 if expect != '.fail':
+                    raise
+
+                if not isinstance(e, ParseError):
                     raise
 
             else:
@@ -64,3 +59,57 @@ class TestVisitors(TestCase):
 
         self.assertEqual(target.settings.test0, 'value0')
         self.assertEqual(target.settings.test1.test2, 'value2')
+
+class TestSettings(TestCase):
+    def test_basic(self):
+        settings = Settings()
+
+        test0 = settings.add_container('a')
+        test0['b'] = '2'
+        test0['c'] = '3'
+
+        settings.b = '4'
+        settings.c = '5'
+
+        self.assertEqual(settings.a.b, '2')
+        self.assertEqual(settings.a.c, '3')
+
+        self.assertEqual(settings.b, '4')
+        self.assertEqual(settings.c, '5')
+
+        del test0['b']
+
+    def test_error(self):
+        self.assertRaises(ConfigError, Settings().__getitem__, 'x')
+        self.assertRaises(ConfigError, Settings().__delitem__, 'x')
+        self.assertRaises(ConfigError, Settings().__setitem__, 'x', 1)
+
+class TestModuleReference(TestCase):
+    def test_basic(self):
+        mr = ModuleReference()
+        self.assertEqual(mr.module, None)
+        self.assertEqual(mr.reference, None)
+
+        mr.load_from_string('codega.source:XmlSource')
+        self.assertEqual(mr.module, 'codega.source')
+        self.assertEqual(mr.reference, 'XmlSource')
+
+        self.assertEqual(mr.load(ModuleLocator(codega)), XmlSource)
+
+        self.assertRaises(ConfigError, mr.load_from_string, 'c.g:--')
+        self.assertRaises(ConfigError, mr.load_from_string, 'c.g')
+        self.assertRaises(ConfigError, setattr, mr, 'module', '::')
+        self.assertRaises(ConfigError, setattr, mr, 'module', 'x::')
+        self.assertRaises(ConfigError, setattr, mr, 'module', ' ')
+        self.assertRaises(ConfigError, setattr, mr, 'module', '.x.y')
+        self.assertRaises(ConfigError, setattr, mr, 'reference', 'a.b')
+        self.assertEqual(mr.module, 'codega.source')
+        self.assertEqual(mr.reference, 'XmlSource')
+
+        mr.load_from_string('a:b')
+        self.assertRaises(ConfigError, mr.load, ModuleLocator(codega))
+
+        del mr.module
+        del mr.reference
+        self.assertEqual(mr.module, None)
+        self.assertEqual(mr.reference, None)

@@ -3,21 +3,21 @@ import re
 from lxml import etree
 
 import logger
-from error import StateError
+from error import StateError, ConfigError, ParseError
 from ordereddict import OrderedDict, DictMixin
 from visitor import *
 from source import XmlSource
 from rsclocator import *
 from version import Version
 
-module_validator = re.compile(r'[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*')
-classname_validator = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
+module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
+classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
 
 def config_property(name, property_type = basestring, enable_change = True):
     if enable_change:
         def setter(self, value):
             if not isinstance(value, property_type):
-                raise TypeError("Config attributes can only be strings")
+                raise ConfigError("Config attributes can only be of class %s" % property_type.__class__)
 
             setattr(self, name, value)
 
@@ -26,10 +26,10 @@ def config_property(name, property_type = basestring, enable_change = True):
 
     else:
         def setter(self, value):
-            raise AttributeError("Attribute cannot be set")
+            raise ConfigError("Attribute cannot be set")
 
         def deleter(self, value):
-            raise AttributeError("Attribute cannot be deleted")
+            raise ConfigError("Attribute cannot be deleted")
 
     def getter(self):
         return getattr(self, name)
@@ -75,12 +75,30 @@ class Settings(NodeBase, DictMixin):
 
         def __setitem__(self, key, value):
             if not isinstance(key, basestring):
-                raise KeyError("RecursiveContainer can only have string keys")
+                raise ConfigError("RecursiveContainer can only have string keys")
 
             if not isinstance(value, basestring) and not isinstance(value, Settings.RecursiveContainer):
-                raise TypeError("RecursiveContainer can only contain RecursiveContainers and strings")
+                raise ConfigError("RecursiveContainer can only contain RecursiveContainers and strings")
 
             super(Settings.RecursiveContainer, self).__setitem__(key, value)
+
+        def __getitem__(self, key):
+            try:
+                return super(Settings.RecursiveContainer, self).__getitem__(key)
+
+            except KeyError, e:
+                raise ConfigError("Container has no key %s" % key)
+
+        def __delitem__(self, key):
+            try:
+                super(Settings.RecursiveContainer, self).__delitem__(key)
+
+            except KeyError, e:
+                raise ConfigError("Settings has no key %s" % key)
+
+        def add_container(self, key):
+            self[key] = Settings.RecursiveContainer()
+            return self[key]
 
         __getattr__ = OrderedDict.__getitem__
 
@@ -95,14 +113,17 @@ class Settings(NodeBase, DictMixin):
 
         self._data = Settings.RecursiveContainer()
 
+    def add_container(self, key):
+        return self._data.add_container(key)
+
     def __getitem__(self, key):
-        return self._data[key]
+        return self._data.__getitem__(key)
 
     def __setitem__(self, key, value):
-        self._data[key] = value
+        self._data.__setitem__(key, value)
 
     def __delitem__(self, key):
-        del self._data[key]
+        self._data.__delitem__(key)
 
     __getattr__ = __getitem__
 
@@ -133,10 +154,10 @@ class ModuleReference(NodeBase):
     @module.setter
     def module(self, value):
         if not isinstance(value, basestring):
-            raise TypeError("Config attributes can only be strings")
+            raise ConfigError("Module name can only be string")
 
         if not module_validator.match(value):
-            raise TypeError("Config attribute value invalid")
+            raise ConfigError("Invalid module name")
 
         self._module = value
 
@@ -154,10 +175,10 @@ class ModuleReference(NodeBase):
     @reference.setter
     def reference(self, value):
         if not isinstance(value, basestring):
-            raise TypeError("Config attributes can only be strings")
+            raise ConfigError("Class name can only be string")
 
         if not classname_validator.match(value):
-            raise TypeError("Config attribute value invalid")
+            raise ConfigError("Invalid class name")
 
         self._reference = value
 
@@ -176,10 +197,27 @@ class ModuleReference(NodeBase):
         self._reference_def = reference_def
 
     def load(self, locator):
-        return getattr(locator.import_module(self.module), self.reference)
+        try:
+            return getattr(locator.import_module(self.module), self.reference)
+
+        except ImportError, e:
+            raise ConfigError("Module %s could not be imported: %s" % (self._module, e))
+
+        except AttributeError, e:
+            raise ConfigError("Class %s could not be loaded from module %s: %s" % (self._reference, self._module, e))
 
     def load_from_string(self, string):
-        self.module, self.reference = string.split(':')
+        if ':' not in string:
+            raise ConfigError("Invalid module reference %s" % string)
+
+        # Keep the previous state if invalid
+        state = (self._module, self._reference)
+        try:
+            self.module, self.reference = string.split(':')
+
+        except:
+            self._module, self._reference = state
+            raise
 
     def __str__(self):
         return '%s:%s' % (self.module, self.reference)
@@ -297,14 +335,21 @@ class Config(NodeBase):
 
         def __setitem__(self, key, value):
             if not isinstance(value, Source):
-                raise TypeError("Cannot add non-source objects to source list")
+                raise ConfigError("Cannot add non-source objects to source list")
 
             value.name = key
             super(Config.SourceCollection, self).__setitem__(key, value)
 
+        def __getitem__(self, key):
+            try:
+                return super(Config.SourceCollection, self).__getitem__(key)
+
+            except KeyError, e:
+                raise ConfigError("Source %s not found" % key)
+
         def __delitem__(self, key):
             if key in self._parent._dependencies.values():
-                raise StateError("Source %s can not be deleted, it has dependencies" % key)
+                raise ConfigError("Source %s can not be deleted, it has dependencies" % key)
 
             del self._sources[key]
 
@@ -318,10 +363,10 @@ class Config(NodeBase):
 
         def __setitem__(self, key, value):
             if not isinstance(value, Target):
-                raise TypeError("Cannot add non-source objects to source list")
+                raise ConfigError("Cannot add non-source objects to source list")
 
             if not self._parent.sources.has_key(value.source):
-                raise StateError("Source %s does not exist" % value.source)
+                raise ConfigError("Source %s does not exist" % value.source)
 
             value.name = key
             super(Config.TargetCollection, self).__setitem__(key, value)
@@ -330,6 +375,13 @@ class Config(NodeBase):
         def __delitem__(self, key):
             del self._parent._dependencies[self._targets[key]]
             del self._targets[key]
+
+        def __getitem__(self, key):
+            try:
+                return super(Config.TargetCollection, self).__getitem__(key)
+
+            except KeyError, e:
+                raise ConfigError("Target %s not found" % key)
 
     _version = None
     _paths = None
@@ -349,8 +401,15 @@ class Config(NodeBase):
         if isinstance(value, Version):
             self._version = value.dup()
 
+        elif isinstance(value, basestring):
+            try:
+                self._version = Version.load_from_string(value)
+
+            except Exception, e:
+                raise ConfigError("Invalid version string %r" % value)
+
         else:
-            self._version = Version.load_from_string(value)
+            raise ConfigError("Version can only be a string or another Version object")
 
     def __init__(self):
         super(Config, self).__init__()
@@ -361,6 +420,15 @@ class Config(NodeBase):
         self._dependencies = {}
 
 class ParseVisitor(Visitor):
+    def __init__(self):
+        super(ParseVisitor, self).__init__()
+
+        self._current_node = None
+
+    def visit(self, node, xml_node):
+        self._current_node = xml_node
+        super(ParseVisitor, self).visit(node, xml_node)
+
     def visit_ModuleReference(self, node, xml_node):
         node.load_from_string(xml_node.text)
 
@@ -476,9 +544,19 @@ def parse_config(*args, **kwargs):
     logger.debug('Loading config (arguments: (%s))', ', '.join(map(repr, args) + list('%s = %r' % p for p in kwargs.iteritems())))
     config = Config()
     xml_root = XmlSource().load(*args, **kwargs).getroot()
-    XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
-    ParseVisitor().visit(config, xml_root)
+    try:
+        XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+
+    except etree.DocumentInvalid, e:
+        raise ParseError('Configuration is invalid', e.error_log.last_error.line)
+
+    visitor = ParseVisitor()
+    try:
+        visitor.visit(config, xml_root)
+
+    except Exception, e:
+        raise ParseError(str(e), visitor._current_node.sourceline)
 
     return config
 

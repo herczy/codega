@@ -1,5 +1,6 @@
 '''Basic logging facilities. Is a wrapper to the built-in logger'''
 
+from lxml.etree import use_global_python_log, PyErrorLog
 from logging import debug, info, warning, error, critical, exception, log
 
 def prepare():
@@ -42,3 +43,4 @@ def prepare():
         loglevel = logging.ERROR
 
     logging.getLogger().setLevel(loglevel)
+    use_global_python_log(PyErrorLog())
