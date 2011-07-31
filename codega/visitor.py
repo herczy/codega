@@ -24,7 +24,7 @@ class MixinVisitor:
     def visit(self, node, *args, **kwargs):
         '''Call the appropriate visitor method.
 
-        The algorythm uses the method resolution order (__mro__) in
+        The algorithm uses the method resolution order (__mro__) in
         order to decide which visitor method to call.
         '''
 
