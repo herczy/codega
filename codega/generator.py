@@ -17,6 +17,7 @@ import heapq
 import types
 
 from error import StateError
+import logger
 
 PRI_HIGHEST = -100
 PRI_HIGH = -10
@@ -100,9 +101,15 @@ class GeneratorBase(object):
 
     def __call__(self, source, context):
         if not self.match(source):
-            raise ValueError("Source cannot be generated")
+            raise ValueError("Source cannot be generated because generator doesn't match the proper node")
 
         return self.generate(source, context)
+
+    def __str__(self):
+        return 'generator %d, priority = %d' % (id(self), self.priority)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self)
 
     @classmethod
     def run(cls, tree, context):
@@ -131,6 +138,9 @@ class FunctionGenerator(GeneratorBase):
         super(FunctionGenerator, self).bind(parent)
 
         self._function = types.MethodType(self._function, parent)
+
+    def __str__(self):
+        return 'function generator %s, priority = %d' % (self._function.__name__, self.priority)
 
     @staticmethod
     def decorate(matcher = None, priority = PRI_BASE):
@@ -170,6 +180,9 @@ class TemplateGenerator(GeneratorBase):
         super(TemplateGenerator, self).bind(parent)
 
         self._bindings = types.MethodType(self._bindings, parent)
+
+    def __str__(self):
+        return 'template generator %s, priority = %d' % (self._bindings.__name__, self.priority)
 
     @staticmethod
     def decorate(template, matcher = None, priority = PRI_BASE):
@@ -232,6 +245,7 @@ class PriorityGenerator(GeneratorBase):
             pri, gen = heapq.heappop(heap)
 
             if gen.match(source):
+                logger.debug('Generating source %r with priority generator %r (matching sub-generator %r)' % (source, self, gen))
                 return gen.generate(source, context)
 
         raise ValueError("Source cannot be generated")
@@ -242,13 +256,6 @@ class PriorityGenerator(GeneratorBase):
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
 
-    class UnboundSubgenerator(GeneratorBase):
-        '''These generators contain a function that need to be bound before usage'''
-
-        _function = None
-        _args = None
-        _kwargs = None
-
     def __init__(self, priority = PRI_BASE):
         super(ObjectGenerator, self).__init__(priority = priority)
 
@@ -257,8 +264,10 @@ class ObjectGenerator(PriorityGenerator):
     def _collect(self):
         '''Collect subgenerators from instance'''
 
+        logger.info('Initializing object generator %r' % self)
         for attr in dir(self):
             val = getattr(self, attr)
 
             if isinstance(val, GeneratorBase):
                 self.register(val)
+                logger.debug('Registered subgenerator %r' % val)
