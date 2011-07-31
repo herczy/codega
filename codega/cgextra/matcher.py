@@ -91,6 +91,7 @@ def parent(tag):
         return parent.tag == tag
 
     return __matcher
+root = parent(None)
 
 def xpath(xpath):
     xpath = etree.XPath(xpath)
