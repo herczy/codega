@@ -2,6 +2,8 @@
 
 import re
 
+from lxml import etree
+
 replacement = re.compile(r'[^A-Za-z0-9]')
 
 def substitute(match):
@@ -39,3 +41,24 @@ class MixinVisitor:
 
 class Visitor(object, MixinVisitor):
     '''Same as MixinVisitor extept that it's also a proper object-derived class'''
+
+class MixinXmlVisitor:
+    '''A visitor mixin to use with XML nodes'''
+
+    def visit(self, node, *args, **kwargs):
+        '''Call the appropriate visitor method.
+
+        The algoritm tries to find the visitor method using the node tag
+        '''
+
+        method = find_method(self, 'visit', node.tag)
+        if method is not None:
+            return method(node, *args, **kwargs)
+
+        return self.visit_fallback(node, *args, **kwargs)
+
+    def visit_fallback(self, node, *args, **kwargs):
+        '''Fallback visitor, does nothing'''
+
+class XmlVisitor(object, MixinXmlVisitor):
+    '''Same as MixinXmlVisitor extept that it's also a proper object-derived class'''
