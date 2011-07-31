@@ -80,8 +80,8 @@ class TestSettings(TestCase):
         del test0['b']
 
     def test_error(self):
-        self.assertRaises(ConfigError, Settings().__getitem__, 'x')
-        self.assertRaises(ConfigError, Settings().__delitem__, 'x')
+        self.assertRaises(KeyError, Settings().__getitem__, 'x')
+        self.assertRaises(KeyError, Settings().__delitem__, 'x')
         self.assertRaises(ConfigError, Settings().__setitem__, 'x', 1)
 
 class TestModuleReference(TestCase):
