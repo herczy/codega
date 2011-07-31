@@ -85,7 +85,7 @@ class TestSettings(TestCase):
     def test_error(self):
         self.assertRaises(KeyError, Settings().__getitem__, 'x')
         self.assertRaises(KeyError, Settings().__delitem__, 'x')
-        self.assertRaises(ConfigError, Settings().__setitem__, 'x', 1)
+        self.assertRaises(TypeError, Settings().__setitem__, 'x', 1)
 
 class TestModuleReference(TestCase):
     def test_basic(self):
@@ -99,18 +99,18 @@ class TestModuleReference(TestCase):
 
         self.assertEqual(mr.load(ModuleLocator(codega)), XmlSource)
 
-        self.assertRaises(ConfigError, mr.load_from_string, 'c.g:--')
-        self.assertRaises(ConfigError, mr.load_from_string, 'c.g')
-        self.assertRaises(ConfigError, setattr, mr, 'module', '::')
-        self.assertRaises(ConfigError, setattr, mr, 'module', 'x::')
-        self.assertRaises(ConfigError, setattr, mr, 'module', ' ')
-        self.assertRaises(ConfigError, setattr, mr, 'module', '.x.y')
-        self.assertRaises(ConfigError, setattr, mr, 'reference', 'a.b')
+        self.assertRaises(ValueError, mr.load_from_string, 'c.g:--')
+        self.assertRaises(ValueError, mr.load_from_string, 'c.g')
+        self.assertRaises(ValueError, setattr, mr, 'module', '::')
+        self.assertRaises(ValueError, setattr, mr, 'module', 'x::')
+        self.assertRaises(ValueError, setattr, mr, 'module', ' ')
+        self.assertRaises(ValueError, setattr, mr, 'module', '.x.y')
+        self.assertRaises(ValueError, setattr, mr, 'reference', 'a.b')
         self.assertEqual(mr.module, 'codega.source')
         self.assertEqual(mr.reference, 'XmlSource')
 
         mr.load_from_string('a:b')
-        self.assertRaises(ConfigError, mr.load, ModuleLocator(codega))
+        self.assertRaises(ImportError, mr.load, ModuleLocator(codega))
 
         del mr.module
         del mr.reference
