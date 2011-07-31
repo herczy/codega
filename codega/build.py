@@ -3,12 +3,21 @@ import os.path
 import stat
 
 from source import SourceBase
-from rsclocator import FileResourceLocator
+from rsclocator import *
 from generator import GeneratorBase
 from context import Context
 
 class Builder(object):
-    '''Build the given targets.'''
+    '''Build the given targets.
+
+    Members:
+    _base_locator -- Basic resource locator
+    '''
+
+    _base_locator = None
+
+    def __init__(self, locator):
+        self._base_locator = locator
 
     @staticmethod
     def mtime(filename):
@@ -44,28 +53,33 @@ class Builder(object):
         return Builder.mtime(etalon) < max(times)
 
     def build(self, config, target, force = False):
+        # Make locator
+        locator = FallbackLocator()
+        for path in config.paths.paths:
+            locator.add_locator(FileResourceLocator(self._base_locator.find(path)))
+
         # Check if we need to rebuild the target
-        destination = os.path.join(config.paths.destination, target.filename)
+        destination = os.path.join(self._base_locator.find(config.paths.destination), target.filename)
         source = config.sources[target.source]
 
         if not force:
             files = [ source.filename ]
             modules = [ 'codega', source.parser.module, target.generator.module ]
 
-            if not self.need_rebuild(config.paths.locator, destination, files, modules):
+            if not self.need_rebuild(locator, destination, files, modules):
                 return
 
         # Generation context
         context = Context(config, source, target)
 
         # Load source
-        parser = source.parser.load(config.paths.locator)
+        parser = source.parser.load(locator)
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
-        data = parser().load(filename = source.filename, locator = config.paths.locator).getroot()
+        data = parser().load(filename = source.filename, locator = locator).getroot()
 
         # Generate output
-        generator = target.generator.load(config.paths.locator)
+        generator = target.generator.load(locator)
         if not issubclass(generator, GeneratorBase):
             raise StateError("Generator reference %s could not be loaded" % generator)
         output = generator.run(data, context)

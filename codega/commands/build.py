@@ -1,8 +1,11 @@
+import os
+import os.path
 import sys
 import optparse
 
 from codega.config import *
 from codega.build import Builder
+from codega.rsclocator import FileResourceLocator
 from codega import logger
 
 from base import OptparsedCommand
@@ -19,6 +22,9 @@ class CommandBuild(OptparsedCommand):
             optparse.make_option('-g', '--generator', default = None,
                                  help = 'Specify the generator in <module>:<source class> format'),
 
+            optparse.make_option('-I', '--include', default = ['.'], action = 'append',
+                                 help = 'Add a new search path (for modules, sources, etc.)'),
+
             optparse.make_option('-c', '--config', default = None,
                                  help = 'Write the equivalent config to the given file'),
         ]
@@ -27,11 +33,11 @@ class CommandBuild(OptparsedCommand):
 
     def execute(self):
         if not self.opts.source:
-            logger.error('Missing source')
+            logger.critical('Missing source')
             return False
 
         if not self.opts.generator:
-            logger.error('Missing generator')
+            logger.critical('Missing generator')
             return False
 
         config = Config()
@@ -52,7 +58,11 @@ class CommandBuild(OptparsedCommand):
         config.targets[target.filename] = target
 
         config.paths.destination = '.'
-        config.paths.paths.append('.')
+        for inc in self.opts.include:
+            if not os.path.isdir(inc):
+                logger.critical('Invalid path %r' % inc)
+                return False
+            config.paths.paths.append(inc)
         config.version = Version(1, 0)
 
         conf_xml = save_config(config)
@@ -63,5 +73,5 @@ class CommandBuild(OptparsedCommand):
             conf_file.write(conf_xml)
             conf_file.close()
 
-        Builder().build(config, target, force = True)
+        Builder(FileResourceLocator('.')).build(config, target, force = True)
         return True

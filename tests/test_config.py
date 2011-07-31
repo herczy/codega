@@ -24,7 +24,7 @@ class TestVisitors(TestCase):
             item_path = os.path.join(path, item)
 
             try:
-                cfg = parse_config(filename = item_path)
+                cfg = parse_config_file(item_path)
 
             except Exception, e:
                 if expect != '.fail':
@@ -39,7 +39,10 @@ class TestVisitors(TestCase):
                 if hasattr(self, 'check_%s' % name):
                     getattr(self, 'check_%s' % name)(cfg)
 
-                parse_config(data = save_config(cfg))
+                fd, fn = make_tempfile()
+                os.write(fd, save_config(cfg))
+                parse_config_file(fn)
+
                 self.assertEqual(flatten(save_config(cfg)), flatten(open(item_path).read()))
 
     def check_parse00(self, cfg):

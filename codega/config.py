@@ -7,7 +7,7 @@ from error import StateError, ConfigError, ParseError
 from ordereddict import OrderedDict, DictMixin
 from visitor import *
 from source import XmlSource
-from rsclocator import *
+from rsclocator import ModuleLocator
 from version import Version
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
@@ -267,32 +267,13 @@ class PathList(NodeBase):
     Members:
     _destination -- Destination directory
     _paths -- Search paths
-
-    _locator_hash -- Internal value, the hash of the destination and
-                     path list used for determining if a new locator
-                     needs to be created
-    _locator -- Locator from the path list
     '''
 
     _destination = None
     _paths = None
-    _locator_hash = None
-    _locator = None
 
     destination = config_property('_destination')
     paths = config_property('_paths', enable_change = False)
-
-    @property
-    def locator(self):
-        obj_hash = hash((self._destination, ) + tuple(self._paths))
-        if self._locator is None or self._locator_hash != obj_hash:
-            self._locator = FallbackLocator()
-            for path in self._paths:
-                self._locator.add_locator(FileResourceLocator(path))
-
-            self._locator_hash = obj_hash
-
-        return self._locator
 
     def __init__(self, parent = None):
         super(PathList, self).__init__(parent)
@@ -526,17 +507,21 @@ class SaveVisitor(Visitor):
 
         return res
 
-def parse_config(*args, **kwargs):
-    logger.debug('Loading config (arguments: (%s))', ', '.join(map(repr, args) + list('%s = %r' % p for p in kwargs.iteritems())))
-    config = Config()
-    xml_root = XmlSource().load(*args, **kwargs).getroot()
+def parse_config_file(filename):
+    logger.debug('Loading config file %s', filename)
 
+    # Initialize configuration object
+    config = Config()
+
+    # Parse raw XML file
+    xml_root = XmlSource().load(filename = filename).getroot()
     try:
         XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
     except etree.DocumentInvalid, e:
         raise ParseError('Configuration is invalid', e.error_log.last_error.line)
 
+    # Parse the XML structure
     visitor = ParseVisitor()
     try:
         visitor.visit(config, xml_root)
