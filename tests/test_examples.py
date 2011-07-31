@@ -12,7 +12,7 @@ def add_example_test(name, path):
 
         cur = os.getcwd()
         try:
-            os.chdir(os.path.join(exampledir, f))
+            os.chdir(os.path.join(exampledir, name))
             rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
 
         finally:
@@ -33,6 +33,9 @@ for f in os.listdir(exampledir):
     abspath = os.path.join(exampledir, f)
 
     if not os.path.isdir(abspath):
+        continue
+
+    if not os.path.isfile(os.path.join(abspath, 'codega.xml')):
         continue
 
     add_example_test(f, abspath)
