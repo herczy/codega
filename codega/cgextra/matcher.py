@@ -2,6 +2,8 @@
 
 import operator
 
+from lxml import etree
+
 class MatcherBase(object):
     '''Matcher base class'''
 
@@ -10,7 +12,8 @@ class MatcherBase(object):
 
         raise NotImplementedError('MatcherBase.__call__ is abstract')
 
-    def __not__(self):
+    @property
+    def neg(self):
         return CombinedMatcher(operator.__not__, self)
 
     def __and__(self, other):
