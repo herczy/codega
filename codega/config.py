@@ -82,20 +82,6 @@ class Settings(NodeBase, DictMixin):
 
             super(Settings.RecursiveContainer, self).__setitem__(key, value)
 
-        def __getitem__(self, key):
-            try:
-                return super(Settings.RecursiveContainer, self).__getitem__(key)
-
-            except KeyError, e:
-                raise ConfigError("Container has no key %s" % key)
-
-        def __delitem__(self, key):
-            try:
-                super(Settings.RecursiveContainer, self).__delitem__(key)
-
-            except KeyError, e:
-                raise ConfigError("Settings has no key %s" % key)
-
         def add_container(self, key):
             self[key] = Settings.RecursiveContainer()
             return self[key]
