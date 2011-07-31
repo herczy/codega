@@ -3,7 +3,7 @@
 Dependencies: None
 '''
 
-def indent(text, level = 1, indent_empty_lines = False, indent_string = ' ', strip_result = True):
+def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', strip_result = True):
     '''General purpose indentation
 
     Arguments:
