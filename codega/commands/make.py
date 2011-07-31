@@ -50,5 +50,5 @@ class CommandMake(OptparsedCommand):
         else:
             build_list = config.targets.values()
 
-        Builder(locator).build_list(config, build_list, force = self.opts.target)
+        Builder(locator).build_list(config, build_list, force = self.opts.force)
         return True
