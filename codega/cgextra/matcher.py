@@ -81,6 +81,17 @@ def tag(tag):
 
     return __matcher
 
+def parent(tag):
+    @matcher
+    def __matcher(source):
+        parent = source.getparent()
+        if parent is None:
+            return tag is None
+
+        return parent.tag == tag
+
+    return __matcher
+
 def xpath(xpath):
     xpath = etree.XPath(xpath)
 
