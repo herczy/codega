@@ -11,65 +11,6 @@ from UserDict import DictMixin
 from error import TemplateNotFoundError
 from stringio import StringIO
 
-class Bindings(object, DictMixin):
-    '''Template binding class.
-    
-    Simulates a dict with some confortability features, like attribute handling.
-
-    Members:
-    _data -- Bound variables
-    _parent -- Parent binding
-    '''
-
-    _data = None
-    _parent = None
-
-    def __init__(self, parent = None, **init_data):
-        self._data = dict(init_data)
-        self._parent = parent
-
-    @property
-    def parent(self):
-        return self._parent
-
-    @property
-    def root(self):
-        return self._parent.root if self._parent is not None else self
-
-    def __getattr__(self, name):
-        if self._data.has_key(name):
-            return self._data[name]
-
-        if self._parent is not None:
-            return self.parent[name]
-
-        raise KeyError("Binding %s does not exist" % name)
-
-    def __setattr__(self, name, value):
-        if name in ('_data', '_parent'):
-            super(Bindings, self).__setattr__(name, value)
-
-        else:
-            self._data[name] = value
-
-    def __delattr__(self, name):
-        try:
-            del self._data[name]
-
-        except KeyError:
-            raise KeyError("Binding %s does not exist" % name)
-
-    def extend(self, **data):
-        ret = Bindings(parent = self, init_data = self._data)
-        ret._data.update(data)
-
-    __getitem__ = __getattr__
-    __setitem__ = __setattr__
-    __delitem__ = __delattr__
-
-    def keys(self):
-        return self._data.keys()
-
 class TemplateBase(object):
     '''Base class for templates'''
 

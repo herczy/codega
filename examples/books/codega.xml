@@ -10,7 +10,12 @@
     </source>
     <target>
         <source>books</source>
-        <generator>bookgen:BookGenerator</generator>
+        <generator>bookgen:CBookGenerator</generator>
         <target>books.c</target>
+    </target>
+    <target>
+        <source>books</source>
+        <generator>bookgen:HtmlBookGenerator</generator>
+        <target>books.html</target>
     </target>
 </config>

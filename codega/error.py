@@ -9,6 +9,10 @@ class ParameteredError(Exception):
 
     _parameters = None
 
+    @property
+    def message(self):
+        return super(ParameteredError, self).__str__()
+
     def __init__(self, msg, **params):
         super(ParameteredError, self).__init__(msg)
 
@@ -16,16 +20,18 @@ class ParameteredError(Exception):
 
     def __str__(self):
         parms = map(lambda (k, v): '%s = %r' % (k, v), filter(lambda (k, v): v is not None, self._parameters.iteritems()))
-        prefix = super(ParameteredError, self).__str__()
         if not parms:
-            return prefix
+            return self.message
 
-        return '%s (%s)' % (prefix, ', '.join(parms))
+        return '%s (%s)' % (self.message, ', '.join(parms))
 
     def __repr__(self):
         parms = map(lambda (k, v): '%s = %r' % (k, v), filter(lambda (k, v): v is not None, self._parameters.iteritems()))
         parms.insert(0, 'message = %r' % self.message)
         return '%s(%s)' % (self.__class__.__name__, ', '.join(parms))
+
+    def __getattr__(self, name):
+        return self._parameters[name]
 
 class ResourceError(ParameteredError):
     '''Resource error, thrown when a resource is not found'''
@@ -39,6 +45,12 @@ class TemplateNotFoundError(ParameteredError):
     def __init__(self, msg, tplset = None):
         super(TemplateNotFoundError, self).__init__(msg, tplset = tplset)
 
+class ParseError(ParameteredError):
+    '''The given source could not be parsed'''
+
+    def __init__(self, msg, lineno):
+        super(ParseError, self).__init__(msg, lineno = lineno)
+
 class VersionMismatchError(Exception):
     '''The version isn't what it supposed to be'''
 
@@ -46,4 +58,4 @@ class StateError(Exception):
     '''The state of the object is not what it's supposed to be'''
 
 class ConfigError(Exception):
-    '''The configuration is invalid'''
+    ''''The configuration is invalid'''

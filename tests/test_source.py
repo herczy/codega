@@ -1,7 +1,6 @@
 from unittest import TestCase, TestSuite
 import os
 import os.path
-import tempfile
 
 from codega.source import XmlSource
 from codega.rsclocator import FileResourceLocator
@@ -21,12 +20,12 @@ class TestSource(TestCase):
         self.check(self.source.load(data = xml_content))
 
     def test_load_file_without_locator(self):
-        fd, name = tempfile.mkstemp()
+        fd, name = make_tempfile()
         os.write(fd, xml_content)
         self.check(self.source.load(filename = name))
 
     def test_load_file_with_locator(self):
-        loc = FileResourceLocator(['/tmp'])
-        fd, name = tempfile.mkstemp()
+        loc = FileResourceLocator('/tmp')
+        fd, name = make_tempfile()
         os.write(fd, xml_content)
         self.check(self.source.load(filename = os.path.basename(name), locator = loc))

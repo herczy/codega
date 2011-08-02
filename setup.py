@@ -25,7 +25,7 @@ but mostly C/C++. However it can be easily used for other purposes
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
         maintainer_email = "hercinger.viktor@gmail.com",
-        packages = [ 'codega', 'codega.cgextra' ],
+        packages = [ 'codega', 'codega.cgextra', 'codega.commands' ],
         package_data = { 'codega' : [ 'config.xsd' ] },
         scripts = [ 'cgx' ],
         requires = [ 'lxml', 'mako' ])

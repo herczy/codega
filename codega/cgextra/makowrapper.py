@@ -9,6 +9,7 @@ from mako.template import Template as ExternalMakoTemplate
 
 from codega.generator import *
 from codega.template import *
+from codega import logger
 
 class MakoTemplate(TemplateBase):
     '''Wrapper for mako templates
@@ -31,7 +32,13 @@ class MakoTemplate(TemplateBase):
         _binding_dict['template'] = self
 
         context = ExternalMakoContext(buf, **_binding_dict)
-        self._template.render_context(context)
+
+        try:
+            self._template.render_context(context)
+
+        except:
+            logger.error('Rendering failed, bindings = %r' % _binding_dict)
+            raise
 
         return buf.getvalue()
 

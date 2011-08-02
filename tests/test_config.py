@@ -1,65 +1,118 @@
 from unittest import TestCase, TestSuite
+
 import os
 import os.path
-import tempfile
+from lxml import etree
 
-from codega.rsclocator import FileResourceLocator
+import codega
+
+from codega.source import XmlSource
 from codega.config import *
 
-class XMLMockup(object):
-    def __init__(self, tag, text = '', **attributes):
-        self.tag = tag
-        self.attrib = attributes
-        self.text = text
+def flatten(text):
+    return ''.join(filter(lambda p: not p.isspace(), text))
 
-        self.children = []
+class TestVisitors(TestCase):
+    def test_visitor(self):
+        path = os.path.join(os.path.dirname(__file__), 'data')
+        for item in os.listdir(path):
+            fn, ext = os.path.splitext(item)
+            if ext != '.xml':
+                continue
 
-    def add_child(self, child):
-        self.children.append(child)
-        return child
+            name, expect = os.path.splitext(fn)
+            item_path = os.path.join(path, item)
 
-    def __iter__(self):
-        return iter(self.children)
+            try:
+                cfg = parse_config_file(item_path)
 
-    def find(self, name):
-        for ch in self.children:
-            if ch.tag == name:
-                return ch
+            except Exception, e:
+                if expect != '.fail':
+                    raise
 
-class TestConfigSettings(TestCase):
-    def setUp(self):
-        self.xml = XMLMockup('settings')
-        self.xml.add_child(XMLMockup('entry', text = 'test0value', name = 'test0'))
-        cont = self.xml.add_child(XMLMockup('container', name = 'test1'))
-        cont.add_child(XMLMockup('entry', text = 'test2value', name = 'test2'))
+                if not isinstance(e, ParseError):
+                    raise
 
-        self.settings = ConfigSettings(self, self.xml)
+            else:
+                self.assertEqual(expect, '.succ')
 
-    def test_values(self):
-        self.assertEqual(self.settings.test0, 'test0value')
-        self.assertEqual(self.settings.test1.test2, 'test2value')
-        self.assertTrue(isinstance(self.settings.test1, ConfigSettings))
+                if hasattr(self, 'check_%s' % name):
+                    getattr(self, 'check_%s' % name)(cfg)
 
-        self.assertRaises(KeyError, getattr, self.settings, 'test3')
+                fd, fn = make_tempfile()
+                os.write(fd, save_config(cfg))
+                parse_config_file(fn)
 
-class TestConfigSource(TestCase):
-    def setUp(self):
-        class ParentMockup(object):
-            @property
-            def locator(self):
-                return FileResourceLocator('/tmp')
+                self.assertEqual(flatten(save_config(cfg)), flatten(open(item_path).read()))
 
-        fd, self.fn = tempfile.mkstemp()
-        self.xml = XMLMockup('source')
-        self.xml.add_child(XMLMockup('name', 'test'))
-        self.xml.add_child(XMLMockup('filename', self.fn))
-        self.source = ConfigSource(ParentMockup(), self.xml)
+    def check_parse00(self, cfg):
+        self.assertEqual(cfg.paths.destination, './')
+        self.assertEqual(cfg.paths.paths, ['./'])
 
-    def test_values(self):
-        self.assertEqual(self.source.name, 'test')
-        self.assertEqual(self.source.filename, self.fn)
+        self.assertEqual(cfg.sources['config'].name, 'config')
+        self.assertEqual(cfg.sources['config'].filename, 'codega.xml')
+        self.assertEqual(cfg.sources['config'].parser.module, 'codega.source')
+        self.assertEqual(cfg.sources['config'].parser.reference, 'XmlSource')
 
-    def test_mtime(self):
-        self.assertNotEqual(self.source.mtime, 0)
-        self.source.filename = 'aaa'
-        self.assertEqual(self.source.mtime, 0)
+        target = cfg.targets['config.txt']
+        self.assertEqual(target.source, 'config')
+        self.assertEqual(target.generator.module, 'dumper')
+        self.assertEqual(target.generator.reference, 'DumpGenerator')
+        self.assertEqual(target.filename, 'config.txt')
+
+        self.assertEqual(target.settings.test0, 'value0')
+        self.assertEqual(target.settings.test1.test2, 'value2')
+
+class TestSettings(TestCase):
+    def test_basic(self):
+        settings = Settings()
+
+        test0 = settings.add_container('a')
+        test0['b'] = '2'
+        test0['c'] = '3'
+
+        settings.b = '4'
+        settings.c = '5'
+
+        self.assertEqual(settings.a.b, '2')
+        self.assertEqual(settings.a.c, '3')
+
+        self.assertEqual(settings.b, '4')
+        self.assertEqual(settings.c, '5')
+
+        del test0['b']
+
+    def test_error(self):
+        self.assertRaises(KeyError, Settings().__getitem__, 'x')
+        self.assertRaises(KeyError, Settings().__delitem__, 'x')
+        self.assertRaises(TypeError, Settings().__setitem__, 'x', 1)
+
+class TestModuleReference(TestCase):
+    def test_basic(self):
+        mr = ModuleReference()
+        self.assertEqual(mr.module, None)
+        self.assertEqual(mr.reference, None)
+
+        mr.load_from_string('codega.source:XmlSource')
+        self.assertEqual(mr.module, 'codega.source')
+        self.assertEqual(mr.reference, 'XmlSource')
+
+        self.assertEqual(mr.load(ModuleLocator(codega)), XmlSource)
+
+        self.assertRaises(ValueError, mr.load_from_string, 'c.g:--')
+        self.assertRaises(ValueError, mr.load_from_string, 'c.g')
+        self.assertRaises(ValueError, setattr, mr, 'module', '::')
+        self.assertRaises(ValueError, setattr, mr, 'module', 'x::')
+        self.assertRaises(ValueError, setattr, mr, 'module', ' ')
+        self.assertRaises(ValueError, setattr, mr, 'module', '.x.y')
+        self.assertRaises(ValueError, setattr, mr, 'reference', 'a.b')
+        self.assertEqual(mr.module, 'codega.source')
+        self.assertEqual(mr.reference, 'XmlSource')
+
+        mr.load_from_string('a:b')
+        self.assertRaises(ImportError, mr.load, ModuleLocator(codega))
+
+        del mr.module
+        del mr.reference
+        self.assertEqual(mr.module, None)
+        self.assertEqual(mr.reference, None)

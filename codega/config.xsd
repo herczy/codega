@@ -14,7 +14,7 @@
         <!-- targets -->
         <xs:element ref="target" minOccurs="1" maxOccurs="unbounded" />
       </xs:sequence>
-      <xs:attribute name="version" type="xs:string" />
+      <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 
@@ -47,11 +47,8 @@
   <xs:element name="target">
     <xs:complexType>
       <xs:sequence>
-
         <xs:element name="source" type="xs:string" />
-
         <xs:element name="generator" type="class_locator" />
-
         <xs:element name="target" type="xs:string" />
 
         <xs:element name="settings" minOccurs="0" maxOccurs="1">
@@ -73,7 +70,7 @@
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" />
+                <xs:attribute name="name" type="xs:string" use="required" />
               </xs:extension>
             </xs:simpleContent>
           </xs:complexType>
@@ -88,7 +85,7 @@
   <xs:element name="container">
     <xs:complexType>
       <xs:group ref="settings" />
-      <xs:attribute name="name" type="xs:string" />
+      <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 

@@ -1,25 +1,28 @@
 from unittest import TestCase, TestSuite
 import os
 import os.path
-import tempfile
+import sys
 
 class TestExamples(TestCase):
     pass
 
 def add_example_test(name, path):
     def __run(self):
-        fd, fn = tempfile.mkstemp()
+        fd, fn = make_tempfile()
 
         cur = os.getcwd()
         try:
-            os.chdir(os.path.join(exampledir, f))
-            os.system('../../cgx build -d -f 2>%s' % fn)
+            os.chdir(os.path.join(exampledir, name))
+            rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
 
         finally:
             os.chdir(cur)
 
-        data = os.read(fd, 100000)
-        self.assertNotEqual(data[:7], 'Error: ')
+        if rc != 0:
+            print >>sys.stderr, "stderr output from 'cgx build -f'"
+            sys.stderr.write(open(fn, 'r').read())
+
+        self.assertEqual(rc, 0)
 
     setattr(TestExamples, 'test_example_%s' % name, __run)
 
@@ -30,6 +33,9 @@ for f in os.listdir(exampledir):
     abspath = os.path.join(exampledir, f)
 
     if not os.path.isdir(abspath):
+        continue
+
+    if not os.path.isfile(os.path.join(abspath, 'codega.xml')):
         continue
 
     add_example_test(f, abspath)

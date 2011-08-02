@@ -2,6 +2,8 @@
 
 import operator
 
+from lxml import etree
+
 class MatcherBase(object):
     '''Matcher base class'''
 
@@ -10,7 +12,8 @@ class MatcherBase(object):
 
         raise NotImplementedError('MatcherBase.__call__ is abstract')
 
-    def __not__(self):
+    @property
+    def neg(self):
         return CombinedMatcher(operator.__not__, self)
 
     def __and__(self, other):
@@ -77,6 +80,18 @@ def tag(tag):
         return source.tag == tag
 
     return __matcher
+
+def parent(tag):
+    @matcher
+    def __matcher(source):
+        parent = source.getparent()
+        if parent is None:
+            return tag is None
+
+        return parent.tag == tag
+
+    return __matcher
+root = parent(None)
 
 def xpath(xpath):
     xpath = etree.XPath(xpath)
