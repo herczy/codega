@@ -1,3 +1,4 @@
+import sys
 import os
 import os.path
 
@@ -65,7 +66,7 @@ class CommandPack(CommandBase):
             cgmake = []
             start = False
 
-            for i in open(__file__):
+            for i in open(sys.argv[0]):
                 i = i.rstrip()
 
                 if i[:6] == '# MARK':
@@ -86,6 +87,7 @@ class CommandPack(CommandBase):
         logger.info('Data compressed, checksum is %s' % checksum)
         split = split_data(data)
         main_code = load_main_code()
+        print main_code
 
         print >>target, '''#!/usr/bin/env python
 
@@ -132,10 +134,11 @@ check_decompress()
 
     def prepare(self, argv):
         if len(argv) != 1:
-            critical("Wrong number of arguments (usage: pack <output>)")
+            logger.critical("Wrong number of arguments (usage: pack <output>)")
             return False
 
         self._arg = argv[0]
+        return True
 
     def execute(self):
         out = open(self._arg, 'w')
