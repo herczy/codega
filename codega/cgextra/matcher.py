@@ -4,13 +4,14 @@ import operator
 
 from lxml import etree
 
+from codega.decorators import abstract
+
 class MatcherBase(object):
     '''Matcher base class'''
 
+    @abstract
     def __call__(self, source):
         '''Match check call'''
-
-        raise NotImplementedError('MatcherBase.__call__ is abstract')
 
     @property
     def neg(self):

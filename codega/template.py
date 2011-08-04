@@ -10,16 +10,16 @@ from UserDict import DictMixin
 
 from error import TemplateNotFoundError
 from stringio import StringIO
+from decorators import abstract
 
 class TemplateBase(object):
     '''Base class for templates'''
 
     _name = None
 
+    @abstract
     def render(self, bindings):
         '''Render the template with the given bindings'''
-
-        raise NotImplementedError("TemplateBase.render is abstract")
 
 class TemplatesetBase(object):
     '''Template set base class'''
@@ -27,14 +27,13 @@ class TemplatesetBase(object):
     def __init__(self):
         pass
 
+    @abstract
     def get_template(self, name):
         '''Get the template object from the given name
 
         Arguments:
         name -- Name of the template to find
         '''
-
-        raise NotImplementedError("TemplatesetBase.locate_template is abstract")
 
     def render(self, name, bindings):
         '''Renders a template located by its by name

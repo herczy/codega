@@ -4,18 +4,18 @@ load() loads an XML eigther from a file or a string'''
 from lxml import etree
 
 from stringio import StringIO
+from decorators import abstract
 
 class SourceBase(object):
     '''A source should parse a file (or list of files) and create an XML etree.'''
 
+    @abstract
     def load_from_fileobj(self, fileobj):
         '''Load XML etree from the supplied file object
 
         Arguments:
         fileobj -- Raw data for source. Is a file object (StringIO, file, etc.)
         '''
-
-        raise NotImplementedError("SourceBase.load_from_data is abstract")
 
     def load(self, data = None, filename = None, locator = None):
         '''Load some source

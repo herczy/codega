@@ -17,6 +17,7 @@ import heapq
 import types
 
 from error import StateError
+from decorators import abstract
 import logger
 
 PRI_HIGHEST = -100
@@ -75,6 +76,7 @@ class GeneratorBase(object):
 
         return self._matcher(source)
 
+    @abstract
     def generate(self, source, context):
         '''Generate output and return it
 
@@ -82,8 +84,6 @@ class GeneratorBase(object):
         source -- Source XML tree
         context -- Generation context
         '''
-
-        raise NotImplementedError("GeneratorBase.generate is abstract")
 
     def bind(self, parent):
         '''Bind the generator to a parent.

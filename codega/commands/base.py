@@ -6,6 +6,7 @@ import optparse
 
 import traceback
 
+from codega.decorators import abstract
 from codega import logger
 
 class CommandBase(object):
@@ -31,15 +32,13 @@ class CommandBase(object):
         self._name = name
         self._helpstring = helpstring if helpstring else '<no help supplied>'
 
+    @abstract
     def prepare(self, argv):
         '''Prepare the argument list'''
 
-        raise NotImplementedError("CommandBase.prepare is abstract")
-
+    @abstract
     def execute(self):
         '''Run the command'''
-
-        raise NotImplementedError("CommandBase.execute is abstract")
 
     def handle_exception(self, desc_short, desc_long):
         '''Handle some exception that occured during the execution

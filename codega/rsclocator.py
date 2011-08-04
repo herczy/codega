@@ -10,6 +10,7 @@ import os, os.path
 import sys
 
 from error import ResourceError
+from decorators import abstract
 
 class ResourceLocatorBase(object):
     '''Resource loader base object'''
@@ -17,20 +18,17 @@ class ResourceLocatorBase(object):
     def __init__(self):
         pass
 
+    @abstract
     def find(self, resource):
         '''Abstract method for locating a resource'''
 
-        raise NotImplementedError("ResourceLocatorBase.find is abstract")
-
+    @abstract
     def list_resources(self):
         '''List resources reachable with locator'''
 
-        raise NotImplementedError("ResourceLocatorBase.list_resources is abstract")
-
+    @abstract
     def import_module(self, module):
         '''Abstract method for locating a module'''
-
-        raise NotImplementedError("ResourceLocatorBase.import_module is abstract")
 
 class FileResourceLocator(ResourceLocatorBase):
     '''Class that helps locating files from the given path.
