@@ -2,6 +2,7 @@ from codega.template import *
 from codega.generator import *
 
 from codega.cgextra.makowrapper import inline
+from codega.cgextra.dicttools import *
 from codega.cgextra import matcher
 
 class CBookGenerator(ObjectGenerator):
@@ -46,13 +47,11 @@ class CBookGenerator(ObjectGenerator):
     def generator_book(self, source, context):
         '''{ "${str(title)}", "${str(author)}", "${str(published)}" },'''
 
-        bindings = Bindings()
+        title = source.find('title').text
+        author = source.find('author').text
+        published = source.find('pubdate').text
 
-        bindings.title = source.find('title').text
-        bindings.author = source.find('author').text
-        bindings.published = source.find('pubdate').text
-
-        return bindings
+        return exclude_internals(locals())
 
 class HtmlBookGenerator(ObjectGenerator):
     @inline(matcher = matcher.tag('bookshelf'))
@@ -77,10 +76,8 @@ class HtmlBookGenerator(ObjectGenerator):
     def generator_book(self, source, context):
         '''${str(author)} - ${str(title)} (${str(published)})'''
 
-        bindings = Bindings()
+        title = source.find('title').text
+        author = source.find('author').text
+        published = source.find('pubdate').text
 
-        bindings.title = source.find('title').text
-        bindings.author = source.find('author').text
-        bindings.published = source.find('pubdate').text
-
-        return bindings
+        return exclude_internals(locals())
