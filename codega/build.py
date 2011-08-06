@@ -12,12 +12,15 @@ class Builder(object):
 
     Members:
     _base_locator -- Basic resource locator
+    _parsed -- Parsed source results
     '''
 
     _base_locator = None
+    _parsed = None
 
     def __init__(self, locator):
         self._base_locator = locator
+        self._parsed = {}
 
     @staticmethod
     def mtime(filename):
@@ -73,10 +76,13 @@ class Builder(object):
         context = Context(config, source, target)
 
         # Load source
-        parser = source.parser.load(locator)
-        if not issubclass(parser, SourceBase):
-            raise StateError("Parser reference %s could not be loaded" % parser)
-        data = parser().load(source.resource).getroot()
+        if not self._parsed.has_key(source.name):
+            parser = source.parser.load(locator)
+            if not issubclass(parser, SourceBase):
+                raise StateError("Parser reference %s could not be loaded" % parser)
+            self._parsed[source.name] = parser().load(source.resource).getroot()
+
+        data = self._parsed[source.name]
 
         # Generate output
         generator = target.generator.load(locator)
