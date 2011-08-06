@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+makedoc_typed()
+{
+  echo "creating $1 documentation (treeid $2)"
+  epydoc --$1 --show-sourcecode -o "doc/$1" -n codega --graph all codega
+}
+
+makedoc()
+{
+  NAME="codega-$1-doc.tar.gz"
+
+  makedoc_typed html $1
+  tar czf $NAME doc
+}
+
 release()
 {
   NAME="codega-$2.tar.gz"
@@ -8,7 +22,9 @@ release()
   git archive $1 | gzip > $NAME
 
   echo -n "self-contained (codega-$2) "
-  ./cgpack "codega-$2"
+  ./cgx pack "codega-$2"
+
+  makedoc $2
 }
 
 treeid=${1:-snapshot}
