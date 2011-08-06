@@ -1,64 +1,59 @@
 '''Implements the generic visitor interface'''
 
-import re
+from decorators import *
 
-from lxml import etree
+visitor = lambda value: mark('visit', value)
 
-replacement = re.compile(r'[^A-Za-z0-9]')
+class VisitorType(type):
+    '''Meta-class for visitor types.
 
-def substitute(match):
-    return '_%02x' % ord(match.group())
+    This meta-class collects the visitor methods into a dictionary to
+    be used when doing a visitation.
+    '''
 
-def chain_names(*names):
-    return '_'.join(map(lambda name: replacement.sub(substitute, name), names))
+    def __new__(cls, name, bases, mdict):
+        mdict['__visitors__'] = dict(collect_marked(mdict, 'visit'))
+        return type.__new__(cls, name, bases, mdict)
 
-def find_method(obj, prefix, *names):
-    attributes = map(lambda name: chain_names(prefix, name), names)
+class VisitorBase(object):
+    '''A base class for visitors'''
 
-    for attr in attributes:
-        val = getattr(obj, attr, None)
-        if val is not None:
-            return val
+    __metaclass__ = VisitorType
 
-class MixinVisitor:
-    '''A mixin to use with classes that need to implement visitors based on classes'''
+    @abstract
+    def aspects(self, node):
+        '''Return the aspect of the node that will decide which
+        visitor function to use'''
 
     def visit(self, node, *args, **kwargs):
-        '''Call the appropriate visitor method.
+        '''Call the appropriate visitor method.'''
 
-        The algorithm uses the method resolution order (__mro__) in
-        order to decide which visitor method to call.
-        '''
-
-        method = find_method(self, 'visit', *map(lambda cls: cls.__name__, node.__class__.__mro__))
-        if method is not None:
-            return method(node, *args, **kwargs)
+        for aspect in self.aspects(node):
+            if self.__visitors__.has_key(aspect):
+                # We need to specify self in the call since these are not
+                # bound methods
+                return self.__visitors__[aspect](self, node, *args, **kwargs)
 
         return self.visit_fallback(node, *args, **kwargs)
 
     def visit_fallback(self, node, *args, **kwargs):
         '''Fallback visitor, does nothing'''
 
-class Visitor(object, MixinVisitor):
-    '''Same as MixinVisitor extept that it's also a proper object-derived class'''
+class ClassVisitor(VisitorBase):
+    '''A visitor to use with classes that need to implement visitors based on classes'''
 
-class MixinXmlVisitor:
-    '''A visitor mixin to use with XML nodes'''
+    def aspects(self, node):
+        '''Use the method resolution order (__mro__) for identifying the visitor method to use.'''
 
-    def visit(self, node, *args, **kwargs):
+        return node.__class__.__mro__
+
+class XmlVisitor(VisitorBase):
+    '''A visitor to use with XML nodes'''
+
+    def aspects(self, node):
         '''Call the appropriate visitor method.
 
         The algoritm tries to find the visitor method using the node tag
         '''
 
-        method = find_method(self, 'visit', node.tag)
-        if method is not None:
-            return method(node, *args, **kwargs)
-
-        return self.visit_fallback(node, *args, **kwargs)
-
-    def visit_fallback(self, node, *args, **kwargs):
-        '''Fallback visitor, does nothing'''
-
-class XmlVisitor(object, MixinXmlVisitor):
-    '''Same as MixinXmlVisitor extept that it's also a proper object-derived class'''
+        return [ node.tag ]

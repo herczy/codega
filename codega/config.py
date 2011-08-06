@@ -393,7 +393,7 @@ class Config(NodeBase):
         self._targets = Config.TargetCollection(self)
         self._dependencies = {}
 
-class ParseVisitor(Visitor):
+class ParseVisitor(ClassVisitor):
     '''Parse the configs XML tree representation to the internal representation.'''
 
     def __init__(self):
@@ -405,10 +405,12 @@ class ParseVisitor(Visitor):
         self._current_node = xml_node
         super(ParseVisitor, self).visit(node, xml_node)
 
-    def visit_ModuleReference(self, node, xml_node):
+    @visitor(ModuleReference)
+    def module_reference(self, node, xml_node):
         node.load_from_string(xml_node.text)
 
-    def visit_Source(self, node, xml_node):
+    @visitor(Source)
+    def source(self, node, xml_node):
         node.name = xml_node.find('name').text
         node.filename = xml_node.find('filename').text
 
@@ -416,19 +418,22 @@ class ParseVisitor(Visitor):
         if parser is not None:
             self.visit(node.parser, parser)
 
-    def visit_Settings(self, node, xml_node):
-        def _parse_settings(current_node, current_xml_node):
-            for chld in current_xml_node:
-                if chld.tag == 'entry':
-                    current_node[chld.attrib['name']] = chld.text
+    @visitor(Settings.RecursiveContainer)
+    def recursive_container(self, node, xml_node):
+        for chld in xml_node:
+            if chld.tag == 'entry':
+                node[chld.attrib['name']] = chld.text
 
-                else:
-                    node = current_node[chld.attrib['name']] = Settings.RecursiveContainer()
-                    _parse_settings(node, chld)
+            else:
+                new_node = node[chld.attrib['name']] = Settings.RecursiveContainer()
+                self.visit(new_node, chld)
 
-        _parse_settings(node.data, xml_node)
+    @visitor(Settings)
+    def settings(self, node, xml_node):
+        self.visit(node.data, xml_node)
 
-    def visit_Target(self, node, xml_node):
+    @visitor(Target)
+    def target(self, node, xml_node):
         node.source = xml_node.find('source').text
         node.filename = xml_node.find('target').text
         self.visit(node.generator, xml_node.find('generator'))
@@ -437,7 +442,8 @@ class ParseVisitor(Visitor):
         if settings_xml is not None:
             self.visit(node.settings, settings_xml)
 
-    def visit_PathList(self, node, xml_node):
+    @visitor(PathList)
+    def path_list(self, node, xml_node):
         for chld in xml_node:
             if chld.tag == 'target':
                 node.destination = chld.text
@@ -445,7 +451,8 @@ class ParseVisitor(Visitor):
             else:
                 node.paths.append(chld.text)
 
-    def visit_Config(self, node, xml_node):
+    @visitor(Config)
+    def config(self, node, xml_node):
         node.version = xml_node.attrib['version']
         for chld in xml_node:
             if chld.tag == 'paths':
@@ -461,13 +468,15 @@ class ParseVisitor(Visitor):
                 self.visit(target, chld)
                 node.targets[target.filename] = target
 
-class SaveVisitor(Visitor):
+class SaveVisitor(ClassVisitor):
     '''Parse the internal config representation into an XML tree representation'''
 
-    def visit_ModuleReference(self, node):
+    @visitor(ModuleReference)
+    def module_reference(self, node):
         return '%s:%s' % (node.module, node.reference)
 
-    def visit_Source(self, node):
+    @visitor(Source)
+    def source(self, node):
         res = build_element('source', children = [
                   build_element('name', text = node.name),
                   build_element('filename', text = node.filename),
@@ -478,21 +487,24 @@ class SaveVisitor(Visitor):
 
         return res
 
-    def visit_Settings(self, node):
-        def _save_settings(current_node):
-            res = []
-            for name, value in current_node.data.iteritems():
-                if isinstance(value, basestring):
-                    res.append(build_element('entry', attributes = { 'name' : name }, text = value))
+    @visitor(Settings.RecursiveContainer)
+    def recursive_container(self, node):
+        res = []
+        for name, value in node.iteritems():
+            if isinstance(value, basestring):
+                res.append(build_element('entry', attributes = { 'name' : name }, text = value))
 
-                else:
-                    res.append(build_element('container', attributes = { 'name' : name }, children = _save_settings(value)))
+            else:
+                res.append(build_element('container', attributes = { 'name' : name }, children = self.visit(value)))
 
-            return res
+        return res
 
-        return build_element('settings', children = _save_settings(node))
+    @visitor(Settings)
+    def settings(self, node):
+        return build_element('settings', children = self.visit(node.data))
 
-    def visit_Target(self, node):
+    @visitor(Target)
+    def target(self, node):
         res = etree.Element('target')
         res.append(build_element('source', text = node.source))
         res.append(build_element('generator', text = self.visit(node.generator)))
@@ -501,7 +513,8 @@ class SaveVisitor(Visitor):
 
         return res
 
-    def visit_PathList(self, node):
+    @visitor(PathList)
+    def path_list(self, node):
         res = build_element('paths')
         res.append(build_element('target', text = node.destination))
         for path in node.paths:
@@ -509,7 +522,8 @@ class SaveVisitor(Visitor):
 
         return res
 
-    def visit_Config(self, node):
+    @visitor(Config)
+    def config(self, node):
         res = etree.Element('config')
         res.attrib['version'] = str(node.version)
         res.append(self.visit(node.paths))
