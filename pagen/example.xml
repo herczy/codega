@@ -1,0 +1,27 @@
+<!--
+     project page generator
+-->
+
+<pagen project="codega">
+  <project>codega code generator</project>
+  <author>Hercinger Viktor</author>
+  <color>
+    <background>7ac5ea</background>
+    <text>black</text>
+    <highlight>001c00</highlight>
+  </color>
+  <sections>
+    <section name="Dependencies">
+    mako - if you plan to use the codega.cgextra helpers
+    lxml
+    </section>
+    <section name="Install">
+    Just check out the github repository at git://github.com/herczy/codega.git and run the setup script:
+    ./setup.py build
+    ./setup.py install
+    </section>
+    <section name="Licence">
+    BSD
+    </section>
+  </sections>
+</pagen>
