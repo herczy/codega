@@ -87,7 +87,6 @@ class CommandPack(CommandBase):
         logger.info('Data compressed, checksum is %s' % checksum)
         split = split_data(data)
         main_code = load_main_code()
-        print main_code
 
         print >>target, '''#!/usr/bin/env python
 
