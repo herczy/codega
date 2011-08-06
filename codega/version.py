@@ -85,5 +85,10 @@ class Version(object):
 
         return 'Version(%s)' % self
 
+    def __hash__(self):
+        '''Get a version hash.'''
+
+        return hash(tuple(self._components))
+
     def dup(self):
         return Version(*self._components)

@@ -51,9 +51,12 @@ class XmlVisitor(VisitorBase):
     '''A visitor to use with XML nodes'''
 
     def aspects(self, node):
-        '''Call the appropriate visitor method.
-
-        The algoritm tries to find the visitor method using the node tag
-        '''
+        '''Call the appropriate visitor method.'''
 
         return [ node.tag ]
+
+class ExplicitVisitor(VisitorBase):
+    '''A visitor where the only aspect is the node itself'''
+
+    def aspects(self, node):
+        return [ node ]

@@ -3,7 +3,7 @@ import re
 from lxml import etree
 
 import logger
-from error import StateError, ConfigError, ParseError
+from error import *
 from ordereddict import OrderedDict, DictMixin
 from visitor import *
 from source import XmlSource
@@ -284,14 +284,7 @@ class Config(NodeBase):
     _targets -- Dict of targets
 
     _dependencies -- Dependencies between targets and sources
-
-    Static members:
-    MIN_VERSION -- Minimum accepted version
-    MAX_VERSION -- Maximum accepted version
     '''
-
-    MIN_VERSION = Version(1, 0)
-    MAX_VERSION = Version(1, 0)
 
     class SourceCollection(OrderedDict):
         '''Source list, checks for types and possible dependencies'''
@@ -379,15 +372,12 @@ class Config(NodeBase):
         else:
             raise ValueError("Version can only be a string or another Version object")
 
-        if version < self.MIN_VERSION or version > self.MAX_VERSION:
-            raise VersionMismatchError("Unsupported configuration version %s" % version)
-
         self._version = version
 
     def __init__(self):
         super(Config, self).__init__()
 
-        self._version = self.MIN_VERSION.dup()
+        self._version = Version()
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
@@ -532,6 +522,26 @@ class SaveVisitor(ClassVisitor):
 
         return res
 
+class UpdateVisitor(ExplicitVisitor):
+    '''To be able to handle different versions, we need to 'update' the
+    current version. So if a new compatible config version appears we need
+    to add an update function to that version.
+
+    Since there is only one supported version, only the fallback and the current
+    version visitors will be defined.
+
+    The update must be done prior to validating the XML. So the XSD always validates
+    the current version.
+    '''
+
+    @visitor(Version(1, 0))
+    def version_current(self, version, xml_root):
+        return xml_root
+
+    def visit_fallback(self, version, xml_root):
+        print version
+        raise VersionMismatchError("Configs with version %s are not supported" % version)
+
 def parse_config_file(filename):
     logger.debug('Loading config file %s', filename)
 
@@ -540,6 +550,21 @@ def parse_config_file(filename):
 
     # Parse raw XML file
     xml_root = XmlSource().load(filename = filename).getroot()
+
+    # Update the XML tree if needed (this needs pre-verifying the version)
+    if not xml_root.attrib.has_key('version'):
+        raise ParseError("Configuration version cannot be determined", 1)
+
+    try:
+        version = Version.load_from_string(xml_root.attrib['version'])
+
+    except TypeError:
+        raise ParseError("Invalid version format %s" % xml_root.attrib['version'], 1)
+
+    xml_root = UpdateVisitor().visit(version, xml_root)
+
+    # Validate the XML root with the config.xsd. The config.xsd file always
+    # refers to the current version (see UpdateVisitor.version_current)
     try:
         XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
