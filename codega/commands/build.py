@@ -45,7 +45,7 @@ class CommandBuild(OptparsedCommand):
         # Create source object
         source = Source(config)
         source.name = 'source'
-        source.filename = self.opts.source
+        source.resource = self.opts.source
         if self.opts.parser:
             source.parser.load_from_string(self.opts.parser)
         config.sources[source.name] = source

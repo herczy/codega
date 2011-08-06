@@ -37,7 +37,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="name" type="xs:string" />
-        <xs:element name="filename" type="xs:string" />
+        <xs:element name="resource" type="xs:string" />
         <xs:element name="parser" type="class_locator" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
     </xs:complexType>

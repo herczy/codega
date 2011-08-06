@@ -6,12 +6,13 @@ import logger
 from error import *
 from ordereddict import OrderedDict, DictMixin
 from visitor import *
-from source import XmlSource
+from source import XmlSource, validate_xml
 from rsclocator import ModuleLocator
 from version import Version
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+latest_version = Version(1, 1)
 
 def config_property(name, property_type = basestring, enable_change = True):
     if enable_change:
@@ -53,6 +54,13 @@ class NodeBase(object):
 
     _parent = None
     parent = property(lambda self: self._parent)
+
+    @property
+    def root(self):
+        if self._parent is not None:
+            return self._parent.root
+
+        return self
 
     def __init__(self, parent = None):
         self._parent = parent
@@ -212,16 +220,16 @@ class Source(NodeBase):
     Members:
     _name -- Source name
     _parser -- Parser class reference
-    _filename -- Source file name
+    _resource  -- Resource name
     '''
 
     _name = None
     _parser = None
-    _filename = None
+    _resource = None
 
     name = config_property('_name')
     parser = config_property('_parser', enable_change = False)
-    filename = config_property('_filename')
+    resource = config_property('_resource')
 
     def __init__(self, parent = None):
         super(Source, self).__init__(parent)
@@ -377,7 +385,7 @@ class Config(NodeBase):
     def __init__(self):
         super(Config, self).__init__()
 
-        self._version = Version()
+        self._version = latest_version.dup()
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
@@ -402,7 +410,7 @@ class ParseVisitor(ClassVisitor):
     @visitor(Source)
     def source(self, node, xml_node):
         node.name = xml_node.find('name').text
-        node.filename = xml_node.find('filename').text
+        node.resource = xml_node.find('resource').text
 
         parser = xml_node.find('parser')
         if parser is not None:
@@ -469,7 +477,7 @@ class SaveVisitor(ClassVisitor):
     def source(self, node):
         res = build_element('source', children = [
                   build_element('name', text = node.name),
-                  build_element('filename', text = node.filename),
+                  build_element('resource', text = node.resource),
               ])
 
         if not node.parser.is_default:
@@ -532,9 +540,23 @@ class UpdateVisitor(ExplicitVisitor):
 
     The update must be done prior to validating the XML. So the XSD always validates
     the current version.
+
+    Version history:
+    * 1.0 -- Initial version
+    * 1.1 -- Renamed /config/source/filename to /config/source/resource since in this
+             version we accept non-file based sources too.
     '''
 
     @visitor(Version(1, 0))
+    def update_1_0(self, version, xml_root):
+        '''Update 1.0 configs to 1.1'''
+
+        for node in xml_root.findall('source/filename'):
+            node.tag = 'resource'
+        xml_root.attrib['version'] = '1.1'
+        return self.visit(Version(1, 1), xml_root)
+
+    @visitor(latest_version)
     def version_current(self, version, xml_root):
         return xml_root
 
@@ -549,7 +571,7 @@ def parse_config_file(filename):
     config = Config()
 
     # Parse raw XML file
-    xml_root = XmlSource().load(filename = filename).getroot()
+    xml_root = XmlSource().load_from_file(filename = filename).getroot()
 
     # Update the XML tree if needed (this needs pre-verifying the version)
     if not xml_root.attrib.has_key('version'):
@@ -566,7 +588,7 @@ def parse_config_file(filename):
     # Validate the XML root with the config.xsd. The config.xsd file always
     # refers to the current version (see UpdateVisitor.version_current)
     try:
-        XmlSource().validate(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+        validate_xml(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
     except etree.DocumentInvalid, e:
         raise ParseError('Configuration is invalid', e.error_log.last_error.line)

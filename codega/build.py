@@ -76,7 +76,7 @@ class Builder(object):
         parser = source.parser.load(locator)
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
-        data = parser().load(filename = source.filename, locator = locator).getroot()
+        data = parser().load(source.resource).getroot()
 
         # Generate output
         generator = target.generator.load(locator)

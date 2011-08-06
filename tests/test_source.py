@@ -17,15 +17,15 @@ class TestSource(TestCase):
         self.assertEqual(root.text, 'Hello')
 
     def test_load_data(self):
-        self.check(self.source.load(data = xml_content))
+        self.check(self.source.load_from_file(data = xml_content))
 
     def test_load_file_without_locator(self):
         fd, name = make_tempfile()
         os.write(fd, xml_content)
-        self.check(self.source.load(filename = name))
+        self.check(self.source.load_from_file(filename = name))
 
     def test_load_file_with_locator(self):
         loc = FileResourceLocator('/tmp')
         fd, name = make_tempfile()
         os.write(fd, xml_content)
-        self.check(self.source.load(filename = os.path.basename(name), locator = loc))
+        self.check(self.source.load_from_file(filename = os.path.basename(name), locator = loc))

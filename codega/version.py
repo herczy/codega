@@ -67,6 +67,9 @@ class Version(object):
         other -- Other version object
         '''
 
+        if isinstance(other, basestring):
+            return self.__cmp__(Version.load_from_string(other))
+
         check_length = max((len(self), len(other)))
         for index in range(check_length):
             res = self[index] - other[index]

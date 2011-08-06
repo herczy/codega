@@ -1,12 +1,12 @@
-from codega.source import SourceBase
+from codega.source import *
 from codega.generator import GeneratorBase
 
 from lxml import etree
 
-class TestParser(SourceBase):
-    def load_from_fileobj(self, fileobj):
+class TestParser(FileSourceBase):
+    def load(self, resource):
         res = etree.Element('root')
-        for ln in fileobj:
+        for ln in resource:
             lnobj = etree.Element('line')
             lnobj.text = ln.strip()
 

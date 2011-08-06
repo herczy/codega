@@ -1,5 +1,6 @@
 from unittest import TestCase, TestSuite
 
+import re
 import os
 import os.path
 from lxml import etree
@@ -11,6 +12,17 @@ from codega.config import *
 
 def flatten(text):
     return ''.join(filter(lambda p: not p.isspace(), text))
+
+def clean(text):
+    res = flatten(text)
+
+    # Be ignorant of versions
+    res = re.sub(r'configversion="[0-9\.]*"', r'config', res)
+
+    # From 1.1: rename filename to resource
+    res = re.sub(r'name><filename>([^<]*)</filename>', r'name><resource>\1</resource>', res)
+
+    return res
 
 class TestVisitors(TestCase):
     def test_visitor(self):
@@ -43,14 +55,14 @@ class TestVisitors(TestCase):
                 os.write(fd, save_config(cfg))
                 parse_config_file(fn)
 
-                self.assertEqual(flatten(save_config(cfg)), flatten(open(item_path).read()))
+                self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
 
     def check_parse00(self, cfg):
         self.assertEqual(cfg.paths.destination, './')
         self.assertEqual(cfg.paths.paths, ['./'])
 
         self.assertEqual(cfg.sources['config'].name, 'config')
-        self.assertEqual(cfg.sources['config'].filename, 'codega.xml')
+        self.assertEqual(cfg.sources['config'].resource, 'codega.xml')
         self.assertEqual(cfg.sources['config'].parser.module, 'codega.source')
         self.assertEqual(cfg.sources['config'].parser.reference, 'XmlSource')
 
