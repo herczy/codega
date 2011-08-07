@@ -176,6 +176,6 @@ class CommandHelp(CommandBase):
         print >>sys.stderr, self._container.helpstring
         print >>sys.stderr
         for cmd, helpstring in lst:
-            print >>sys.stderr, ' %s%s %s' % (cmd, ' ' * (maxcmd + 3), helpstring)
+            print >>sys.stderr, ' %s%s %s' % (cmd, ' ' * (maxcmd - len(cmd) + 3), helpstring)
 
         return True
