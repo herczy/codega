@@ -1,6 +1,6 @@
 '''Implements the generic visitor interface'''
 
-from decorators import *
+from decorators import abstract, mark, collect_marked
 
 visitor = lambda value: mark('visit', value)
 

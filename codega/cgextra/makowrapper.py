@@ -7,8 +7,10 @@ from mako.runtime import Context as ExternalMakoContext
 from mako.lookup import TemplateLookup as ExternalMakoTemplateLookup
 from mako.template import Template as ExternalMakoTemplate
 
-from codega.generator import *
-from codega.template import *
+from codega.stringio import StringIO
+
+from codega.generator import TemplateGenerator, PRI_BASE
+from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 
 class MakoTemplate(TemplateBase):

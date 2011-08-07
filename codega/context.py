@@ -1,5 +1,3 @@
-from stringio import StringIO
-
 class Context(object):
     '''Generator context object
 

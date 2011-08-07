@@ -11,7 +11,6 @@ PRI_LOW -- Low priority
 PRI_LOWEST -- Lowest priority
 PRI_FALLBACK -- Fallback priority
 '''
-from lxml import etree
 
 import heapq
 import types

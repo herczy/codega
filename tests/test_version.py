@@ -1,4 +1,4 @@
-from unittest import TestCase, TestSuite
+from unittest import TestCase
 
 from codega.version import Version
 

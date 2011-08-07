@@ -1,7 +1,5 @@
 '''Dictionary tools to handle template arguments better'''
 
-from lxml import etree
-
 def dict_from_element(element, base = None):
     '''Return a dictionary copy of element.attrib. Use base as
     the base dictionary'''

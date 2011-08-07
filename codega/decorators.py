@@ -61,7 +61,7 @@ def collect_marked(functions, mark_type, mark_value = None):
     mark_value -- If set, only the marks with the given value will be returned
     '''
 
-    for attr, value in functions.iteritems():
+    for value in functions.values():
         if not hasattr(value, '__call__'):
             continue
 

@@ -1,7 +1,7 @@
 import os, os.path
 import sys
 
-from unittest import TestCase, TestSuite
+from unittest import TestCase
 
 from codega.rsclocator import *
 from codega.error import ResourceError

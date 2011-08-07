@@ -1,11 +1,11 @@
-import os
 import os.path
 import stat
 
 from source import SourceBase
-from rsclocator import *
+from rsclocator import FileResourceLocator, FallbackLocator
 from generator import GeneratorBase
 from context import Context
+from error import StateError
 
 class Builder(object):
     '''Build the given targets.

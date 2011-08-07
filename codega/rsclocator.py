@@ -6,7 +6,7 @@ A locators purposes are the following:
  * import modules
  * open a resource for writing
 '''
-import os, os.path
+import os.path
 import sys
 
 from error import ResourceError

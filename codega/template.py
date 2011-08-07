@@ -6,10 +6,7 @@ set on the other hand is a collection of templates. All templates are accessed t
 This module also contains MakoTemplateset which loads mako templates. Further templates can be
 supported if needed.
 '''
-from UserDict import DictMixin
 
-from error import TemplateNotFoundError
-from stringio import StringIO
 from decorators import abstract
 
 class TemplateBase(object):
