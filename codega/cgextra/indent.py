@@ -62,7 +62,7 @@ def disclaimer(context, comment = hash_comment):
     '''
 
     targetfile = context.target.filename
-    srcfile = context.source.filename
+    srcfile = context.source.resource
     genref = str(context.target.generator)
 
     text = '''THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT WILL
