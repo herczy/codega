@@ -38,8 +38,6 @@ then
   echo -n "Creating snapshot $snapshotid... "
   release HEAD "$version-$snapshotid"
   echo "done"
-
-  git tag -f $tag
 else
   tag="v$version"
 
