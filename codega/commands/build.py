@@ -4,7 +4,7 @@ import sys
 import optparse
 
 from codega.config import *
-from codega.build import Builder
+from codega.build import Builder, ConfigBuilder
 from codega.rsclocator import FileResourceLocator
 from codega import logger
 
@@ -73,5 +73,7 @@ class CommandBuild(OptparsedCommand):
             conf_file.write(conf_xml)
             conf_file.close()
 
-        Builder(FileResourceLocator('.')).build(config, target, force = True)
+        config_builder = ConfigBuilder(config, FileResourceLocator('.'))
+        config_builder.add_target(target)
+        config_builder.build(force = True)
         return True

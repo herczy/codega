@@ -5,7 +5,7 @@ import optparse
 
 from codega.config import parse_config_file
 from codega.error import ResourceError, ParseError
-from codega.build import Builder
+from codega.build import Builder, ConfigBuilder
 from codega.rsclocator import FileResourceLocator
 from codega import logger
 
@@ -50,5 +50,8 @@ class CommandMake(OptparsedCommand):
         else:
             build_list = config.targets.values()
 
-        Builder(locator).build_list(config, build_list, force = self.opts.force)
+        config_builder = ConfigBuilder(config, locator)
+        for target in build_list:
+            config_builder.add_target(target)
+        config_builder.build(force = self.opts.force)
         return True
