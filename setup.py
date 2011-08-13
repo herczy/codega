@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 try:
     from setuptools import setup
 
@@ -19,13 +20,28 @@ Mainly intended to parse XML files describing data structures and
 then generating the serialize/deserialize code in various languages,
 but mostly C/C++. However it can be easily used for other purposes
 """,
-        license="""BSD""",
+        license="BSD",
         version = open("VERSION").read(),
         author = "Viktor Hercinger",
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
         maintainer_email = "hercinger.viktor@gmail.com",
-        packages = [ 'codega', 'codega.cgextra', 'codega.commands' ],
+        packages = [ 'codega', 'codega.commands' ],
         package_data = { 'codega' : [ 'config.xsd' ] },
         scripts = [ 'cgx' ],
-        requires = [ 'lxml', 'mako' ])
+        requires = [ 'lxml' ])
+
+if os.getenv("CG_INSTALL_EXTRA", "1") == "1":
+    setup(name = "cgextra",
+            description = "Codega code generator extra utilities",
+            long_description = """cgextra is a package of usefull utilities
+    for writing codega generators and parsers. It is, strictly speaking an
+    optional utility.""",
+            license = "BSD",
+            version = open("VERSION").read(),
+            author = "Viktor Hercinger",
+            author_email = "hercinger.viktor@gmail.com",
+            maintainer = "Viktor Hercinger",
+            maintainer_email = "hercinger.viktor@gmail.com",
+            packages = [ 'cgextra' ],
+            requires = [ 'codega', 'lxml', 'mako' ])

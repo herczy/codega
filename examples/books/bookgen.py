@@ -1,9 +1,9 @@
 from codega.template import *
 from codega.generator import *
 
-from codega.cgextra.makowrapper import inline
-from codega.cgextra.dicttools import *
-from codega.cgextra import matcher
+from cgextra.makowrapper import inline
+from cgextra.dicttools import *
+from cgextra import matcher
 
 class CBookGenerator(ObjectGenerator):
     @inline(matcher = matcher.tag('bookshelf'))
