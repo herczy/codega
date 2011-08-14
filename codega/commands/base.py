@@ -152,8 +152,8 @@ class CommandHelp(CommandBase):
 
     _container = None
 
-    def __init__(self, container):
-        super(CommandHelp, self).__init__('help', helpstring = 'Display help for command %s' % container.name)
+    def __init__(self, container, helpstring):
+        super(CommandHelp, self).__init__('help', helpstring = helpstring)
 
         self._container = container
 
