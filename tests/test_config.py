@@ -77,7 +77,7 @@ class TestVisitors(TestCase):
 
 class TestSettings(TestCase):
     def test_basic(self):
-        settings = Settings()
+        settings = Settings(None)
 
         test0 = settings.add_container('a')
         test0['b'] = '2'
@@ -95,13 +95,14 @@ class TestSettings(TestCase):
         del test0['b']
 
     def test_error(self):
-        self.assertRaises(KeyError, Settings().__getitem__, 'x')
-        self.assertRaises(KeyError, Settings().__delitem__, 'x')
-        self.assertRaises(TypeError, Settings().__setitem__, 'x', 1)
+        self.assertRaises(TypeError, Settings)
+        self.assertRaises(KeyError, Settings(None).__getitem__, 'x')
+        self.assertRaises(KeyError, Settings(None).__delitem__, 'x')
+        self.assertRaises(TypeError, Settings(None).__setitem__, 'x', 1)
 
 class TestModuleReference(TestCase):
     def test_basic(self):
-        mr = ModuleReference()
+        mr = ModuleReference(None)
         self.assertEqual(mr.module, None)
         self.assertEqual(mr.reference, None)
 

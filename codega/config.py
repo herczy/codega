@@ -62,7 +62,7 @@ class NodeBase(object):
 
         return self
 
-    def __init__(self, parent = None):
+    def __init__(self, parent):
         self._parent = parent
 
 class Settings(NodeBase, DictMixin):
@@ -102,7 +102,7 @@ class Settings(NodeBase, DictMixin):
     def empty(self):
         return len(self._data) == 0
 
-    def __init__(self, parent = None):
+    def __init__(self, parent):
         super(Settings, self).__init__(parent)
 
         self._data = Settings.RecursiveContainer()
@@ -184,7 +184,7 @@ class ModuleReference(NodeBase):
     def is_default(self):
         return self._module is None or self._reference is None
 
-    def __init__(self, parent = None, module_def = None, reference_def = None):
+    def __init__(self, parent, module_def = None, reference_def = None):
         super(ModuleReference, self).__init__(parent)
 
         self._module_def = module_def
@@ -231,7 +231,7 @@ class Source(NodeBase):
     parser = config_property('_parser', enable_change = False)
     resource = config_property('_resource')
 
-    def __init__(self, parent = None):
+    def __init__(self, parent):
         super(Source, self).__init__(parent)
 
         self._parser = ModuleReference(self, 'codega.source', 'XmlSource')
@@ -256,7 +256,7 @@ class Target(NodeBase):
     generator = config_property('_generator', enable_change = False)
     settings = config_property('_settings', enable_change = False)
 
-    def __init__(self, parent = None):
+    def __init__(self, parent):
         super(Target, self).__init__(parent)
 
         self._settings = Settings(self)
@@ -276,7 +276,7 @@ class PathList(NodeBase):
     destination = config_property('_destination')
     paths = config_property('_paths', enable_change = False)
 
-    def __init__(self, parent = None):
+    def __init__(self, parent):
         super(PathList, self).__init__(parent)
 
         self._destination = '.'
@@ -383,7 +383,7 @@ class Config(NodeBase):
         self._version = version
 
     def __init__(self):
-        super(Config, self).__init__()
+        super(Config, self).__init__(None)
 
         self._version = latest_version.dup()
         self._paths = PathList(self)
@@ -561,7 +561,6 @@ class UpdateVisitor(ExplicitVisitor):
         return xml_root
 
     def visit_fallback(self, version, xml_root):
-        print version
         raise VersionMismatchError("Configs with version %s are not supported" % version)
 
 def parse_config_file(filename):
