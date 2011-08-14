@@ -15,6 +15,9 @@ def add_example_test(name, path):
             os.chdir(os.path.join(exampledir, name))
             rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
 
+            if rc == 0:
+                rc = os.system('../../cgx clean -v debug 2>>%s' % fn)
+
         finally:
             os.chdir(cur)
 

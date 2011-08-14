@@ -2,6 +2,7 @@ from base import *
 from pack import CommandPack
 from make import CommandMake
 from build import CommandBuild
+from clean import CommandClean
 
 from codega.ordereddict import OrderedDict
 
@@ -10,6 +11,7 @@ class CommandMain(CommandContainer):
         commands = OrderedDict()
         commands['help'] = CommandHelp(self)
         commands['make'] = CommandMake()
+        commands['clean'] = CommandClean()
         commands['build'] = CommandBuild()
         commands['pack'] = CommandPack()
 
