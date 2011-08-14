@@ -402,7 +402,15 @@ class ParseVisitor(ClassVisitor):
 
     def visit(self, node, xml_node):
         self._current_node = xml_node
-        super(ParseVisitor, self).visit(node, xml_node)
+        try:
+            super(ParseVisitor, self).visit(node, xml_node)
+
+        except Exception, e:
+            if isinstance(e, ParseError):
+                raise
+
+            logger.error("Exception caught: %s" % e)
+            raise ParseError("XML entry invalid (see line %s)" % self._current_node.sourceline)
 
     @visitor(ModuleReference)
     def module_reference(self, node, xml_node):

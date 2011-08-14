@@ -22,7 +22,7 @@ import logger
 PRI_HIGHEST = -100
 PRI_HIGH = -10
 PRI_BASE = 0
-PRI_LOW  = 10
+PRI_LOW = 10
 PRI_LOWEST = 100
 PRI_FALLBACK = 1000
 
@@ -195,6 +195,58 @@ class TemplateGenerator(GeneratorBase):
 
         def __decorator(func):
             return TemplateGenerator(template, func, matcher = matcher, priority = priority)
+
+        return __decorator
+
+class FilterGenerator(GeneratorBase):
+    '''Filter the output of another generator. The priority and matchers are taken from
+    the wrapped generator.
+    
+    Members:
+    _subgenerator -- The wrapped generator
+    _filters -- The filter function(s)
+    '''
+
+    _subgenerator = None
+    _filters = None
+
+    def __init__(self, generator, *filters):
+        self._filters = filters
+        self._subgenerator = generator
+
+        super(FilterGenerator, self).__init__(matcher = generator.match, priority = generator.priority)
+
+    def generate(self, source, context):
+        '''Generate an output from the subgenerator and call the filters on it'''
+
+        output = self._subgenerator(source, context)
+
+        for filt in self._filters:
+            output = filt(self, output)
+
+        return output
+
+    def bind(self, parent):
+        super(FilterGenerator, self).bind(parent)
+        self._subgenerator.bind(parent)
+
+    def add_filter(self, filter):
+        '''Appends a filter to the filter list'''
+
+        self._filters.append(filter)
+
+    @staticmethod
+    def decorate(filter):
+        '''Decorate a generator with a filter.
+        
+        Multiple filters are appended so a FilterGenerator isn't repeted'''
+
+        def __decorator(generator):
+            if isinstance(generator, FilterGenerator):
+                generator.add_filter(filter)
+                return generator
+
+            return FilterGenerator(generator, filter)
 
         return __decorator
 
