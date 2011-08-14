@@ -6,12 +6,11 @@ from lxml import etree
 from codega.source import FileSourceBase
 
 class CSVParser(FileSourceBase):
-    def load(self, resource):
+    def load_fileobj(self, fileobj):
         '''Load a CSV file and convert it into an XML structure'''
 
-        resource = open(resource)
         root = etree.Element('csv')
-        for row in csv.reader(resource):
+        for row in csv.reader(fileobj):
             rowxml = etree.Element('row')
 
             for entry in row:

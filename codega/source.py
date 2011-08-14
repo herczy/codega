@@ -10,7 +10,7 @@ class SourceBase(object):
     '''A source should parse the supplied input and create an XML etree'''
 
     @abstract
-    def load(self, resource):
+    def load(self, resource, resource_locator = None):
         '''Load the given resource.
 
         This resource can be anything ranging from a filename, an XML etree, a
@@ -18,42 +18,25 @@ class SourceBase(object):
 
         Arguments:
         resource -- The resource to be parsed
+        resource_locator -- An optional ResourceLocatorBase for locating the resource
         '''
 
 class FileSourceBase(SourceBase):
     '''A file source should parse a file (or list of files) and create an XML etree.'''
 
-    def load_from_file(self, data = None, filename = None, locator = None):
-        '''Load some file source.
+    def load(self, resource, resource_locator = None):
+        '''Load some file source.'''
 
-        Arguments:
-        data -- If set, the parser will parse this string
-        filename -- If set, the parser will load this file
-        locator -- A locator for finding filename
-        '''
+        if resource_locator is not None:
+            resource = resource_locator.find(resource)
 
-        if data is None and filename is None:
-            raise ValueError("Function requires eighter a source or a filename, none specified")
-
-        if data is not None and filename is not None:
-            raise ValueError("Function requires eighter a source or a filename, both specified")
-
-        if data is not None:
-            source = StringIO(data)
-
-        else:
-            if locator is not None:
-                filename = locator.find(filename)
-
-            source = open(filename)
-
-        return self.load(source)
+        return self.load_fileobj(open(resource))
 
 class XmlSource(FileSourceBase):
     '''XML source. This is the default source'''
 
-    def load(self, resource):
-        return etree.parse(resource)
+    def load_fileobj(self, fileobj):
+        return etree.parse(fileobj)
 
 def validate_xml(xml, *args, **kwargs):
     '''Load an XSD source and validate XML with it
@@ -63,5 +46,5 @@ def validate_xml(xml, *args, **kwargs):
     args, kwargs -- Arguments passed to load
     '''
 
-    xsd = etree.XMLSchema(XmlSource().load_from_file(*args, **kwargs))
+    xsd = etree.XMLSchema(XmlSource().load(*args, **kwargs))
     xsd.assertValid(xml)

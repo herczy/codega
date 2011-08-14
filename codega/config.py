@@ -581,7 +581,7 @@ def parse_config_file(filename):
 
         # Parse raw XML file
         try:
-            xml_root = XmlSource().load_from_file(filename = filename).getroot()
+            xml_root = XmlSource().load(filename).getroot()
 
         except Exception, e:
             raise ParseError("Could not load source XML: %s" % e, 0)
@@ -601,7 +601,7 @@ def parse_config_file(filename):
         # Validate the XML root with the config.xsd. The config.xsd file always
         # refers to the current version (see UpdateVisitor.version_current)
         try:
-            validate_xml(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+            validate_xml(xml_root, resource = 'config.xsd', resource_locator = ModuleLocator(__import__(__name__)))
 
         except etree.DocumentInvalid, e:
             raise ParseError('Configuration is invalid', e.error_log.last_error.line)
@@ -617,6 +617,7 @@ def parse_config_file(filename):
         return config
 
     except Exception, e:
+        raise
         if isinstance(e, ParseError):
             raise
 

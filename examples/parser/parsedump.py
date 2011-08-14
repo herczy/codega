@@ -4,9 +4,9 @@ from codega.generator import GeneratorBase
 from lxml import etree
 
 class TestParser(FileSourceBase):
-    def load(self, resource):
+    def load_fileobj(self, fileobj):
         res = etree.Element('root')
-        for ln in resource:
+        for ln in fileobj:
             lnobj = etree.Element('line')
             lnobj.text = ln.strip()
 
