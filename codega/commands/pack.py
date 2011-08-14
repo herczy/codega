@@ -13,6 +13,12 @@ except ImportError:
     from StringIO import StringIO
 
 import codega
+try:
+    import cgextra
+
+except ImportError:
+    cgextra = None
+
 from codega import logger
 
 from base import CommandBase
@@ -40,12 +46,8 @@ class CommandPack(CommandBase):
 
             return exclude
 
-        def compress(path):
-            output = StringIO()
-            tar = TarFile.open(fileobj = output, mode = 'w:bz2')
-            tar.add(path, arcname = 'codega', exclude = exclude_files)
-            tar.close()
-            return output.getvalue()
+        def compress(target, name, path):
+            tar.add(path, arcname = name, exclude = exclude_files)
 
         def checksum(data):
             return sha256(data).hexdigest()
@@ -82,7 +84,16 @@ class CommandPack(CommandBase):
 
         logger.info('Creating self-contained script')
         logger.info('Compressing codega path %r', os.path.dirname(codega.__file__))
-        data = compress(os.path.dirname(codega.__file__))
+
+        output = StringIO()
+        tar = TarFile.open(fileobj = output, mode = 'w:bz2')
+        compress(tar, 'codega', os.path.dirname(codega.__file__))
+        if cgextra is not None:
+            compress(tar, 'cgextra', os.path.dirname(cgextra.__file__))
+
+        tar.close()
+        data = output.getvalue()
+
         checksum = checksum(data)
         logger.info('Data compressed, checksum is %s' % checksum)
         split = split_data(data)
