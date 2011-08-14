@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.commands</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        Package&nbsp;commands
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.commands-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="codega.commands-module.html">Package codega.commands</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module codega.commands.base=codega.commands.base-module.html"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-0', 'base', 'link-0');">base</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-1" class="py-name" targets="Module codega.commands.pack=codega.commands.pack-module.html"><a title="codega.commands.pack" class="py-name" href="#" onclick="return doclink('link-1', 'pack', 'link-1');">pack</a></tt> <tt class="py-keyword">import</tt> <tt id="link-2" class="py-name" targets="Class codega.commands.pack.CommandPack=codega.commands.pack.CommandPack-class.html"><a title="codega.commands.pack.CommandPack" class="py-name" href="#" onclick="return doclink('link-2', 'CommandPack', 'link-2');">CommandPack</a></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-3" class="py-name" targets="Module codega.commands.make=codega.commands.make-module.html"><a title="codega.commands.make" class="py-name" href="#" onclick="return doclink('link-3', 'make', 'link-3');">make</a></tt> <tt class="py-keyword">import</tt> <tt id="link-4" class="py-name" targets="Class codega.commands.make.CommandMake=codega.commands.make.CommandMake-class.html"><a title="codega.commands.make.CommandMake" class="py-name" href="#" onclick="return doclink('link-4', 'CommandMake', 'link-4');">CommandMake</a></tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-5" class="py-name" targets="Module codega.build=codega.build-module.html,Method codega.build.Builder.build()=codega.build.Builder-class.html#build,Module codega.commands.build=codega.commands.build-module.html"><a title="codega.build
+codega.build.Builder.build
+codega.commands.build" class="py-name" href="#" onclick="return doclink('link-5', 'build', 'link-5');">build</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Class codega.commands.build.CommandBuild=codega.commands.build.CommandBuild-class.html"><a title="codega.commands.build.CommandBuild" class="py-name" href="#" onclick="return doclink('link-6', 'CommandBuild', 'link-6');">CommandBuild</a></tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name" targets="Module codega.commands.clean=codega.commands.clean-module.html"><a title="codega.commands.clean" class="py-name" href="#" onclick="return doclink('link-7', 'clean', 'link-7');">clean</a></tt> <tt class="py-keyword">import</tt> <tt id="link-8" class="py-name" targets="Class codega.commands.clean.CommandClean=codega.commands.clean.CommandClean-class.html"><a title="codega.commands.clean.CommandClean" class="py-name" href="#" onclick="return doclink('link-8', 'CommandClean', 'link-8');">CommandClean</a></tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-9" class="py-name" targets="Package codega=codega-module.html"><a title="codega" class="py-name" href="#" onclick="return doclink('link-9', 'codega', 'link-9');">codega</a></tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Module codega.ordereddict=codega.ordereddict-module.html"><a title="codega.ordereddict" class="py-name" href="#" onclick="return doclink('link-10', 'ordereddict', 'link-10');">ordereddict</a></tt> <tt class="py-keyword">import</tt> <tt id="link-11" class="py-name" targets="Class codega.ordereddict.OrderedDict=codega.ordereddict.OrderedDict-class.html"><a title="codega.ordereddict.OrderedDict" class="py-name" href="#" onclick="return doclink('link-11', 'OrderedDict', 'link-11');">OrderedDict</a></tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"> </tt>
+<a name="CommandMain"></a><div id="CommandMain-def"><a name="L9"></a><tt class="py-lineno"> 9</tt> <a class="py-toggle" href="#" id="CommandMain-toggle" onclick="return toggle('CommandMain');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.commands.CommandMain-class.html">CommandMain</a><tt class="py-op">(</tt><tt class="py-base-class">CommandContainer</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CommandMain-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="CommandMain-expanded"><a name="CommandMain.__init__"></a><div id="CommandMain.__init__-def"><a name="L10"></a><tt class="py-lineno">10</tt> <a class="py-toggle" href="#" id="CommandMain.__init__-toggle" onclick="return toggle('CommandMain.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.commands.CommandMain-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">helpstring</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CommandMain.__init__-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="CommandMain.__init__-expanded"><a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line">        <tt id="link-12" class="py-name" targets="Package codega.commands=codega.commands-module.html"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-12', 'commands', 'link-12');">commands</a></tt> <tt class="py-op">=</tt> <tt id="link-13" class="py-name"><a title="codega.ordereddict.OrderedDict" class="py-name" href="#" onclick="return doclink('link-13', 'OrderedDict', 'link-11');">OrderedDict</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line">        <tt id="link-14" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-14', 'commands', 'link-12');">commands</a></tt><tt class="py-op">[</tt><tt class="py-string">'help'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-15" class="py-name" targets="Class codega.commands.base.CommandHelp=codega.commands.base.CommandHelp-class.html"><a title="codega.commands.base.CommandHelp" class="py-name" href="#" onclick="return doclink('link-15', 'CommandHelp', 'link-15');">CommandHelp</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-string">'Display list of commands with their meaning'</tt><tt class="py-op">)</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">        <tt id="link-16" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-16', 'commands', 'link-12');">commands</a></tt><tt class="py-op">[</tt><tt class="py-string">'make'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-17" class="py-name"><a title="codega.commands.make.CommandMake" class="py-name" href="#" onclick="return doclink('link-17', 'CommandMake', 'link-4');">CommandMake</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">        <tt id="link-18" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-18', 'commands', 'link-12');">commands</a></tt><tt class="py-op">[</tt><tt class="py-string">'clean'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-19" class="py-name"><a title="codega.commands.clean.CommandClean" class="py-name" href="#" onclick="return doclink('link-19', 'CommandClean', 'link-8');">CommandClean</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">        <tt id="link-20" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-20', 'commands', 'link-12');">commands</a></tt><tt class="py-op">[</tt><tt class="py-string">'build'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name"><a title="codega.commands.build.CommandBuild" class="py-name" href="#" onclick="return doclink('link-21', 'CommandBuild', 'link-6');">CommandBuild</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">        <tt id="link-22" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-22', 'commands', 'link-12');">commands</a></tt><tt class="py-op">[</tt><tt class="py-string">'pack'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-23" class="py-name"><a title="codega.commands.pack.CommandPack" class="py-name" href="#" onclick="return doclink('link-23', 'CommandPack', 'link-2');">CommandPack</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-24" class="py-name" targets="Class codega.commands.CommandMain=codega.commands.CommandMain-class.html"><a title="codega.commands.CommandMain" class="py-name" href="#" onclick="return doclink('link-24', 'CommandMain', 'link-24');">CommandMain</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name" targets="Method codega.build.BuildTask.__init__()=codega.build.BuildTask-class.html#__init__,Method codega.build.Builder.__init__()=codega.build.Builder-class.html#__init__,Method codega.build.ConfigBuilder.__init__()=codega.build.ConfigBuilder-class.html#__init__,Method codega.build.TaskBase.__init__()=codega.build.TaskBase-class.html#__init__,Method codega.commands.CommandMain.__init__()=codega.commands.CommandMain-class.html#__init__,Method codega.commands.base.CommandBase.__init__()=codega.commands.base.CommandBase-class.html#__init__,Method codega.commands.base.CommandContainer.__init__()=codega.commands.base.CommandContainer-class.html#__init__,Method codega.commands.base.CommandHelp.__init__()=codega.commands.base.CommandHelp-class.html#__init__,Method codega.commands.base.OptparsedCommand.__init__()=codega.commands.base.OptparsedCommand-class.html#__init__,Method codega.commands.build.CommandBuild.__init__()=codega.commands.build.CommandBuild-class.html#__init__,Method codega.commands.clean.CommandClean.__init__()=codega.commands.clean.CommandClean-class.html#__init__,Method codega.commands.make.CommandMake.__init__()=codega.commands.make.CommandMake-class.html#__init__,Method codega.commands.pack.CommandPack.__init__()=codega.commands.pack.CommandPack-class.html#__init__,Method codega.config.Config.SourceCollection.__init__()=codega.config.Config.SourceCollection-class.html#__init__,Method codega.config.Config.TargetCollection.__init__()=codega.config.Config.TargetCollection-class.html#__init__,Method codega.config.Config.__init__()=codega.config.Config-class.html#__init__,Method codega.config.ModuleReference.__init__()=codega.config.ModuleReference-class.html#__init__,Method codega.config.NodeBase.__init__()=codega.config.NodeBase-class.html#__init__,Method codega.config.ParseVisitor.__init__()=codega.config.ParseVisitor-class.html#__init__,Method codega.config.PathList.__init__()=codega.config.PathList-class.html#__init__,Method codega.config.Settings.__init__()=codega.config.Settings-class.html#__init__,Method codega.config.Source.__init__()=codega.config.Source-class.html#__init__,Method codega.config.Target.__init__()=codega.config.Target-class.html#__init__,Method codega.context.Context.__init__()=codega.context.Context-class.html#__init__,Method codega.error.ParseError.__init__()=codega.error.ParseError-class.html#__init__,Method codega.error.ResourceError.__init__()=codega.error.ResourceError-class.html#__init__,Method codega.error.TemplateNotFoundError.__init__()=codega.error.TemplateNotFoundError-class.html#__init__,Method codega.generator.FilterGenerator.__init__()=codega.generator.FilterGenerator-class.html#__init__,Method codega.generator.FunctionGenerator.__init__()=codega.generator.FunctionGenerator-class.html#__init__,Method codega.generator.GeneratorBase.__init__()=codega.generator.GeneratorBase-class.html#__init__,Method codega.generator.ObjectGenerator.__init__()=codega.generator.ObjectGenerator-class.html#__init__,Method codega.generator.PriorityGenerator.__init__()=codega.generator.PriorityGenerator-class.html#__init__,Method codega.generator.TemplateGenerator.__init__()=codega.generator.TemplateGenerator-class.html#__init__,Method codega.ordereddict.OrderedDict.__init__()=codega.ordereddict.OrderedDict-class.html#__init__,Method codega.rsclocator.FallbackLocator.__init__()=codega.rsclocator.FallbackLocator-class.html#__init__,Method codega.rsclocator.FileResourceLocator.__init__()=codega.rsclocator.FileResourceLocator-class.html#__init__,Method codega.rsclocator.ModuleLocator.__init__()=codega.rsclocator.ModuleLocator-class.html#__init__,Method codega.rsclocator.ResourceLocatorBase.__init__()=codega.rsclocator.ResourceLocatorBase-class.html#__init__,Method codega.template.TemplatesetBase.__init__()=codega.template.TemplatesetBase-class.html#__init__,Method codega.version.Version.__init__()=codega.version.Version-class.html#__init__"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-25', '__init__', 'link-25');">__init__</a></tt><tt class="py-op">(</tt><tt id="link-26" class="py-name" targets="Variable codega.commands.base.CommandBase.name=codega.commands.base.CommandBase-class.html#name,Variable codega.config.Source.name=codega.config.Source-class.html#name"><a title="codega.commands.base.CommandBase.name
+codega.config.Source.name" class="py-name" href="#" onclick="return doclink('link-26', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt id="link-27" class="py-name"><a title="codega.commands" class="py-name" href="#" onclick="return doclink('link-27', 'commands', 'link-12');">commands</a></tt><tt class="py-op">,</tt> <tt id="link-28" class="py-name" targets="Variable codega.commands.base.CommandBase.helpstring=codega.commands.base.CommandBase-class.html#helpstring"><a title="codega.commands.base.CommandBase.helpstring" class="py-name" href="#" onclick="return doclink('link-28', 'helpstring', 'link-28');">helpstring</a></tt> <tt class="py-op">=</tt> <tt id="link-29" class="py-name"><a title="codega.commands.base.CommandBase.helpstring" class="py-name" href="#" onclick="return doclink('link-29', 'helpstring', 'link-28');">helpstring</a></tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Aug 16 20:15:56 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

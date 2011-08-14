@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.build</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        Module&nbsp;build
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.build-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="codega.build-module.html">Module codega.build</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">stat</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Method codega.config.ParseVisitor.source()=codega.config.ParseVisitor-class.html#source,Method codega.config.SaveVisitor.source()=codega.config.SaveVisitor-class.html#source,Variable codega.config.Target.source=codega.config.Target-class.html#source,Variable codega.context.Context.source=codega.context.Context-class.html#source,Module codega.source=codega.source-module.html"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-0', 'source', 'link-0');">source</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class codega.source.SourceBase=codega.source.SourceBase-class.html"><a title="codega.source.SourceBase" class="py-name" href="#" onclick="return doclink('link-1', 'SourceBase', 'link-1');">SourceBase</a></tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name" targets="Module codega.rsclocator=codega.rsclocator-module.html"><a title="codega.rsclocator" class="py-name" href="#" onclick="return doclink('link-2', 'rsclocator', 'link-2');">rsclocator</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Class codega.rsclocator.FileResourceLocator=codega.rsclocator.FileResourceLocator-class.html"><a title="codega.rsclocator.FileResourceLocator" class="py-name" href="#" onclick="return doclink('link-3', 'FileResourceLocator', 'link-3');">FileResourceLocator</a></tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name" targets="Class codega.rsclocator.FallbackLocator=codega.rsclocator.FallbackLocator-class.html"><a title="codega.rsclocator.FallbackLocator" class="py-name" href="#" onclick="return doclink('link-4', 'FallbackLocator', 'link-4');">FallbackLocator</a></tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-5" class="py-name" targets="Variable codega.config.Target.generator=codega.config.Target-class.html#generator,Module codega.generator=codega.generator-module.html"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-5', 'generator', 'link-5');">generator</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Class codega.generator.GeneratorBase=codega.generator.GeneratorBase-class.html"><a title="codega.generator.GeneratorBase" class="py-name" href="#" onclick="return doclink('link-6', 'GeneratorBase', 'link-6');">GeneratorBase</a></tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name" targets="Module codega.context=codega.context-module.html"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-7', 'context', 'link-7');">context</a></tt> <tt class="py-keyword">import</tt> <tt id="link-8" class="py-name" targets="Class codega.context.Context=codega.context.Context-class.html"><a title="codega.context.Context" class="py-name" href="#" onclick="return doclink('link-8', 'Context', 'link-8');">Context</a></tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-9" class="py-name" targets="Module codega.error=codega.error-module.html"><a title="codega.error" class="py-name" href="#" onclick="return doclink('link-9', 'error', 'link-9');">error</a></tt> <tt class="py-keyword">import</tt> <tt id="link-10" class="py-name" targets="Class codega.error.StateError=codega.error.StateError-class.html"><a title="codega.error.StateError" class="py-name" href="#" onclick="return doclink('link-10', 'StateError', 'link-10');">StateError</a></tt><tt class="py-op">,</tt> <tt id="link-11" class="py-name" targets="Class codega.error.ResourceError=codega.error.ResourceError-class.html"><a title="codega.error.ResourceError" class="py-name" href="#" onclick="return doclink('link-11', 'ResourceError', 'link-11');">ResourceError</a></tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-12" class="py-name" targets="Module codega.decorators=codega.decorators-module.html"><a title="codega.decorators" class="py-name" href="#" onclick="return doclink('link-12', 'decorators', 'link-12');">decorators</a></tt> <tt class="py-keyword">import</tt> <tt id="link-13" class="py-name" targets="Function codega.decorators.abstract()=codega.decorators-module.html#abstract"><a title="codega.decorators.abstract" class="py-name" href="#" onclick="return doclink('link-13', 'abstract', 'link-13');">abstract</a></tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-14" class="py-name" targets="Module codega.logger=codega.logger-module.html"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-14', 'logger', 'link-14');">logger</a></tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-15" class="py-name" targets="Package codega=codega-module.html"><a title="codega" class="py-name" href="#" onclick="return doclink('link-15', 'codega', 'link-15');">codega</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="codega.error" class="py-name" href="#" onclick="return doclink('link-16', 'error', 'link-9');">error</a></tt> <tt class="py-keyword">import</tt> <tt id="link-17" class="py-name" targets="Class codega.error.BuildError=codega.error.BuildError-class.html"><a title="codega.error.BuildError" class="py-name" href="#" onclick="return doclink('link-17', 'BuildError', 'link-17');">BuildError</a></tt> </tt>
+<a name="get_mtime"></a><div id="get_mtime-def"><a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt> <a class="py-toggle" href="#" id="get_mtime-toggle" onclick="return toggle('get_mtime');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build-module.html#get_mtime">get_mtime</a><tt class="py-op">(</tt><tt class="py-param">filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_mtime-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_mtime-expanded"><a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">(</tt><tt id="link-18" class="py-name" targets="Variable codega.config.Target.filename=codega.config.Target-class.html#filename"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-18', 'filename', 'link-18');">filename</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">stat</tt><tt class="py-op">(</tt><tt id="link-19" class="py-name"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-19', 'filename', 'link-18');">filename</a></tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-name">stat</tt><tt class="py-op">.</tt><tt class="py-name">ST_MTIME</tt><tt class="py-op">]</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-number">0</tt> </tt>
+</div><a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"> </tt>
+<a name="get_module_time"></a><div id="get_module_time-def"><a name="L19"></a><tt class="py-lineno"> 19</tt> <a class="py-toggle" href="#" id="get_module_time-toggle" onclick="return toggle('get_module_time');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build-module.html#get_module_time">get_module_time</a><tt class="py-op">(</tt><tt class="py-param">locator</tt><tt class="py-op">,</tt> <tt class="py-param">module</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_module_time-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_module_time-expanded"><a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line">    <tt class="py-name">mod</tt> <tt class="py-op">=</tt> <tt class="py-name">locator</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name" targets="Method codega.rsclocator.FallbackLocator.import_module()=codega.rsclocator.FallbackLocator-class.html#import_module,Method codega.rsclocator.FileResourceLocator.import_module()=codega.rsclocator.FileResourceLocator-class.html#import_module,Method codega.rsclocator.ResourceLocatorBase.import_module()=codega.rsclocator.ResourceLocatorBase-class.html#import_module"><a title="codega.rsclocator.FallbackLocator.import_module
+codega.rsclocator.FileResourceLocator.import_module
+codega.rsclocator.ResourceLocatorBase.import_module" class="py-name" href="#" onclick="return doclink('link-20', 'import_module', 'link-20');">import_module</a></tt><tt class="py-op">(</tt><tt id="link-21" class="py-name" targets="Variable codega.config.ModuleReference.module=codega.config.ModuleReference-class.html#module"><a title="codega.config.ModuleReference.module" class="py-name" href="#" onclick="return doclink('link-21', 'module', 'link-21');">module</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">    <tt class="py-name">dirname</tt><tt class="py-op">,</tt> <tt class="py-name">basename</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-name">mod</tt><tt class="py-op">.</tt><tt class="py-name">__file__</tt><tt class="py-op">)</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">splitext</tt><tt class="py-op">(</tt><tt class="py-name">basename</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">!=</tt> <tt class="py-string">'__init__'</tt><tt class="py-op">:</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-22" class="py-name" targets="Function codega.build.get_mtime()=codega.build-module.html#get_mtime"><a title="codega.build.get_mtime" class="py-name" href="#" onclick="return doclink('link-22', 'get_mtime', 'link-22');">get_mtime</a></tt><tt class="py-op">(</tt><tt class="py-name">mod</tt><tt class="py-op">.</tt><tt class="py-name">__file__</tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">    <tt class="py-name">res</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-23" class="py-name" targets="Variable codega.config.NodeBase.root=codega.config.NodeBase-class.html#root"><a title="codega.config.NodeBase.root" class="py-name" href="#" onclick="return doclink('link-23', 'root', 'link-23');">root</a></tt><tt class="py-op">,</tt> <tt class="py-name">dirs</tt><tt class="py-op">,</tt> <tt class="py-name">files</tt> <tt class="py-keyword">in</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">walk</tt><tt class="py-op">(</tt><tt class="py-name">dirname</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">        <tt class="py-name">res</tt><tt class="py-op">.</tt><tt class="py-name">extend</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-24" class="py-name"><a title="codega.build.get_mtime" class="py-name" href="#" onclick="return doclink('link-24', 'get_mtime', 'link-22');">get_mtime</a></tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt id="link-25" class="py-name"><a title="codega.config.NodeBase.root" class="py-name" href="#" onclick="return doclink('link-25', 'root', 'link-23');">root</a></tt><tt class="py-op">,</tt> <tt class="py-name">f</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">f</tt> <tt class="py-keyword">in</tt> <tt class="py-name">files</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">max</tt><tt class="py-op">(</tt><tt class="py-name">res</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"> </tt>
+<a name="TaskBase"></a><div id="TaskBase-def"><a name="L32"></a><tt class="py-lineno"> 32</tt> <a class="py-toggle" href="#" id="TaskBase-toggle" onclick="return toggle('TaskBase');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.build.TaskBase-class.html">TaskBase</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TaskBase-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="TaskBase-expanded"><a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">    <tt class="py-docstring">'''Task base for building</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-docstring">    _builder -- The parent of the task</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt id="link-26" class="py-name" targets="Variable codega.build.TaskBase._builder=codega.build.TaskBase-class.html#_builder"><a title="codega.build.TaskBase._builder" class="py-name" href="#" onclick="return doclink('link-26', '_builder', 'link-26');">_builder</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"> </tt>
+<a name="TaskBase.__init__"></a><div id="TaskBase.__init__-def"><a name="L41"></a><tt class="py-lineno"> 41</tt> <a class="py-toggle" href="#" id="TaskBase.__init__-toggle" onclick="return toggle('TaskBase.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.TaskBase-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">builder</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TaskBase.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TaskBase.__init__-expanded"><a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="codega.build.TaskBase._builder" class="py-name" href="#" onclick="return doclink('link-27', '_builder', 'link-26');">_builder</a></tt> <tt class="py-op">=</tt> <tt class="py-name">builder</tt> </tt>
+</div><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">abstract</tt> </tt>
+<a name="TaskBase.check_need_run"></a><div id="TaskBase.check_need_run-def"><a name="L45"></a><tt class="py-lineno"> 45</tt> <a class="py-toggle" href="#" id="TaskBase.check_need_run-toggle" onclick="return toggle('TaskBase.check_need_run');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.TaskBase-class.html#check_need_run">check_need_run</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TaskBase.check_need_run-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TaskBase.check_need_run-expanded"><a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">        <tt class="py-docstring">'''Check if the task needs to be run'''</tt> </tt>
+</div><a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">abstract</tt> </tt>
+<a name="TaskBase.execute"></a><div id="TaskBase.execute-def"><a name="L49"></a><tt class="py-lineno"> 49</tt> <a class="py-toggle" href="#" id="TaskBase.execute-toggle" onclick="return toggle('TaskBase.execute');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.TaskBase-class.html#execute">execute</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TaskBase.execute-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TaskBase.execute-expanded"><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">        <tt class="py-docstring">'''Execute the task'''</tt> </tt>
+</div><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">abstract</tt> </tt>
+<a name="TaskBase.get_cleanup_list"></a><div id="TaskBase.get_cleanup_list-def"><a name="L53"></a><tt class="py-lineno"> 53</tt> <a class="py-toggle" href="#" id="TaskBase.get_cleanup_list-toggle" onclick="return toggle('TaskBase.get_cleanup_list');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.TaskBase-class.html#get_cleanup_list">get_cleanup_list</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TaskBase.get_cleanup_list-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TaskBase.get_cleanup_list-expanded"><a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-docstring">'''Return list of generated files related to the task to be cleaned up'''</tt> </tt>
+</div></div><a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask"></a><div id="BuildTask-def"><a name="L56"></a><tt class="py-lineno"> 56</tt> <a class="py-toggle" href="#" id="BuildTask-toggle" onclick="return toggle('BuildTask');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html">BuildTask</a><tt class="py-op">(</tt><tt class="py-base-class">TaskBase</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BuildTask-expanded"><a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">    <tt class="py-docstring">'''Build a configuration target'''</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">    <tt id="link-28" class="py-name" targets="Variable codega.build.BuildTask._config=codega.build.BuildTask-class.html#_config,Variable codega.context.Context._config=codega.context.Context-class.html#_config"><a title="codega.build.BuildTask._config
+codega.context.Context._config" class="py-name" href="#" onclick="return doclink('link-28', '_config', 'link-28');">_config</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">    <tt id="link-29" class="py-name" targets="Variable codega.build.BuildTask._locator=codega.build.BuildTask-class.html#_locator,Variable codega.build.Builder._locator=codega.build.Builder-class.html#_locator"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-29', '_locator', 'link-29');">_locator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt id="link-30" class="py-name" targets="Variable codega.build.BuildTask._source=codega.build.BuildTask-class.html#_source,Variable codega.config.Target._source=codega.config.Target-class.html#_source,Variable codega.context.Context._source=codega.context.Context-class.html#_source"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-30', '_source', 'link-30');">_source</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt id="link-31" class="py-name" targets="Variable codega.build.BuildTask._target=codega.build.BuildTask-class.html#_target,Variable codega.context.Context._target=codega.context.Context-class.html#_target"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-31', '_target', 'link-31');">_target</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">    <tt id="link-32" class="py-name" targets="Variable codega.build.BuildTask._destination=codega.build.BuildTask-class.html#_destination,Variable codega.config.PathList._destination=codega.config.PathList-class.html#_destination"><a title="codega.build.BuildTask._destination
+codega.config.PathList._destination" class="py-name" href="#" onclick="return doclink('link-32', '_destination', 'link-32');">_destination</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask.__init__"></a><div id="BuildTask.__init__-def"><a name="L66"></a><tt class="py-lineno"> 66</tt> <a class="py-toggle" href="#" id="BuildTask.__init__-toggle" onclick="return toggle('BuildTask.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">parent</tt><tt class="py-op">,</tt> <tt class="py-param">config</tt><tt class="py-op">,</tt> <tt class="py-param">locator</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">target</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BuildTask.__init__-expanded"><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name"><a title="codega.build.BuildTask._config
+codega.context.Context._config" class="py-name" href="#" onclick="return doclink('link-33', '_config', 'link-28');">_config</a></tt> <tt class="py-op">=</tt> <tt id="link-34" class="py-name" targets="Module codega.config=codega.config-module.html,Method codega.config.ParseVisitor.config()=codega.config.ParseVisitor-class.html#config,Method codega.config.SaveVisitor.config()=codega.config.SaveVisitor-class.html#config,Variable codega.context.Context.config=codega.context.Context-class.html#config"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-34', 'config', 'link-34');">config</a></tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-35" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-35', '_locator', 'link-29');">_locator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">locator</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-36" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-36', '_source', 'link-30');">_source</a></tt> <tt class="py-op">=</tt> <tt id="link-37" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-37', 'source', 'link-0');">source</a></tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-38" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-38', '_target', 'link-31');">_target</a></tt> <tt class="py-op">=</tt> <tt id="link-39" class="py-name" targets="Method codega.config.ParseVisitor.target()=codega.config.ParseVisitor-class.html#target,Method codega.config.SaveVisitor.target()=codega.config.SaveVisitor-class.html#target,Variable codega.context.Context.target=codega.context.Context-class.html#target"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-39', 'target', 'link-39');">target</a></tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name"><a title="codega.build.BuildTask._destination
+codega.config.PathList._destination" class="py-name" href="#" onclick="return doclink('link-40', '_destination', 'link-32');">_destination</a></tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-41" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-41', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">.</tt><tt id="link-42" class="py-name" targets="Method codega.rsclocator.FallbackLocator.find()=codega.rsclocator.FallbackLocator-class.html#find,Method codega.rsclocator.FileResourceLocator.find()=codega.rsclocator.FileResourceLocator-class.html#find,Method codega.rsclocator.ResourceLocatorBase.find()=codega.rsclocator.ResourceLocatorBase-class.html#find"><a title="codega.rsclocator.FallbackLocator.find
+codega.rsclocator.FileResourceLocator.find
+codega.rsclocator.ResourceLocatorBase.find" class="py-name" href="#" onclick="return doclink('link-42', 'find', 'link-42');">find</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-43" class="py-name"><a title="codega.build.BuildTask._config
+codega.context.Context._config" class="py-name" href="#" onclick="return doclink('link-43', '_config', 'link-28');">_config</a></tt><tt class="py-op">.</tt><tt id="link-44" class="py-name" targets="Variable codega.config.Config.paths=codega.config.Config-class.html#paths,Variable codega.config.PathList.paths=codega.config.PathList-class.html#paths"><a title="codega.config.Config.paths
+codega.config.PathList.paths" class="py-name" href="#" onclick="return doclink('link-44', 'paths', 'link-44');">paths</a></tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Variable codega.config.PathList.destination=codega.config.PathList-class.html#destination"><a title="codega.config.PathList.destination" class="py-name" href="#" onclick="return doclink('link-45', 'destination', 'link-45');">destination</a></tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-46', '_target', 'link-31');">_target</a></tt><tt class="py-op">.</tt><tt id="link-47" class="py-name"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-47', 'filename', 'link-18');">filename</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-48" class="py-name" targets="Class codega.build.BuildTask=codega.build.BuildTask-class.html"><a title="codega.build.BuildTask" class="py-name" href="#" onclick="return doclink('link-48', 'BuildTask', 'link-48');">BuildTask</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-49" class="py-name" targets="Method codega.build.BuildTask.__init__()=codega.build.BuildTask-class.html#__init__,Method codega.build.Builder.__init__()=codega.build.Builder-class.html#__init__,Method codega.build.ConfigBuilder.__init__()=codega.build.ConfigBuilder-class.html#__init__,Method codega.build.TaskBase.__init__()=codega.build.TaskBase-class.html#__init__,Method codega.commands.CommandMain.__init__()=codega.commands.CommandMain-class.html#__init__,Method codega.commands.base.CommandBase.__init__()=codega.commands.base.CommandBase-class.html#__init__,Method codega.commands.base.CommandContainer.__init__()=codega.commands.base.CommandContainer-class.html#__init__,Method codega.commands.base.CommandHelp.__init__()=codega.commands.base.CommandHelp-class.html#__init__,Method codega.commands.base.OptparsedCommand.__init__()=codega.commands.base.OptparsedCommand-class.html#__init__,Method codega.commands.build.CommandBuild.__init__()=codega.commands.build.CommandBuild-class.html#__init__,Method codega.commands.clean.CommandClean.__init__()=codega.commands.clean.CommandClean-class.html#__init__,Method codega.commands.make.CommandMake.__init__()=codega.commands.make.CommandMake-class.html#__init__,Method codega.commands.pack.CommandPack.__init__()=codega.commands.pack.CommandPack-class.html#__init__,Method codega.config.Config.SourceCollection.__init__()=codega.config.Config.SourceCollection-class.html#__init__,Method codega.config.Config.TargetCollection.__init__()=codega.config.Config.TargetCollection-class.html#__init__,Method codega.config.Config.__init__()=codega.config.Config-class.html#__init__,Method codega.config.ModuleReference.__init__()=codega.config.ModuleReference-class.html#__init__,Method codega.config.NodeBase.__init__()=codega.config.NodeBase-class.html#__init__,Method codega.config.ParseVisitor.__init__()=codega.config.ParseVisitor-class.html#__init__,Method codega.config.PathList.__init__()=codega.config.PathList-class.html#__init__,Method codega.config.Settings.__init__()=codega.config.Settings-class.html#__init__,Method codega.config.Source.__init__()=codega.config.Source-class.html#__init__,Method codega.config.Target.__init__()=codega.config.Target-class.html#__init__,Method codega.context.Context.__init__()=codega.context.Context-class.html#__init__,Method codega.error.ParseError.__init__()=codega.error.ParseError-class.html#__init__,Method codega.error.ResourceError.__init__()=codega.error.ResourceError-class.html#__init__,Method codega.error.TemplateNotFoundError.__init__()=codega.error.TemplateNotFoundError-class.html#__init__,Method codega.generator.FilterGenerator.__init__()=codega.generator.FilterGenerator-class.html#__init__,Method codega.generator.FunctionGenerator.__init__()=codega.generator.FunctionGenerator-class.html#__init__,Method codega.generator.GeneratorBase.__init__()=codega.generator.GeneratorBase-class.html#__init__,Method codega.generator.ObjectGenerator.__init__()=codega.generator.ObjectGenerator-class.html#__init__,Method codega.generator.PriorityGenerator.__init__()=codega.generator.PriorityGenerator-class.html#__init__,Method codega.generator.TemplateGenerator.__init__()=codega.generator.TemplateGenerator-class.html#__init__,Method codega.ordereddict.OrderedDict.__init__()=codega.ordereddict.OrderedDict-class.html#__init__,Method codega.rsclocator.FallbackLocator.__init__()=codega.rsclocator.FallbackLocator-class.html#__init__,Method codega.rsclocator.FileResourceLocator.__init__()=codega.rsclocator.FileResourceLocator-class.html#__init__,Method codega.rsclocator.ModuleLocator.__init__()=codega.rsclocator.ModuleLocator-class.html#__init__,Method codega.rsclocator.ResourceLocatorBase.__init__()=codega.rsclocator.ResourceLocatorBase-class.html#__init__,Method codega.template.TemplatesetBase.__init__()=codega.template.TemplatesetBase-class.html#__init__,Method codega.version.Version.__init__()=codega.version.Version-class.html#__init__"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-49', '__init__', 'link-49');">__init__</a></tt><tt class="py-op">(</tt><tt id="link-50" class="py-name" targets="Variable codega.config.NodeBase.parent=codega.config.NodeBase-class.html#parent,Variable codega.generator.GeneratorBase.parent=codega.generator.GeneratorBase-class.html#parent"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-50', 'parent', 'link-50');">parent</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask.check_need_run"></a><div id="BuildTask.check_need_run-def"><a name="L75"></a><tt class="py-lineno"> 75</tt> <a class="py-toggle" href="#" id="BuildTask.check_need_run-toggle" onclick="return toggle('BuildTask.check_need_run');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html#check_need_run">check_need_run</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask.check_need_run-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BuildTask.check_need_run-expanded"><a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">        <tt class="py-comment"># Check if we need to rebuild the target</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="codega.build.BuildTask._destination
+codega.config.PathList._destination" class="py-name" href="#" onclick="return doclink('link-51', '_destination', 'link-32');">_destination</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-name">modules</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt> <tt class="py-string">'codega'</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-52" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-52', '_source', 'link-30');">_source</a></tt><tt class="py-op">.</tt><tt id="link-53" class="py-name" targets="Variable codega.config.Source.parser=codega.config.Source-class.html#parser"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-53', 'parser', 'link-53');">parser</a></tt><tt class="py-op">.</tt><tt id="link-54" class="py-name"><a title="codega.config.ModuleReference.module" class="py-name" href="#" onclick="return doclink('link-54', 'module', 'link-21');">module</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-55" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-55', '_target', 'link-31');">_target</a></tt><tt class="py-op">.</tt><tt id="link-56" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-56', 'generator', 'link-5');">generator</a></tt><tt class="py-op">.</tt><tt id="link-57" class="py-name"><a title="codega.config.ModuleReference.module" class="py-name" href="#" onclick="return doclink('link-57', 'module', 'link-21');">module</a></tt> <tt class="py-op">]</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">        <tt class="py-comment"># If the destination modification time is smaller than any other time (mtime</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">        <tt class="py-comment"># of any of the modules or files) we need to rebuild</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">        <tt class="py-name">time</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-name">time</tt> <tt class="py-op">=</tt> <tt class="py-name">max</tt><tt class="py-op">(</tt><tt class="py-name">time</tt><tt class="py-op">,</tt> <tt id="link-58" class="py-name"><a title="codega.build.get_mtime" class="py-name" href="#" onclick="return doclink('link-58', 'get_mtime', 'link-22');">get_mtime</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-59" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-59', '_source', 'link-30');">_source</a></tt><tt class="py-op">.</tt><tt id="link-60" class="py-name" targets="Variable codega.config.Source.resource=codega.config.Source-class.html#resource"><a title="codega.config.Source.resource" class="py-name" href="#" onclick="return doclink('link-60', 'resource', 'link-60');">resource</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt class="py-name">time</tt> <tt class="py-op">=</tt> <tt class="py-name">reduce</tt><tt class="py-op">(</tt><tt class="py-name">max</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt> <tt id="link-61" class="py-name" targets="Function codega.build.get_module_time()=codega.build-module.html#get_module_time"><a title="codega.build.get_module_time" class="py-name" href="#" onclick="return doclink('link-61', 'get_module_time', 'link-61');">get_module_time</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-62" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-62', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">,</tt> <tt class="py-name">m</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">m</tt> <tt class="py-keyword">in</tt> <tt class="py-name">modules</tt> <tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">time</tt><tt class="py-op">)</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-63" class="py-name"><a title="codega.build.get_mtime" class="py-name" href="#" onclick="return doclink('link-63', 'get_mtime', 'link-22');">get_mtime</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-64" class="py-name"><a title="codega.build.BuildTask._destination
+codega.config.PathList._destination" class="py-name" href="#" onclick="return doclink('link-64', '_destination', 'link-32');">_destination</a></tt><tt class="py-op">)</tt> <tt class="py-op">&lt;</tt> <tt class="py-name">time</tt> </tt>
+</div><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask.execute"></a><div id="BuildTask.execute-def"><a name="L90"></a><tt class="py-lineno"> 90</tt> <a class="py-toggle" href="#" id="BuildTask.execute-toggle" onclick="return toggle('BuildTask.execute');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html#execute">execute</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask.execute-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BuildTask.execute-expanded"><a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-comment"># Generation context</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt id="link-65" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-65', 'context', 'link-7');">context</a></tt> <tt class="py-op">=</tt> <tt id="link-66" class="py-name"><a title="codega.context.Context" class="py-name" href="#" onclick="return doclink('link-66', 'Context', 'link-8');">Context</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-67" class="py-name"><a title="codega.build.BuildTask._config
+codega.context.Context._config" class="py-name" href="#" onclick="return doclink('link-67', '_config', 'link-28');">_config</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-68" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-68', '_source', 'link-30');">_source</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-69" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-69', '_target', 'link-31');">_target</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-comment"># Load source</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt id="link-70" class="py-name" targets="Variable codega.config.Settings.RecursiveContainer.data=codega.config.Settings.RecursiveContainer-class.html#data,Variable codega.config.Settings.data=codega.config.Settings-class.html#data"><a title="codega.config.Settings.RecursiveContainer.data
+codega.config.Settings.data" class="py-name" href="#" onclick="return doclink('link-70', 'data', 'link-70');">data</a></tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-71" class="py-name"><a title="codega.build.TaskBase._builder" class="py-name" href="#" onclick="return doclink('link-71', '_builder', 'link-26');">_builder</a></tt><tt class="py-op">.</tt><tt id="link-72" class="py-name" targets="Method codega.build.Builder.cache()=codega.build.Builder-class.html#cache"><a title="codega.build.Builder.cache" class="py-name" href="#" onclick="return doclink('link-72', 'cache', 'link-72');">cache</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-73" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-73', '_source', 'link-30');">_source</a></tt><tt class="py-op">.</tt><tt id="link-74" class="py-name" targets="Variable codega.commands.base.CommandBase.name=codega.commands.base.CommandBase-class.html#name,Variable codega.config.Source.name=codega.config.Source-class.html#name"><a title="codega.commands.base.CommandBase.name
+codega.config.Source.name" class="py-name" href="#" onclick="return doclink('link-74', 'name', 'link-74');">name</a></tt><tt class="py-op">,</tt> <tt class="py-keyword">lambda</tt> <tt class="py-name">key</tt><tt class="py-op">:</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-75" class="py-name" targets="Method codega.build.BuildTask.get_source()=codega.build.BuildTask-class.html#get_source"><a title="codega.build.BuildTask.get_source" class="py-name" href="#" onclick="return doclink('link-75', 'get_source', 'link-75');">get_source</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-76" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-76', '_source', 'link-30');">_source</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-comment"># Generate output</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt id="link-77" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-77', 'generator', 'link-5');">generator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-78" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-78', '_target', 'link-31');">_target</a></tt><tt class="py-op">.</tt><tt id="link-79" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-79', 'generator', 'link-5');">generator</a></tt><tt class="py-op">.</tt><tt id="link-80" class="py-name" targets="Method codega.config.ModuleReference.load()=codega.config.ModuleReference-class.html#load,Method codega.source.FileSourceBase.load()=codega.source.FileSourceBase-class.html#load,Method codega.source.SourceBase.load()=codega.source.SourceBase-class.html#load"><a title="codega.config.ModuleReference.load
+codega.source.FileSourceBase.load
+codega.source.SourceBase.load" class="py-name" href="#" onclick="return doclink('link-80', 'load', 'link-80');">load</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-81" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-81', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">issubclass</tt><tt class="py-op">(</tt><tt id="link-82" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-82', 'generator', 'link-5');">generator</a></tt><tt class="py-op">,</tt> <tt id="link-83" class="py-name"><a title="codega.generator.GeneratorBase" class="py-name" href="#" onclick="return doclink('link-83', 'GeneratorBase', 'link-6');">GeneratorBase</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-84" class="py-name"><a title="codega.error.StateError" class="py-name" href="#" onclick="return doclink('link-84', 'StateError', 'link-10');">StateError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Generator reference %s could not be loaded"</tt> <tt class="py-op">%</tt> <tt id="link-85" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-85', 'generator', 'link-5');">generator</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">        <tt class="py-name">output</tt> <tt class="py-op">=</tt> <tt id="link-86" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-86', 'generator', 'link-5');">generator</a></tt><tt class="py-op">.</tt><tt id="link-87" class="py-name" targets="Method codega.commands.base.CommandBase.run()=codega.commands.base.CommandBase-class.html#run,Class Method codega.generator.GeneratorBase.run()=codega.generator.GeneratorBase-class.html#run"><a title="codega.commands.base.CommandBase.run
+codega.generator.GeneratorBase.run" class="py-name" href="#" onclick="return doclink('link-87', 'run', 'link-87');">run</a></tt><tt class="py-op">(</tt><tt id="link-88" class="py-name"><a title="codega.config.Settings.RecursiveContainer.data
+codega.config.Settings.data" class="py-name" href="#" onclick="return doclink('link-88', 'data', 'link-70');">data</a></tt><tt class="py-op">,</tt> <tt id="link-89" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-89', 'context', 'link-7');">context</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">        <tt class="py-comment"># Write output</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt id="link-90" class="py-name"><a title="codega.config.PathList.destination" class="py-name" href="#" onclick="return doclink('link-90', 'destination', 'link-45');">destination</a></tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-91" class="py-name"><a title="codega.build.BuildTask._destination
+codega.config.PathList._destination" class="py-name" href="#" onclick="return doclink('link-91', '_destination', 'link-32');">_destination</a></tt><tt class="py-op">,</tt> <tt class="py-string">'w'</tt><tt class="py-op">)</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt id="link-92" class="py-name"><a title="codega.config.PathList.destination" class="py-name" href="#" onclick="return doclink('link-92', 'destination', 'link-45');">destination</a></tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-name">output</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt id="link-93" class="py-name"><a title="codega.config.PathList.destination" class="py-name" href="#" onclick="return doclink('link-93', 'destination', 'link-45');">destination</a></tt><tt class="py-op">.</tt><tt class="py-name">close</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask.get_cleanup_list"></a><div id="BuildTask.get_cleanup_list-def"><a name="L108"></a><tt class="py-lineno">108</tt> <a class="py-toggle" href="#" id="BuildTask.get_cleanup_list-toggle" onclick="return toggle('BuildTask.get_cleanup_list');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html#get_cleanup_list">get_cleanup_list</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask.get_cleanup_list-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BuildTask.get_cleanup_list-expanded"><a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-op">[</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-94" class="py-name"><a title="codega.build.BuildTask._target
+codega.context.Context._target" class="py-name" href="#" onclick="return doclink('link-94', '_target', 'link-31');">_target</a></tt><tt class="py-op">.</tt><tt id="link-95" class="py-name"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-95', 'filename', 'link-18');">filename</a></tt> <tt class="py-op">]</tt> </tt>
+</div><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"> </tt>
+<a name="BuildTask.get_source"></a><div id="BuildTask.get_source-def"><a name="L111"></a><tt class="py-lineno">111</tt> <a class="py-toggle" href="#" id="BuildTask.get_source-toggle" onclick="return toggle('BuildTask.get_source');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.BuildTask-class.html#get_source">get_source</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildTask.get_source-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BuildTask.get_source-expanded"><a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt id="link-96" class="py-name"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-96', 'parser', 'link-53');">parser</a></tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-97" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-97', '_source', 'link-30');">_source</a></tt><tt class="py-op">.</tt><tt id="link-98" class="py-name"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-98', 'parser', 'link-53');">parser</a></tt><tt class="py-op">.</tt><tt id="link-99" class="py-name"><a title="codega.config.ModuleReference.load
+codega.source.FileSourceBase.load
+codega.source.SourceBase.load" class="py-name" href="#" onclick="return doclink('link-99', 'load', 'link-80');">load</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-100" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-100', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">issubclass</tt><tt class="py-op">(</tt><tt id="link-101" class="py-name"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-101', 'parser', 'link-53');">parser</a></tt><tt class="py-op">,</tt> <tt id="link-102" class="py-name"><a title="codega.source.SourceBase" class="py-name" href="#" onclick="return doclink('link-102', 'SourceBase', 'link-1');">SourceBase</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-103" class="py-name"><a title="codega.error.StateError" class="py-name" href="#" onclick="return doclink('link-103', 'StateError', 'link-10');">StateError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Parser reference %s could not be loaded"</tt> <tt class="py-op">%</tt> <tt id="link-104" class="py-name"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-104', 'parser', 'link-53');">parser</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-105" class="py-name"><a title="codega.config.Source.parser" class="py-name" href="#" onclick="return doclink('link-105', 'parser', 'link-53');">parser</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-106" class="py-name"><a title="codega.config.ModuleReference.load
+codega.source.FileSourceBase.load
+codega.source.SourceBase.load" class="py-name" href="#" onclick="return doclink('link-106', 'load', 'link-80');">load</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-107" class="py-name"><a title="codega.build.BuildTask._source
+codega.config.Target._source
+codega.context.Context._source" class="py-name" href="#" onclick="return doclink('link-107', '_source', 'link-30');">_source</a></tt><tt class="py-op">.</tt><tt id="link-108" class="py-name"><a title="codega.config.Source.resource" class="py-name" href="#" onclick="return doclink('link-108', 'resource', 'link-60');">resource</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-109" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-109', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">getroot</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="Builder"></a><div id="Builder-def"><a name="L117"></a><tt class="py-lineno">117</tt> <a class="py-toggle" href="#" id="Builder-toggle" onclick="return toggle('Builder');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.build.Builder-class.html">Builder</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Builder-expanded"><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">    <tt class="py-docstring">'''Base object for builders</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">    _cache -- Object cache (mostly for sources)</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">    _tasks -- Task backlog</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">    _locator -- Basic resource locator</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt id="link-110" class="py-name" targets="Variable codega.build.Builder._cache=codega.build.Builder-class.html#_cache"><a title="codega.build.Builder._cache" class="py-name" href="#" onclick="return doclink('link-110', '_cache', 'link-110');">_cache</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">    <tt id="link-111" class="py-name" targets="Variable codega.build.Builder._tasks=codega.build.Builder-class.html#_tasks"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-111', '_tasks', 'link-111');">_tasks</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">    <tt id="link-112" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-112', '_locator', 'link-29');">_locator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">property</tt> </tt>
+<a name="Builder.__tasks_iterator"></a><div id="Builder.__tasks_iterator-def"><a name="L131"></a><tt class="py-lineno">131</tt> <a class="py-toggle" href="#" id="Builder.__tasks_iterator-toggle" onclick="return toggle('Builder.__tasks_iterator');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#__tasks_iterator">__tasks_iterator</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.__tasks_iterator-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.__tasks_iterator-expanded"><a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">__iterator</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">            <tt class="py-keyword">while</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-113" class="py-name"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-113', '_tasks', 'link-111');">_tasks</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">                <tt class="py-keyword">yield</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-114" class="py-name"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-114', '_tasks', 'link-111');">_tasks</a></tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">__iterator</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"> </tt>
+<a name="Builder.__init__"></a><div id="Builder.__init__-def"><a name="L138"></a><tt class="py-lineno">138</tt> <a class="py-toggle" href="#" id="Builder.__init__-toggle" onclick="return toggle('Builder.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">locator</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.__init__-expanded"><a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-115" class="py-name"><a title="codega.build.Builder._cache" class="py-name" href="#" onclick="return doclink('link-115', '_cache', 'link-110');">_cache</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-116" class="py-name"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-116', '_tasks', 'link-111');">_tasks</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-117" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-117', '_locator', 'link-29');">_locator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">locator</tt> </tt>
+</div><a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"> </tt>
+<a name="Builder.cache"></a><div id="Builder.cache-def"><a name="L143"></a><tt class="py-lineno">143</tt> <a class="py-toggle" href="#" id="Builder.cache-toggle" onclick="return toggle('Builder.cache');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#cache">cache</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">,</tt> <tt class="py-param">calc</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.cache-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.cache-expanded"><a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">        <tt class="py-docstring">'''Get or calculate resource'''</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-118" class="py-name"><a title="codega.build.Builder._cache" class="py-name" href="#" onclick="return doclink('link-118', '_cache', 'link-110');">_cache</a></tt><tt class="py-op">.</tt><tt class="py-name">has_key</tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-119" class="py-name"><a title="codega.build.Builder._cache" class="py-name" href="#" onclick="return doclink('link-119', '_cache', 'link-110');">_cache</a></tt><tt class="py-op">[</tt><tt class="py-name">key</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">calc</tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-120" class="py-name"><a title="codega.build.Builder._cache" class="py-name" href="#" onclick="return doclink('link-120', '_cache', 'link-110');">_cache</a></tt><tt class="py-op">[</tt><tt class="py-name">key</tt><tt class="py-op">]</tt> </tt>
+</div><a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"> </tt>
+<a name="Builder.push_task"></a><div id="Builder.push_task-def"><a name="L151"></a><tt class="py-lineno">151</tt> <a class="py-toggle" href="#" id="Builder.push_task-toggle" onclick="return toggle('Builder.push_task');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#push_task">push_task</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">task</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.push_task-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.push_task-expanded"><a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">        <tt class="py-docstring">'''Add a task to the task list'''</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-121" class="py-name"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-121', '_tasks', 'link-111');">_tasks</a></tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">task</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="Builder.build"></a><div id="Builder.build-def"><a name="L156"></a><tt class="py-lineno">156</tt> <a class="py-toggle" href="#" id="Builder.build-toggle" onclick="return toggle('Builder.build');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#build">build</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">force</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.build-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.build-expanded"><a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">        <tt class="py-docstring">'''Build tasks.</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-docstring">        Note that the tasks will be removed!</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">task</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-122" class="py-name" targets="Variable codega.build.Builder.__tasks_iterator=codega.build.Builder-class.html#__tasks_iterator"><a title="codega.build.Builder.__tasks_iterator" class="py-name" href="#" onclick="return doclink('link-122', '__tasks_iterator', 'link-122');">__tasks_iterator</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">force</tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt class="py-name">task</tt><tt class="py-op">.</tt><tt id="link-123" class="py-name" targets="Method codega.build.BuildTask.check_need_run()=codega.build.BuildTask-class.html#check_need_run,Method codega.build.TaskBase.check_need_run()=codega.build.TaskBase-class.html#check_need_run"><a title="codega.build.BuildTask.check_need_run
+codega.build.TaskBase.check_need_run" class="py-name" href="#" onclick="return doclink('link-123', 'check_need_run', 'link-123');">check_need_run</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">                    <tt class="py-keyword">continue</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">                <tt class="py-name">task</tt><tt class="py-op">.</tt><tt id="link-124" class="py-name" targets="Method codega.build.BuildTask.execute()=codega.build.BuildTask-class.html#execute,Method codega.build.TaskBase.execute()=codega.build.TaskBase-class.html#execute,Method codega.commands.base.CommandBase.execute()=codega.commands.base.CommandBase-class.html#execute,Method codega.commands.base.CommandContainer.execute()=codega.commands.base.CommandContainer-class.html#execute,Method codega.commands.base.CommandHelp.execute()=codega.commands.base.CommandHelp-class.html#execute,Method codega.commands.build.CommandBuild.execute()=codega.commands.build.CommandBuild-class.html#execute,Method codega.commands.clean.CommandClean.execute()=codega.commands.clean.CommandClean-class.html#execute,Method codega.commands.make.CommandMake.execute()=codega.commands.make.CommandMake-class.html#execute,Method codega.commands.pack.CommandPack.execute()=codega.commands.pack.CommandPack-class.html#execute"><a title="codega.build.BuildTask.execute
+codega.build.TaskBase.execute
+codega.commands.base.CommandBase.execute
+codega.commands.base.CommandContainer.execute
+codega.commands.base.CommandHelp.execute
+codega.commands.build.CommandBuild.execute
+codega.commands.clean.CommandClean.execute
+codega.commands.make.CommandMake.execute
+codega.commands.pack.CommandPack.execute" class="py-name" href="#" onclick="return doclink('link-124', 'execute', 'link-124');">execute</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-125" class="py-name"><a title="codega.build.Builder._tasks" class="py-name" href="#" onclick="return doclink('link-125', '_tasks', 'link-111');">_tasks</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-126" class="py-name"><a title="codega.error.BuildError" class="py-name" href="#" onclick="return doclink('link-126', 'BuildError', 'link-17');">BuildError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Error detected during build: %s'</tt> <tt class="py-op">%</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"> </tt>
+<a name="Builder.cleanup"></a><div id="Builder.cleanup-def"><a name="L175"></a><tt class="py-lineno">175</tt> <a class="py-toggle" href="#" id="Builder.cleanup-toggle" onclick="return toggle('Builder.cleanup');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.Builder-class.html#cleanup">cleanup</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Builder.cleanup-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Builder.cleanup-expanded"><a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">        <tt class="py-docstring">'''Clean up the project files'''</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">            <tt id="link-127" class="py-name" targets="Method codega.build.Builder.cleanup()=codega.build.Builder-class.html#cleanup"><a title="codega.build.Builder.cleanup" class="py-name" href="#" onclick="return doclink('link-127', 'cleanup', 'link-127');">cleanup</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">task</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-128" class="py-name"><a title="codega.build.Builder.__tasks_iterator" class="py-name" href="#" onclick="return doclink('link-128', '__tasks_iterator', 'link-122');">__tasks_iterator</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">                <tt id="link-129" class="py-name"><a title="codega.build.Builder.cleanup" class="py-name" href="#" onclick="return doclink('link-129', 'cleanup', 'link-127');">cleanup</a></tt><tt class="py-op">.</tt><tt class="py-name">extend</tt><tt class="py-op">(</tt><tt class="py-name">task</tt><tt class="py-op">.</tt><tt id="link-130" class="py-name" targets="Method codega.build.BuildTask.get_cleanup_list()=codega.build.BuildTask-class.html#get_cleanup_list,Method codega.build.TaskBase.get_cleanup_list()=codega.build.TaskBase-class.html#get_cleanup_list"><a title="codega.build.BuildTask.get_cleanup_list
+codega.build.TaskBase.get_cleanup_list" class="py-name" href="#" onclick="return doclink('link-130', 'get_cleanup_list', 'link-130');">get_cleanup_list</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">path</tt> <tt class="py-keyword">in</tt> <tt id="link-131" class="py-name"><a title="codega.build.Builder.cleanup" class="py-name" href="#" onclick="return doclink('link-131', 'cleanup', 'link-127');">cleanup</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line">                <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line">                    <tt id="link-132" class="py-name"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-132', 'logger', 'link-14');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">info</tt><tt class="py-op">(</tt><tt class="py-string">'Trying to remove %r'</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line">                    <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">unlink</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-133" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-133', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">.</tt><tt id="link-134" class="py-name"><a title="codega.rsclocator.FallbackLocator.find
+codega.rsclocator.FileResourceLocator.find
+codega.rsclocator.ResourceLocatorBase.find" class="py-name" href="#" onclick="return doclink('link-134', 'find', 'link-42');">find</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line">                <tt class="py-keyword">except</tt> <tt id="link-135" class="py-name"><a title="codega.error.ResourceError" class="py-name" href="#" onclick="return doclink('link-135', 'ResourceError', 'link-11');">ResourceError</a></tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line">                    <tt class="py-comment"># ResourceError means no file, so there is nothing to do</tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line">                    <tt id="link-136" class="py-name"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-136', 'logger', 'link-14');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">warning</tt><tt class="py-op">(</tt><tt class="py-string">'Removing of %r failed'</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-137" class="py-name"><a title="codega.error.BuildError" class="py-name" href="#" onclick="return doclink('link-137', 'BuildError', 'link-17');">BuildError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Error detected during cleanup: %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line"> </tt>
+<a name="ConfigBuilder"></a><div id="ConfigBuilder-def"><a name="L195"></a><tt class="py-lineno">195</tt> <a class="py-toggle" href="#" id="ConfigBuilder-toggle" onclick="return toggle('ConfigBuilder');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.build.ConfigBuilder-class.html">ConfigBuilder</a><tt class="py-op">(</tt><tt class="py-base-class">Builder</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigBuilder-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfigBuilder-expanded"><a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line">    <tt class="py-docstring">'''Build targets from a config'''</tt> </tt>
+<a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"> </tt>
+<a name="ConfigBuilder.__init__"></a><div id="ConfigBuilder.__init__-def"><a name="L198"></a><tt class="py-lineno">198</tt> <a class="py-toggle" href="#" id="ConfigBuilder.__init__-toggle" onclick="return toggle('ConfigBuilder.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.ConfigBuilder-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">config</tt><tt class="py-op">,</tt> <tt class="py-param">base_locator</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigBuilder.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ConfigBuilder.__init__-expanded"><a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-138" class="py-name"><a title="codega.build.BuildTask._config
+codega.context.Context._config" class="py-name" href="#" onclick="return doclink('link-138', '_config', 'link-28');">_config</a></tt> <tt class="py-op">=</tt> <tt id="link-139" class="py-name"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-139', 'config', 'link-34');">config</a></tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line"> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">        <tt class="py-comment"># Make locator</tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">        <tt class="py-name">locator</tt> <tt class="py-op">=</tt> <tt id="link-140" class="py-name"><a title="codega.rsclocator.FallbackLocator" class="py-name" href="#" onclick="return doclink('link-140', 'FallbackLocator', 'link-4');">FallbackLocator</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">path</tt> <tt class="py-keyword">in</tt> <tt id="link-141" class="py-name"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-141', 'config', 'link-34');">config</a></tt><tt class="py-op">.</tt><tt id="link-142" class="py-name"><a title="codega.config.Config.paths
+codega.config.PathList.paths" class="py-name" href="#" onclick="return doclink('link-142', 'paths', 'link-44');">paths</a></tt><tt class="py-op">.</tt><tt id="link-143" class="py-name"><a title="codega.config.Config.paths
+codega.config.PathList.paths" class="py-name" href="#" onclick="return doclink('link-143', 'paths', 'link-44');">paths</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line">            <tt class="py-name">locator</tt><tt class="py-op">.</tt><tt id="link-144" class="py-name" targets="Method codega.rsclocator.FallbackLocator.add_locator()=codega.rsclocator.FallbackLocator-class.html#add_locator"><a title="codega.rsclocator.FallbackLocator.add_locator" class="py-name" href="#" onclick="return doclink('link-144', 'add_locator', 'link-144');">add_locator</a></tt><tt class="py-op">(</tt><tt id="link-145" class="py-name"><a title="codega.rsclocator.FileResourceLocator" class="py-name" href="#" onclick="return doclink('link-145', 'FileResourceLocator', 'link-3');">FileResourceLocator</a></tt><tt class="py-op">(</tt><tt class="py-name">base_locator</tt><tt class="py-op">.</tt><tt id="link-146" class="py-name"><a title="codega.rsclocator.FallbackLocator.find
+codega.rsclocator.FileResourceLocator.find
+codega.rsclocator.ResourceLocatorBase.find" class="py-name" href="#" onclick="return doclink('link-146', 'find', 'link-42');">find</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line"> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-147" class="py-name" targets="Class codega.build.ConfigBuilder=codega.build.ConfigBuilder-class.html"><a title="codega.build.ConfigBuilder" class="py-name" href="#" onclick="return doclink('link-147', 'ConfigBuilder', 'link-147');">ConfigBuilder</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-148" class="py-name"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-148', '__init__', 'link-49');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">locator</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"> </tt>
+<a name="ConfigBuilder.add_target"></a><div id="ConfigBuilder.add_target-def"><a name="L208"></a><tt class="py-lineno">208</tt> <a class="py-toggle" href="#" id="ConfigBuilder.add_target-toggle" onclick="return toggle('ConfigBuilder.add_target');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.build.ConfigBuilder-class.html#add_target">add_target</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">target</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigBuilder.add_target-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ConfigBuilder.add_target-expanded"><a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line">        <tt class="py-docstring">'''Add a configuration target'''</tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line"> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">        <tt id="link-149" class="py-name"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-149', 'config', 'link-34');">config</a></tt> <tt class="py-op">=</tt> <tt id="link-150" class="py-name"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-150', 'target', 'link-39');">target</a></tt><tt class="py-op">.</tt><tt id="link-151" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-151', 'parent', 'link-50');">parent</a></tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">        <tt id="link-152" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-152', 'source', 'link-0');">source</a></tt> <tt class="py-op">=</tt> <tt id="link-153" class="py-name"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-153', 'config', 'link-34');">config</a></tt><tt class="py-op">.</tt><tt id="link-154" class="py-name" targets="Variable codega.config.Config.sources=codega.config.Config-class.html#sources"><a title="codega.config.Config.sources" class="py-name" href="#" onclick="return doclink('link-154', 'sources', 'link-154');">sources</a></tt><tt class="py-op">[</tt><tt id="link-155" class="py-name"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-155', 'target', 'link-39');">target</a></tt><tt class="py-op">.</tt><tt id="link-156" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-156', 'source', 'link-0');">source</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">        <tt class="py-name">task</tt> <tt class="py-op">=</tt> <tt id="link-157" class="py-name"><a title="codega.build.BuildTask" class="py-name" href="#" onclick="return doclink('link-157', 'BuildTask', 'link-48');">BuildTask</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-158" class="py-name"><a title="codega.config
+codega.config.ParseVisitor.config
+codega.config.SaveVisitor.config
+codega.context.Context.config" class="py-name" href="#" onclick="return doclink('link-158', 'config', 'link-34');">config</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-159" class="py-name"><a title="codega.build.BuildTask._locator
+codega.build.Builder._locator" class="py-name" href="#" onclick="return doclink('link-159', '_locator', 'link-29');">_locator</a></tt><tt class="py-op">,</tt> <tt id="link-160" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-160', 'source', 'link-0');">source</a></tt><tt class="py-op">,</tt> <tt id="link-161" class="py-name"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-161', 'target', 'link-39');">target</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line"> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-162" class="py-name" targets="Method codega.build.Builder.push_task()=codega.build.Builder-class.html#push_task"><a title="codega.build.Builder.push_task" class="py-name" href="#" onclick="return doclink('link-162', 'push_task', 'link-162');">push_task</a></tt><tt class="py-op">(</tt><tt class="py-name">task</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Aug 16 20:15:56 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

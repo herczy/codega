@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.cgextra.dicttools</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        <a href="codega.cgextra-module.html">Package&nbsp;cgextra</a> ::
+        Module&nbsp;dicttools
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.cgextra.dicttools-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="codega.cgextra.dicttools-module.html">Module codega.cgextra.dicttools</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-docstring">'''Dictionary tools to handle template arguments better'''</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">lxml</tt> <tt class="py-keyword">import</tt> <tt class="py-name">etree</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"> </tt>
+<a name="dict_from_element"></a><div id="dict_from_element-def"><a name="L5"></a><tt class="py-lineno"> 5</tt> <a class="py-toggle" href="#" id="dict_from_element-toggle" onclick="return toggle('dict_from_element');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#dict_from_element">dict_from_element</a><tt class="py-op">(</tt><tt class="py-param">element</tt><tt class="py-op">,</tt> <tt class="py-param">base</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="dict_from_element-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="dict_from_element-expanded"><a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line">    <tt class="py-docstring">'''Return a dictionary copy of element.attrib. Use base as</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-docstring">    the base dictionary'''</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">    <tt class="py-name">res</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-0" class="py-name" targets="Module codega.commands.base=codega.commands.base-module.html"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-0', 'base', 'link-0');">base</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line">        <tt class="py-name">res</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Method codega.ordereddict.OrderedDict.update()=codega.ordereddict.OrderedDict-class.html#update"><a title="codega.ordereddict.OrderedDict.update" class="py-name" href="#" onclick="return doclink('link-1', 'update', 'link-1');">update</a></tt><tt class="py-op">(</tt><tt id="link-2" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-2', 'base', 'link-0');">base</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">    <tt class="py-name">res</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name"><a title="codega.ordereddict.OrderedDict.update" class="py-name" href="#" onclick="return doclink('link-3', 'update', 'link-1');">update</a></tt><tt class="py-op">(</tt><tt class="py-name">element</tt><tt class="py-op">.</tt><tt class="py-name">attrib</tt><tt class="py-op">)</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">res</tt> </tt>
+</div><a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"> </tt>
+<a name="map_keys"></a><div id="map_keys-def"><a name="L16"></a><tt class="py-lineno">16</tt> <a class="py-toggle" href="#" id="map_keys-toggle" onclick="return toggle('map_keys');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#map_keys">map_keys</a><tt class="py-op">(</tt><tt class="py-param">func</tt><tt class="py-op">,</tt> <tt class="py-param">base</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="map_keys-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="map_keys-expanded"><a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">    <tt class="py-docstring">'''Call func for each key in base'''</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">dict</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">func</tt><tt class="py-op">(</tt><tt class="py-name">k</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-4', 'base', 'link-0');">base</a></tt><tt class="py-op">[</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt id="link-5" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-5', 'base', 'link-0');">base</a></tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method codega.ordereddict.OrderedDict.keys()=codega.ordereddict.OrderedDict-class.html#keys"><a title="codega.ordereddict.OrderedDict.keys" class="py-name" href="#" onclick="return doclink('link-6', 'keys', 'link-6');">keys</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"> </tt>
+<a name="map_values"></a><div id="map_values-def"><a name="L21"></a><tt class="py-lineno">21</tt> <a class="py-toggle" href="#" id="map_values-toggle" onclick="return toggle('map_values');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#map_values">map_values</a><tt class="py-op">(</tt><tt class="py-param">func</tt><tt class="py-op">,</tt> <tt class="py-param">base</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="map_values-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="map_values-expanded"><a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">    <tt class="py-docstring">'''Call func for each value in base'''</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line"> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">dict</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">k</tt><tt class="py-op">,</tt> <tt class="py-name">func</tt><tt class="py-op">(</tt><tt id="link-7" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-7', 'base', 'link-0');">base</a></tt><tt class="py-op">[</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt id="link-8" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-8', 'base', 'link-0');">base</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="codega.ordereddict.OrderedDict.keys" class="py-name" href="#" onclick="return doclink('link-9', 'keys', 'link-6');">keys</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"> </tt>
+<a name="filter_by_keys"></a><div id="filter_by_keys-def"><a name="L26"></a><tt class="py-lineno">26</tt> <a class="py-toggle" href="#" id="filter_by_keys-toggle" onclick="return toggle('filter_by_keys');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#filter_by_keys">filter_by_keys</a><tt class="py-op">(</tt><tt class="py-param">filt</tt><tt class="py-op">,</tt> <tt class="py-param">base</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="filter_by_keys-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="filter_by_keys-expanded"><a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">    <tt class="py-docstring">'''Filter keys from dict by the filt function'''</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line"> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">    <tt id="link-10" class="py-name"><a title="codega.ordereddict.OrderedDict.keys" class="py-name" href="#" onclick="return doclink('link-10', 'keys', 'link-6');">keys</a></tt> <tt class="py-op">=</tt> <tt class="py-name">filter</tt><tt class="py-op">(</tt><tt class="py-name">filt</tt><tt class="py-op">,</tt> <tt id="link-11" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-11', 'base', 'link-0');">base</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="codega.ordereddict.OrderedDict.keys" class="py-name" href="#" onclick="return doclink('link-12', 'keys', 'link-6');">keys</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">dict</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">k</tt><tt class="py-op">,</tt> <tt id="link-13" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-13', 'base', 'link-0');">base</a></tt><tt class="py-op">[</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt id="link-14" class="py-name"><a title="codega.ordereddict.OrderedDict.keys" class="py-name" href="#" onclick="return doclink('link-14', 'keys', 'link-6');">keys</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"> </tt>
+<a name="filter_keys"></a><div id="filter_keys-def"><a name="L32"></a><tt class="py-lineno">32</tt> <a class="py-toggle" href="#" id="filter_keys-toggle" onclick="return toggle('filter_keys');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#filter_keys">filter_keys</a><tt class="py-op">(</tt><tt class="py-param">base</tt><tt class="py-op">,</tt> <tt class="py-param">keywords</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="filter_keys-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="filter_keys-expanded"><a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">    <tt class="py-docstring">'''Only include keys in keyword'''</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-15" class="py-name" targets="Function codega.cgextra.dicttools.filter_by_keys()=codega.cgextra.dicttools-module.html#filter_by_keys"><a title="codega.cgextra.dicttools.filter_by_keys" class="py-name" href="#" onclick="return doclink('link-15', 'filter_by_keys', 'link-15');">filter_by_keys</a></tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">k</tt><tt class="py-op">:</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">keywords</tt><tt class="py-op">,</tt> <tt id="link-16" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-16', 'base', 'link-0');">base</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line"> </tt>
+<a name="exclude_internals"></a><div id="exclude_internals-def"><a name="L37"></a><tt class="py-lineno">37</tt> <a class="py-toggle" href="#" id="exclude_internals-toggle" onclick="return toggle('exclude_internals');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#exclude_internals">exclude_internals</a><tt class="py-op">(</tt><tt class="py-param">base</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="exclude_internals-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="exclude_internals-expanded"><a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line">    <tt class="py-docstring">'''Exclude keywords typically reserved for Python from the dictionary'''</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line"> </tt>
+<a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line">    <tt class="py-keyword">def</tt> <tt class="py-def-name">__filter</tt><tt class="py-op">(</tt><tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">key</tt><tt class="py-op">[</tt><tt class="py-op">:</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'__'</tt><tt class="py-op">:</tt> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"> </tt>
+<a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">key</tt> <tt class="py-keyword">in</tt> <tt class="py-op">(</tt><tt class="py-string">'self'</tt><tt class="py-op">,</tt> <tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line"> </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+</div><a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-17" class="py-name"><a title="codega.cgextra.dicttools.filter_by_keys" class="py-name" href="#" onclick="return doclink('link-17', 'filter_by_keys', 'link-15');">filter_by_keys</a></tt><tt class="py-op">(</tt><tt class="py-name">__filter</tt><tt class="py-op">,</tt> <tt id="link-18" class="py-name"><a title="codega.commands.base" class="py-name" href="#" onclick="return doclink('link-18', 'base', 'link-0');">base</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line"> </tt>
+<a name="bindict"></a><div id="bindict-def"><a name="L51"></a><tt class="py-lineno">51</tt> <a class="py-toggle" href="#" id="bindict-toggle" onclick="return toggle('bindict');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#bindict">bindict</a><tt class="py-op">(</tt><tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">bind</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="bindict-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="bindict-expanded"><a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">    <tt class="py-docstring">'''Create a dict from the context, source and other keywords'''</tt> </tt>
+<a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line"> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line">    <tt class="py-name">res</tt> <tt class="py-op">=</tt> <tt class="py-name">dict</tt><tt class="py-op">(</tt><tt id="link-19" class="py-name" targets="Method codega.generator.FunctionGenerator.bind()=codega.generator.FunctionGenerator-class.html#bind,Method codega.generator.GeneratorBase.bind()=codega.generator.GeneratorBase-class.html#bind,Method codega.generator.TemplateGenerator.bind()=codega.generator.TemplateGenerator-class.html#bind"><a title="codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-19', 'bind', 'link-19');">bind</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">    <tt class="py-name">res</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="codega.ordereddict.OrderedDict.update" class="py-name" href="#" onclick="return doclink('link-20', 'update', 'link-1');">update</a></tt><tt class="py-op">(</tt><tt id="link-21" class="py-name" targets="Function codega.cgextra.dicttools.map_keys()=codega.cgextra.dicttools-module.html#map_keys"><a title="codega.cgextra.dicttools.map_keys" class="py-name" href="#" onclick="return doclink('link-21', 'map_keys', 'link-21');">map_keys</a></tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">k</tt><tt class="py-op">:</tt> <tt class="py-string">'attr_%s'</tt> <tt class="py-op">%</tt> <tt class="py-name">k</tt><tt class="py-op">,</tt> <tt id="link-22" class="py-name" targets="Function codega.cgextra.dicttools.dict_from_element()=codega.cgextra.dicttools-module.html#dict_from_element"><a title="codega.cgextra.dicttools.dict_from_element" class="py-name" href="#" onclick="return doclink('link-22', 'dict_from_element', 'link-22');">dict_from_element</a></tt><tt class="py-op">(</tt><tt id="link-23" class="py-name" targets="Method codega.config.ParseVisitor.source()=codega.config.ParseVisitor-class.html#source,Method codega.config.SaveVisitor.source()=codega.config.SaveVisitor-class.html#source,Variable codega.config.Target.source=codega.config.Target-class.html#source,Variable codega.context.Context.source=codega.context.Context-class.html#source,Module codega.source=codega.source-module.html"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-23', 'source', 'link-23');">source</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">    <tt class="py-name">res</tt><tt class="py-op">[</tt><tt class="py-string">'arg_context'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name" targets="Module codega.context=codega.context-module.html"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-24', 'context', 'link-24');">context</a></tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line">    <tt class="py-name">res</tt><tt class="py-op">[</tt><tt class="py-string">'arg_source'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-25" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-25', 'source', 'link-23');">source</a></tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line"> </tt>
+<a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-26" class="py-name" targets="Function codega.cgextra.dicttools.exclude_internals()=codega.cgextra.dicttools-module.html#exclude_internals"><a title="codega.cgextra.dicttools.exclude_internals" class="py-name" href="#" onclick="return doclink('link-26', 'exclude_internals', 'link-26');">exclude_internals</a></tt><tt class="py-op">(</tt><tt class="py-name">res</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line"> </tt>
+<a name="autobindict"></a><div id="autobindict-def"><a name="L61"></a><tt class="py-lineno">61</tt> <a class="py-toggle" href="#" id="autobindict-toggle" onclick="return toggle('autobindict');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.dicttools-module.html#autobindict">autobindict</a><tt class="py-op">(</tt><tt class="py-param">func</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="autobindict-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="autobindict-expanded"><a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line">    <tt class="py-docstring">'''Translate typical template arguments into a contextualized version'''</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line">    <tt class="py-keyword">def</tt> <tt class="py-def-name">__wrapper</tt><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">        <tt class="py-name">bindings</tt> <tt class="py-op">=</tt> <tt id="link-27" class="py-name" targets="Function codega.cgextra.dicttools.bindict()=codega.cgextra.dicttools-module.html#bindict"><a title="codega.cgextra.dicttools.bindict" class="py-name" href="#" onclick="return doclink('link-27', 'bindict', 'link-27');">bindict</a></tt><tt class="py-op">(</tt><tt id="link-28" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-28', 'source', 'link-23');">source</a></tt><tt class="py-op">,</tt> <tt id="link-29" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-29', 'context', 'link-24');">context</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line">        <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-name">func</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-30" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-30', 'source', 'link-23');">source</a></tt><tt class="py-op">,</tt> <tt id="link-31" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-31', 'context', 'link-24');">context</a></tt><tt class="py-op">,</tt> <tt class="py-name">bindings</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">ret</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">            <tt class="py-name">bindings</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="codega.ordereddict.OrderedDict.update" class="py-name" href="#" onclick="return doclink('link-32', 'update', 'link-1');">update</a></tt><tt class="py-op">(</tt><tt id="link-33" class="py-name"><a title="codega.cgextra.dicttools.exclude_internals" class="py-name" href="#" onclick="return doclink('link-33', 'exclude_internals', 'link-26');">exclude_internals</a></tt><tt class="py-op">(</tt><tt class="py-name">ret</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line"> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">bindings</tt> </tt>
+</div><a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line"> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">    <tt class="py-name">__wrapper</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt> <tt class="py-op">=</tt> <tt class="py-name">func</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line">    <tt class="py-name">__wrapper</tt><tt class="py-op">.</tt><tt class="py-name">__doc__</tt> <tt class="py-op">=</tt> <tt class="py-name">func</tt><tt class="py-op">.</tt><tt class="py-name">__doc__</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">__wrapper</tt> </tt>
+</div><a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Aug  6 18:27:51 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.cgextra.indent</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        <a href="codega.cgextra-module.html">Package&nbsp;cgextra</a> ::
+        Module&nbsp;indent
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.cgextra.indent-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="codega.cgextra.indent-module.html">Module codega.cgextra.indent</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-docstring">'''Indentation helper functions</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-docstring">Dependencies: None</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"> </tt>
+<a name="indent"></a><div id="indent-def"><a name="L6"></a><tt class="py-lineno"> 6</tt> <a class="py-toggle" href="#" id="indent-toggle" onclick="return toggle('indent');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.indent-module.html#indent">indent</a><tt class="py-op">(</tt><tt class="py-param">text</tt><tt class="py-op">,</tt> <tt class="py-param">level</tt> <tt class="py-op">=</tt> <tt class="py-number">1</tt><tt class="py-op">,</tt> <tt class="py-param">indent_empty_lines</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt><tt class="py-op">,</tt> <tt class="py-param">indent_string</tt> <tt class="py-op">=</tt> <tt class="py-string">'  '</tt><tt class="py-op">,</tt> <tt class="py-param">strip_result</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="indent-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="indent-expanded"><a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line">    <tt class="py-docstring">'''General purpose indentation</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt class="py-docstring">    Arguments:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt class="py-docstring">    text -- Text to indent. The text is split to lines and each line</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt class="py-docstring">            is individualy indented.</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-docstring">    indent_empty_lines -- If set, empty lines will be indented too.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-docstring">    indent_string -- Before each line this string is copied level times.</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-docstring">    strip_result -- If set, each line is right-stripped in the result</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">    <tt class="py-keyword">def</tt> <tt class="py-def-name">__indent_line</tt><tt class="py-op">(</tt><tt class="py-param">line</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">indent_empty_lines</tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt class="py-name">line</tt><tt class="py-op">.</tt><tt class="py-name">strip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-string">''</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">        <tt class="py-name">res</tt> <tt class="py-op">=</tt> <tt class="py-string">'%s%s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">indent_string</tt> <tt class="py-op">*</tt> <tt class="py-name">level</tt><tt class="py-op">,</tt> <tt class="py-name">line</tt><tt class="py-op">)</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">strip_result</tt><tt class="py-op">:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">            <tt class="py-name">res</tt> <tt class="py-op">=</tt> <tt class="py-name">res</tt><tt class="py-op">.</tt><tt class="py-name">rstrip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line"> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">res</tt> </tt>
+</div><a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">'\n'</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt id="link-0" class="py-name" targets="Method codega.context.Context.map()=codega.context.Context-class.html#map"><a title="codega.context.Context.map" class="py-name" href="#" onclick="return doclink('link-0', 'map', 'link-0');">map</a></tt><tt class="py-op">(</tt><tt class="py-name">__indent_line</tt><tt class="py-op">,</tt> <tt class="py-name">text</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-string">'\n'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line"> </tt>
+<a name="c_multi_comment"></a><div id="c_multi_comment-def"><a name="L29"></a><tt class="py-lineno">29</tt> <a class="py-toggle" href="#" id="c_multi_comment-toggle" onclick="return toggle('c_multi_comment');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.indent-module.html#c_multi_comment">c_multi_comment</a><tt class="py-op">(</tt><tt class="py-param">text</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="c_multi_comment-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="c_multi_comment-expanded"><a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt class="py-docstring">'''C multi-line comment.</tt> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line"><tt class="py-docstring">    The comment will look like this:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line"><tt class="py-docstring">    /*</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"><tt class="py-docstring">     * COMMENT TEXT</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line"><tt class="py-docstring">     */</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"><tt class="py-docstring">    Arguments:</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line"><tt class="py-docstring">    text -- Text to indent</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line">    <tt class="py-name">box</tt> <tt class="py-op">=</tt> <tt id="link-1" class="py-name" targets="Module codega.cgextra.indent=codega.cgextra.indent-module.html,Function codega.cgextra.indent.indent()=codega.cgextra.indent-module.html#indent"><a title="codega.cgextra.indent
+codega.cgextra.indent.indent" class="py-name" href="#" onclick="return doclink('link-1', 'indent', 'link-1');">indent</a></tt><tt class="py-op">(</tt><tt class="py-name">text</tt><tt class="py-op">,</tt> <tt class="py-name">indent_empty_lines</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt><tt class="py-op">,</tt> <tt class="py-name">indent_string</tt> <tt class="py-op">=</tt> <tt class="py-string">' * '</tt><tt class="py-op">)</tt> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">'/*\n%s\n */'</tt> <tt class="py-op">%</tt> <tt class="py-name">box</tt> </tt>
+</div><a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"> </tt>
+<a name="hash_comment"></a><div id="hash_comment-def"><a name="L44"></a><tt class="py-lineno">44</tt> <a class="py-toggle" href="#" id="hash_comment-toggle" onclick="return toggle('hash_comment');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.indent-module.html#hash_comment">hash_comment</a><tt class="py-op">(</tt><tt class="py-param">text</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="hash_comment-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="hash_comment-expanded"><a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">    <tt class="py-docstring">'''Python/Shell/etc. style multiline comment</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line"><tt class="py-docstring">    The commented text will look something like this:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line"><tt class="py-docstring">    #</tt> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"><tt class="py-docstring">    # COMMENT TEXT</tt> </tt>
+<a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line"><tt class="py-docstring">    #</tt> </tt>
+<a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line"> </tt>
+<a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-2" class="py-name"><a title="codega.cgextra.indent
+codega.cgextra.indent.indent" class="py-name" href="#" onclick="return doclink('link-2', 'indent', 'link-1');">indent</a></tt><tt class="py-op">(</tt><tt class="py-name">text</tt><tt class="py-op">,</tt> <tt class="py-name">indent_empty_lines</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt><tt class="py-op">,</tt> <tt class="py-name">indent_string</tt> <tt class="py-op">=</tt> <tt class="py-string">'# '</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line"> </tt>
+<a name="disclaimer"></a><div id="disclaimer-def"><a name="L55"></a><tt class="py-lineno">55</tt> <a class="py-toggle" href="#" id="disclaimer-toggle" onclick="return toggle('disclaimer');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.cgextra.indent-module.html#disclaimer">disclaimer</a><tt class="py-op">(</tt><tt class="py-param">context</tt><tt class="py-op">,</tt> <tt class="py-param">comment</tt> <tt class="py-op">=</tt> <tt id="link-3" class="py-name" targets="Function codega.cgextra.indent.hash_comment()=codega.cgextra.indent-module.html#hash_comment"><a title="codega.cgextra.indent.hash_comment" class="py-name" href="#" onclick="return doclink('link-3', 'hash_comment', 'link-3');">hash_comment</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="disclaimer-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="disclaimer-expanded"><a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">    <tt class="py-docstring">'''Create a commented disclaimer.</tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line"><tt class="py-docstring">    The disclaimer will look something like this:</tt> </tt>
+<a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line"><tt class="py-docstring">    #</tt> </tt>
+<a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line"><tt class="py-docstring">    # THIS FILE IS AUTOMATICALLY GENERATED, ...</tt> </tt>
+<a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line"><tt class="py-docstring">    #</tt> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line">    <tt class="py-name">targetfile</tt> <tt class="py-op">=</tt> <tt id="link-4" class="py-name" targets="Module codega.context=codega.context-module.html"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-4', 'context', 'link-4');">context</a></tt><tt class="py-op">.</tt><tt id="link-5" class="py-name" targets="Method codega.config.ParseVisitor.target()=codega.config.ParseVisitor-class.html#target,Method codega.config.SaveVisitor.target()=codega.config.SaveVisitor-class.html#target,Variable codega.context.Context.target=codega.context.Context-class.html#target"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-5', 'target', 'link-5');">target</a></tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Variable codega.config.Target.filename=codega.config.Target-class.html#filename"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-6', 'filename', 'link-6');">filename</a></tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">    <tt class="py-name">srcfile</tt> <tt class="py-op">=</tt> <tt id="link-7" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-7', 'context', 'link-4');">context</a></tt><tt class="py-op">.</tt><tt id="link-8" class="py-name" targets="Method codega.config.ParseVisitor.source()=codega.config.ParseVisitor-class.html#source,Method codega.config.SaveVisitor.source()=codega.config.SaveVisitor-class.html#source,Variable codega.config.Target.source=codega.config.Target-class.html#source,Variable codega.context.Context.source=codega.context.Context-class.html#source,Module codega.source=codega.source-module.html"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-8', 'source', 'link-8');">source</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="codega.config.Target.filename" class="py-name" href="#" onclick="return doclink('link-9', 'filename', 'link-6');">filename</a></tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line">    <tt class="py-name">genref</tt> <tt class="py-op">=</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt id="link-10" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-10', 'context', 'link-4');">context</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="codega.config.ParseVisitor.target
+codega.config.SaveVisitor.target
+codega.context.Context.target" class="py-name" href="#" onclick="return doclink('link-11', 'target', 'link-5');">target</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Variable codega.config.Target.generator=codega.config.Target-class.html#generator,Module codega.generator=codega.generator-module.html"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-12', 'generator', 'link-12');">generator</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">    <tt class="py-name">text</tt> <tt class="py-op">=</tt> <tt class="py-string">'''THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT WILL</tt> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line"><tt class="py-string">MAY BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line"><tt class="py-string">Source file         %(srcfile)s</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line"><tt class="py-string">Target file         %(targetfile)s</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line"><tt class="py-string">Generator class     %(genref)s'''</tt> <tt class="py-op">%</tt> <tt class="py-name">locals</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line"> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-13" class="py-name" targets="Variable codega.cgextra.matcher.comment=codega.cgextra.matcher-module.html#comment"><a title="codega.cgextra.matcher.comment" class="py-name" href="#" onclick="return doclink('link-13', 'comment', 'link-13');">comment</a></tt><tt class="py-op">(</tt><tt class="py-name">text</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Aug  6 18:27:51 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

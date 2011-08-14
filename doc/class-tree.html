@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class Hierarchy</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Trees&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">&nbsp;</td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="class-tree.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<center><b>
+ [ <a href="module-tree.html">Module Hierarchy</a>
+ | <a href="class-tree.html">Class Hierarchy</a> ]
+</b></center><br />
+<h1 class="epydoc">Class Hierarchy</h1>
+<ul class="nomargin-top">
+    <li> <strong class="uidlink">UserDict.DictMixin</strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.ordereddict.OrderedDict-class.html">codega.ordereddict.OrderedDict</a></strong>:
+      <em class="summary">Implements an ordered dictionary.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.config.Settings.RecursiveContainer-class.html">codega.config.Settings.RecursiveContainer</a></strong>:
+      <em class="summary">Implements a recursive container.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Config.SourceCollection-class.html">codega.config.Config.SourceCollection</a></strong>:
+      <em class="summary">Source list, checks for types and possible dependencies</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Config.TargetCollection-class.html">codega.config.Config.TargetCollection</a></strong>:
+      <em class="summary">Target list, checks for types and possible dependencies</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Settings-class.html">codega.config.Settings</a></strong>:
+      <em class="summary">Target settings.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink">object</strong>:
+      <em class="summary">The most base type</em>
+    <ul>
+    <li> <strong class="uidlink">exceptions.BaseException</strong>:
+      <em class="summary">Common base class for all exceptions</em>
+    <ul>
+    <li> <strong class="uidlink">exceptions.Exception</strong>:
+      <em class="summary">Common base class for all non-exit exceptions.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.error.BuildError-class.html">codega.error.BuildError</a></strong>:
+      <em class="summary">Error building the specified target</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.ConfigError-class.html">codega.error.ConfigError</a></strong>:
+      <em class="summary">'The configuration is invalid</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.error.ParseError-class.html">codega.error.ParseError</a></strong>:
+      <em class="summary">The given source could not be parsed</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.SaveError-class.html">codega.error.SaveError</a></strong>:
+      <em class="summary">Errors with saving a configuration structure</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.ResourceError-class.html">codega.error.ResourceError</a></strong>:
+      <em class="summary">Resource error, thrown when a resource is not found</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.StateError-class.html">codega.error.StateError</a></strong>:
+      <em class="summary">The state of the object is not what it's supposed to be</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.TemplateNotFoundError-class.html">codega.error.TemplateNotFoundError</a></strong>:
+      <em class="summary">Thrown when a template is not found in the collection</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.error.VersionMismatchError-class.html">codega.error.VersionMismatchError</a></strong>:
+      <em class="summary">The version isn't what it supposed to be</em>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.build.Builder-class.html">codega.build.Builder</a></strong>:
+      <em class="summary">Base object for builders</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.build.ConfigBuilder-class.html">codega.build.ConfigBuilder</a></strong>:
+      <em class="summary">Build targets from a config</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.base.CommandBase-class.html">codega.commands.base.CommandBase</a></strong>:
+      <em class="summary">Abstract base class for commands</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.commands.base.CommandContainer-class.html">codega.commands.base.CommandContainer</a></strong>:
+      <em class="summary">A command that has further subcommands</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.commands.CommandMain-class.html">codega.commands.CommandMain</a></strong>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.base.CommandHelp-class.html">codega.commands.base.CommandHelp</a></strong>:
+      <em class="summary">A generic help command</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.pack.CommandPack-class.html">codega.commands.pack.CommandPack</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.base.OptparsedCommand-class.html">codega.commands.base.OptparsedCommand</a></strong>:
+      <em class="summary">A command with optparse-style options</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.commands.build.CommandBuild-class.html">codega.commands.build.CommandBuild</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.clean.CommandClean-class.html">codega.commands.clean.CommandClean</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.commands.make.CommandMake-class.html">codega.commands.make.CommandMake</a></strong>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.context.Context-class.html">codega.context.Context</a></strong>:
+      <em class="summary">Generator context object</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.generator.GeneratorBase-class.html">codega.generator.GeneratorBase</a></strong>:
+      <em class="summary">Generator base class</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.generator.FilterGenerator-class.html">codega.generator.FilterGenerator</a></strong>:
+      <em class="summary">Filter the output of another generator.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.generator.FunctionGenerator-class.html">codega.generator.FunctionGenerator</a></strong>:
+      <em class="summary">A function is provided to do the generation</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.generator.PriorityGenerator-class.html">codega.generator.PriorityGenerator</a></strong>:
+      <em class="summary">A list of generators which are tried one-by-one until one can 
+        handle the source</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.generator.ObjectGenerator-class.html">codega.generator.ObjectGenerator</a></strong>:
+      <em class="summary">The list of generators is extracted from the instance on start</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.generator.TemplateGenerator-class.html">codega.generator.TemplateGenerator</a></strong>:
+      <em class="summary">Generates output with a template.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.NodeBase-class.html">codega.config.NodeBase</a></strong>:
+      <em class="summary">Base class for configuration nodes</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.config.Config-class.html">codega.config.Config</a></strong>:
+      <em class="summary">Complete configuration</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.ModuleReference-class.html">codega.config.ModuleReference</a></strong>:
+      <em class="summary">Refers to a class that's used by the config</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.PathList-class.html">codega.config.PathList</a></strong>:
+      <em class="summary">List of paths</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Settings-class.html">codega.config.Settings</a></strong>:
+      <em class="summary">Target settings.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Source-class.html">codega.config.Source</a></strong>:
+      <em class="summary">Config source entry</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Target-class.html">codega.config.Target</a></strong>:
+      <em class="summary">Config target entry</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.ordereddict.OrderedDict-class.html">codega.ordereddict.OrderedDict</a></strong>:
+      <em class="summary">Implements an ordered dictionary.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.config.Settings.RecursiveContainer-class.html">codega.config.Settings.RecursiveContainer</a></strong>:
+      <em class="summary">Implements a recursive container.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Config.SourceCollection-class.html">codega.config.Config.SourceCollection</a></strong>:
+      <em class="summary">Source list, checks for types and possible dependencies</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.Config.TargetCollection-class.html">codega.config.Config.TargetCollection</a></strong>:
+      <em class="summary">Target list, checks for types and possible dependencies</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.rsclocator.ResourceLocatorBase-class.html">codega.rsclocator.ResourceLocatorBase</a></strong>:
+      <em class="summary">Resource loader base object</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.rsclocator.FallbackLocator-class.html">codega.rsclocator.FallbackLocator</a></strong>:
+      <em class="summary">Locator object containing a list of other locators.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.rsclocator.FileResourceLocator-class.html">codega.rsclocator.FileResourceLocator</a></strong>:
+      <em class="summary">Class that helps locating files from the given path.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.rsclocator.ModuleLocator-class.html">codega.rsclocator.ModuleLocator</a></strong>:
+      <em class="summary">Locate files relative to module path</em>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.source.SourceBase-class.html">codega.source.SourceBase</a></strong>:
+      <em class="summary">A source should parse the supplied input and create an XML etree</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.source.FileSourceBase-class.html">codega.source.FileSourceBase</a></strong>:
+      <em class="summary">A file source should parse a file (or list of files) and create an 
+        XML etree.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.source.XmlSource-class.html">codega.source.XmlSource</a></strong>:
+      <em class="summary">XML source.</em>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.build.TaskBase-class.html">codega.build.TaskBase</a></strong>:
+      <em class="summary">Task base for building</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.build.BuildTask-class.html">codega.build.BuildTask</a></strong>:
+      <em class="summary">Build a configuration target</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.template.TemplateBase-class.html">codega.template.TemplateBase</a></strong>:
+      <em class="summary">Base class for templates</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.template.TemplatesetBase-class.html">codega.template.TemplatesetBase</a></strong>:
+      <em class="summary">Template set base class</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.version.Version-class.html">codega.version.Version</a></strong>:
+      <em class="summary">Version value type</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.visitor.VisitorBase-class.html">codega.visitor.VisitorBase</a></strong>:
+      <em class="summary">A base class for visitors</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.visitor.ClassVisitor-class.html">codega.visitor.ClassVisitor</a></strong>:
+      <em class="summary">A visitor to use with classes that need to implement visitors based
+        on classes</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.config.ParseVisitor-class.html">codega.config.ParseVisitor</a></strong>:
+      <em class="summary">Parse the configs XML tree representation to the internal 
+        representation.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.config.SaveVisitor-class.html">codega.config.SaveVisitor</a></strong>:
+      <em class="summary">Parse the internal config representation into an XML tree 
+        representation</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.visitor.ExplicitVisitor-class.html">codega.visitor.ExplicitVisitor</a></strong>:
+      <em class="summary">A visitor where the only aspect is the node itself</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.config.UpdateVisitor-class.html">codega.config.UpdateVisitor</a></strong>:
+      <em class="summary">To be able to handle different versions, we need to 'update' the
+current version.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="codega.visitor.XmlVisitor-class.html">codega.visitor.XmlVisitor</a></strong>:
+      <em class="summary">A visitor to use with XML nodes</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink">type</strong>:
+      <em class="summary">type(object) -&gt; the object's type type(name, bases, dict) -&gt; 
+        a new type</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="codega.visitor.VisitorType-class.html">codega.visitor.VisitorType</a></strong>:
+      <em class="summary">Meta-class for visitor types.</em>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+</ul>
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Trees&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Aug 16 20:15:54 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

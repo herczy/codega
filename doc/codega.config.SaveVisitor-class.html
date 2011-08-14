@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.config.SaveVisitor</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        <a href="codega.config-module.html">Module&nbsp;config</a> ::
+        Class&nbsp;SaveVisitor
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.config.SaveVisitor-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class SaveVisitor</h1><p class="nomargin-top"><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_codega_c_17" name="uml_class_diagram_for_codega_c_17">
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#__visitors__" title="codega.config.SaveVisitor.__visitors__" alt="" coords="48,217,233,236"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#module_reference" title="codega.config.SaveVisitor.module_reference" alt="" coords="48,239,233,257"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#source" title="codega.config.SaveVisitor.source" alt="" coords="48,257,233,276"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#recursive_container" title="codega.config.SaveVisitor.recursive_container" alt="" coords="48,276,233,295"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#settings" title="codega.config.SaveVisitor.settings" alt="" coords="48,295,233,313"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#target" title="codega.config.SaveVisitor.target" alt="" coords="48,313,233,332"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#path_list" title="codega.config.SaveVisitor.path_list" alt="" coords="48,332,233,351"/>
+<area shape="rect" id="node63" href="codega.config.SaveVisitor-class.html#config" title="codega.config.SaveVisitor.config" alt="" coords="48,351,233,369"/>
+<area shape="rect" id="node1" href="codega.config.SaveVisitor-class.html" title="Parse the internal config representation into an XML tree representation" alt="" coords="36,193,244,375"/>
+<area shape="rect" id="node64" href="codega.visitor.ClassVisitor-class.html#aspects" title="Use the method resolution order (__mro__) for identifying the visitor &#160;method to use." alt="" coords="81,148,200,167"/>
+<area shape="rect" id="node2" href="codega.visitor.ClassVisitor-class.html" title="A visitor to use with classes that need to implement visitors based on classes" alt="" coords="69,115,211,173"/>
+<area shape="rect" id="node65" href="codega.visitor.VisitorType-class.html" title="Meta&#45;class for visitor types." alt="" coords="17,31,264,49"/>
+<area shape="rect" id="node65" href="codega.visitor.VisitorBase-class.html#visit" title="Call the appropriate visitor method." alt="" coords="17,52,264,71"/>
+<area shape="rect" id="node65" href="codega.visitor.VisitorBase-class.html#visit_fallback" title="Fallback visitor, does nothing" alt="" coords="17,71,264,89"/>
+<area shape="rect" id="node3" href="codega.visitor.VisitorBase-class.html" title="A base class for visitors" alt="" coords="5,6,275,95"/>
+</map>
+  <img src="uml_class_diagram_for_codega_c_17.gif" alt='' usemap="#uml_class_diagram_for_codega_c_17" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Parse the internal config representation into an XML tree 
+  representation</p>
+
+<!-- ==================== NESTED CLASSES ==================== -->
+<a name="section-NestedClasses"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Nested Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-NestedClasses"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="codega.visitor.VisitorBase-class.html">visitor.VisitorBase</a></code></b>:
+      <code><a href="codega.visitor.VisitorType-class.html">__metaclass__</a></code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#module_reference" class="summary-sig-name">module_reference</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.module_reference">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#source" class="summary-sig-name">source</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.source">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#recursive_container" class="summary-sig-name">recursive_container</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.recursive_container">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#settings" class="summary-sig-name">settings</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.settings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#target" class="summary-sig-name">target</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.target">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#path_list" class="summary-sig-name">path_list</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.path_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="codega.config.SaveVisitor-class.html#config" class="summary-sig-name">config</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.config">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="codega.visitor.ClassVisitor-class.html">visitor.ClassVisitor</a></code></b>:
+      <code><a href="codega.visitor.ClassVisitor-class.html#aspects">aspects</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="codega.visitor.VisitorBase-class.html">visitor.VisitorBase</a></code></b>:
+      <code><a href="codega.visitor.VisitorBase-class.html#visit">visit</a></code>,
+      <code><a href="codega.visitor.VisitorBase-class.html#visit_fallback">visit_fallback</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__init__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="codega.config.SaveVisitor-class.html#__visitors__" class="summary-name">__visitors__</a> = <code title="{&lt;class 'codega.config.Settings'&gt;: &lt;function settings at 0x20ca578&gt;,
+ &lt;class 'codega.config.RecursiveContainer'&gt;: &lt;function recursive_conta\
+iner at 0x20ca500&gt;,
+ &lt;class 'codega.config.ModuleReference'&gt;: &lt;function module_reference a\
+t 0x20ca410&gt;,
+ &lt;class 'codega.config.Source'&gt;: &lt;function source at 0x20ca488&gt;,
+ &lt;class 'codega.config.Target'&gt;: &lt;function target at 0x20ca5f0&gt;,
+ &lt;class 'codega.config.PathList'&gt;: &lt;function path_list at 0x20ca668&gt;,
+..."><code class="variable-group">{</code>&lt;class 'codega.config.Settings'&gt;<code class="variable-op">: </code>&lt;function se<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="module_reference"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_reference</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.module_reference">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(ModuleReference)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="source"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">source</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.source">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(Source)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="recursive_container"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">recursive_container</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.recursive_container">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(Settings.RecursiveContainer)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="settings"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">settings</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.settings">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(Settings)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="target"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">target</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.target">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(Target)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="path_list"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">path_list</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.path_list">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(PathList)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="config"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">config</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="codega.config-pysrc.html#SaveVisitor.config">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@visitor(Config)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== CLASS VARIABLE DETAILS ==================== -->
+<a name="section-ClassVariableDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variable Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariableDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__visitors__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">__visitors__</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code>&lt;class 'codega.config.Settings'&gt;<code class="variable-op">: </code>&lt;function settings at 0x20ca578&gt;<code class="variable-op">,</code>
+ &lt;class 'codega.config.RecursiveContainer'&gt;<code class="variable-op">: </code>&lt;function recursive_conta<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+iner at 0x20ca500&gt;<code class="variable-op">,</code>
+ &lt;class 'codega.config.ModuleReference'&gt;<code class="variable-op">: </code>&lt;function module_reference a<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+t 0x20ca410&gt;<code class="variable-op">,</code>
+ &lt;class 'codega.config.Source'&gt;<code class="variable-op">: </code>&lt;function source at 0x20ca488&gt;<code class="variable-op">,</code>
+ &lt;class 'codega.config.Target'&gt;<code class="variable-op">: </code>&lt;function target at 0x20ca5f0&gt;<code class="variable-op">,</code>
+ &lt;class 'codega.config.PathList'&gt;<code class="variable-op">: </code>&lt;function path_list at 0x20ca668&gt;<code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Aug 16 20:15:55 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

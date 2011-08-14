@@ -1,0 +1,38 @@
+<html><head><title>Epydoc Redirect Page</title>
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="pragma" content="no-cache" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+<!--
+var pages = ["codega.config.Settings.RecursiveContainer-c", "codega.commands.base.CommandContainer-c", "codega.commands.base.OptparsedCommand-c", "codega.config.Config.SourceCollection-c", "codega.config.Config.TargetCollection-c", "codega.rsclocator.FileResourceLocator-c", "codega.rsclocator.ResourceLocatorBase-c", "codega.commands.build.CommandBuild-c", "codega.commands.clean.CommandClean-c", "codega.error.TemplateNotFoundError-c", "codega.generator.FunctionGenerator-c", "codega.generator.PriorityGenerator-c", "codega.generator.TemplateGenerator-c", "codega.error.VersionMismatchError-c", "codega.rsclocator.FallbackLocator-c", "codega.commands.base.CommandBase-c", "codega.commands.base.CommandHelp-c", "codega.commands.make.CommandMake-c", "codega.commands.pack.CommandPack-c", "codega.generator.FilterGenerator-c", "codega.generator.ObjectGenerator-c", "codega.rsclocator.ModuleLocator-c", "codega.template.TemplatesetBase-c", "codega.generator.GeneratorBase-c", "codega.ordereddict.OrderedDict-c", "codega.visitor.ExplicitVisitor-c", "codega.config.ModuleReference-c", "codega.source.FileSourceBase-c", "codega.template.TemplateBase-c", "codega.commands.CommandMain-c", "codega.config.UpdateVisitor-c", "codega.visitor.ClassVisitor-c", "codega.build.ConfigBuilder-c", "codega.config.ParseVisitor-c", "codega.error.ResourceError-c", "codega.visitor.VisitorBase-c", "codega.visitor.VisitorType-c", "codega.config.SaveVisitor-c", "codega.visitor.XmlVisitor-c", "codega.error.ConfigError-c", "codega.source.SourceBase-c", "codega.error.BuildError-c", "codega.error.ParseError-c", "codega.error.StateError-c", "codega.source.XmlSource-c", "codega.build.BuildTask-c", "codega.config.NodeBase-c", "codega.config.PathList-c", "codega.config.Settings-c", "codega.context.Context-c", "codega.error.SaveError-c", "codega.version.Version-c", "codega.commands.build-m", "codega.commands.clean-m", "codega.build.TaskBase-c", "codega.commands.base-m", "codega.commands.make-m", "codega.commands.pack-m", "codega.build.Builder-c", "codega.config.Config-c", "codega.config.Source-c", "codega.config.Target-c", "codega.ordereddict-m", "codega.decorators-m", "codega.rsclocator-m", "codega.generator-m", "codega.commands-m", "codega.stringio-m", "codega.template-m", "codega.context-m", "codega.version-m", "codega.visitor-m", "codega.config-m", "codega.logger-m", "codega.source-m", "codega.build-m", "codega.error-m", "codega-m"];
+var dottedName = get_anchor();
+if (dottedName) {
+    var target = redirect_url(dottedName);
+    if (target) window.location.replace(target);
+}
+// -->
+</script>
+
+<h3>Epydoc Auto-redirect page</h3>
+
+<p>When javascript is enabled, this page will redirect URLs of
+the form <tt>redirect.html#<i>dotted.name</i></tt> to the
+documentation for the object with the given fully-qualified
+dotted name.</p>
+<p><a id="message"> &nbsp; </a></p>
+
+<script type="text/javascript">
+<!--
+if (dottedName) {
+    var msg = document.getElementById("message");
+    msg.innerHTML = "No documentation found for <tt>"+
+                    dottedName+"</tt>";
+}
+// -->
+</script>
+
+</body>
+</html>

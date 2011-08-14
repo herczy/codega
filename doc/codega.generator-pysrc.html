@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>codega.generator</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="codega-module.html">Package&nbsp;codega</a> ::
+        Module&nbsp;generator
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="codega.generator-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="codega.generator-module.html">Module codega.generator</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">'''Generator handling</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring">This module is responsible for defining different generator classes. While the GeneratorBase</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">only supplies the API, further generators have extended functionality.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">Special constants:</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring">PRI_HIGHEST -- Highest priority</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-docstring">PRI_HIGH -- High priority</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-docstring">PRI_BASE -- Base priority</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-docstring">PRI_LOW -- Low priority</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-docstring">PRI_LOWEST -- Lowest priority</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-docstring">PRI_FALLBACK -- Fallback priority</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">heapq</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">types</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module codega.error=codega.error-module.html"><a title="codega.error" class="py-name" href="#" onclick="return doclink('link-0', 'error', 'link-0');">error</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class codega.error.StateError=codega.error.StateError-class.html"><a title="codega.error.StateError" class="py-name" href="#" onclick="return doclink('link-1', 'StateError', 'link-1');">StateError</a></tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name" targets="Module codega.decorators=codega.decorators-module.html"><a title="codega.decorators" class="py-name" href="#" onclick="return doclink('link-2', 'decorators', 'link-2');">decorators</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Function codega.decorators.abstract()=codega.decorators-module.html#abstract"><a title="codega.decorators.abstract" class="py-name" href="#" onclick="return doclink('link-3', 'abstract', 'link-3');">abstract</a></tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-4" class="py-name" targets="Module codega.logger=codega.logger-module.html"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-4', 'logger', 'link-4');">logger</a></tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt id="link-5" class="py-name" targets="Variable codega.generator.PRI_HIGHEST=codega.generator-module.html#PRI_HIGHEST"><a title="codega.generator.PRI_HIGHEST" class="py-name" href="#" onclick="return doclink('link-5', 'PRI_HIGHEST', 'link-5');">PRI_HIGHEST</a></tt> <tt class="py-op">=</tt> <tt class="py-op">-</tt><tt class="py-number">100</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt id="link-6" class="py-name" targets="Variable codega.generator.PRI_HIGH=codega.generator-module.html#PRI_HIGH"><a title="codega.generator.PRI_HIGH" class="py-name" href="#" onclick="return doclink('link-6', 'PRI_HIGH', 'link-6');">PRI_HIGH</a></tt> <tt class="py-op">=</tt> <tt class="py-op">-</tt><tt class="py-number">10</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt id="link-7" class="py-name" targets="Variable codega.generator.PRI_BASE=codega.generator-module.html#PRI_BASE"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-7', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt id="link-8" class="py-name" targets="Variable codega.generator.PRI_LOW=codega.generator-module.html#PRI_LOW"><a title="codega.generator.PRI_LOW" class="py-name" href="#" onclick="return doclink('link-8', 'PRI_LOW', 'link-8');">PRI_LOW</a></tt> <tt class="py-op">=</tt> <tt class="py-number">10</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt id="link-9" class="py-name" targets="Variable codega.generator.PRI_LOWEST=codega.generator-module.html#PRI_LOWEST"><a title="codega.generator.PRI_LOWEST" class="py-name" href="#" onclick="return doclink('link-9', 'PRI_LOWEST', 'link-9');">PRI_LOWEST</a></tt> <tt class="py-op">=</tt> <tt class="py-number">100</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt id="link-10" class="py-name" targets="Variable codega.generator.PRI_FALLBACK=codega.generator-module.html#PRI_FALLBACK"><a title="codega.generator.PRI_FALLBACK" class="py-name" href="#" onclick="return doclink('link-10', 'PRI_FALLBACK', 'link-10');">PRI_FALLBACK</a></tt> <tt class="py-op">=</tt> <tt class="py-number">1000</tt> </tt>
+<a name="GeneratorBase"></a><div id="GeneratorBase-def"><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt> <a class="py-toggle" href="#" id="GeneratorBase-toggle" onclick="return toggle('GeneratorBase');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html">GeneratorBase</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GeneratorBase-expanded"><a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-docstring">'''Generator base class</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">    Arguments:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">    _matcher -- Function that checks the source XML prior to generation</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring">    _priority -- Priority of the generator</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring">    _parent -- Parent of the generator or none for root generators</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">    <tt id="link-11" class="py-name" targets="Variable codega.generator.GeneratorBase._matcher=codega.generator.GeneratorBase-class.html#_matcher"><a title="codega.generator.GeneratorBase._matcher" class="py-name" href="#" onclick="return doclink('link-11', '_matcher', 'link-11');">_matcher</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt id="link-12" class="py-name" targets="Variable codega.generator.GeneratorBase._priority=codega.generator.GeneratorBase-class.html#_priority"><a title="codega.generator.GeneratorBase._priority" class="py-name" href="#" onclick="return doclink('link-12', '_priority', 'link-12');">_priority</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">    <tt id="link-13" class="py-name" targets="Variable codega.config.NodeBase._parent=codega.config.NodeBase-class.html#_parent,Variable codega.generator.GeneratorBase._parent=codega.generator.GeneratorBase-class.html#_parent"><a title="codega.config.NodeBase._parent
+codega.generator.GeneratorBase._parent" class="py-name" href="#" onclick="return doclink('link-13', '_parent', 'link-13');">_parent</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.__init__"></a><div id="GeneratorBase.__init__-def"><a name="L42"></a><tt class="py-lineno"> 42</tt> <a class="py-toggle" href="#" id="GeneratorBase.__init__-toggle" onclick="return toggle('GeneratorBase.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">config</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-14" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-14', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.__init__-expanded"><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="codega.generator.GeneratorBase._matcher" class="py-name" href="#" onclick="return doclink('link-15', '_matcher', 'link-11');">_matcher</a></tt> <tt class="py-op">=</tt> <tt class="py-name">matcher</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="codega.generator.GeneratorBase._priority" class="py-name" href="#" onclick="return doclink('link-16', '_priority', 'link-12');">_priority</a></tt> <tt class="py-op">=</tt> <tt id="link-17" class="py-name" targets="Variable codega.generator.GeneratorBase.priority=codega.generator.GeneratorBase-class.html#priority"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-17', 'priority', 'link-17');">priority</a></tt> </tt>
+</div><a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">property</tt> </tt>
+<a name="GeneratorBase.priority"></a><div id="GeneratorBase.priority-def"><a name="L47"></a><tt class="py-lineno"> 47</tt> <a class="py-toggle" href="#" id="GeneratorBase.priority-toggle" onclick="return toggle('GeneratorBase.priority');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#priority">priority</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.priority-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.priority-expanded"><a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-docstring">'''Priority property'''</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name"><a title="codega.generator.GeneratorBase._priority" class="py-name" href="#" onclick="return doclink('link-18', '_priority', 'link-12');">_priority</a></tt> </tt>
+</div><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">property</tt> </tt>
+<a name="GeneratorBase.parent"></a><div id="GeneratorBase.parent-def"><a name="L53"></a><tt class="py-lineno"> 53</tt> <a class="py-toggle" href="#" id="GeneratorBase.parent-toggle" onclick="return toggle('GeneratorBase.parent');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#parent">parent</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.parent-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.parent-expanded"><a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-docstring">'''Parent property'''</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="codega.config.NodeBase._parent
+codega.generator.GeneratorBase._parent" class="py-name" href="#" onclick="return doclink('link-19', '_parent', 'link-13');">_parent</a></tt> </tt>
+</div><a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.validate"></a><div id="GeneratorBase.validate-def"><a name="L58"></a><tt class="py-lineno"> 58</tt> <a class="py-toggle" href="#" id="GeneratorBase.validate-toggle" onclick="return toggle('GeneratorBase.validate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#validate">validate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.validate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.validate-expanded"><a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">        <tt class="py-docstring">'''Validate source</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring">        source -- Source node</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">        context -- Validation context</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+</div><a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.match"></a><div id="GeneratorBase.match-def"><a name="L66"></a><tt class="py-lineno"> 66</tt> <a class="py-toggle" href="#" id="GeneratorBase.match-toggle" onclick="return toggle('GeneratorBase.match');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#match">match</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.match-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.match-expanded"><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt class="py-docstring">'''Check if the source node matches some criteria.</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-docstring">        source -- Source node</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="codega.generator.GeneratorBase._matcher" class="py-name" href="#" onclick="return doclink('link-20', '_matcher', 'link-11');">_matcher</a></tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="codega.generator.GeneratorBase._matcher" class="py-name" href="#" onclick="return doclink('link-21', '_matcher', 'link-11');">_matcher</a></tt><tt class="py-op">(</tt><tt id="link-22" class="py-name" targets="Method codega.config.ParseVisitor.source()=codega.config.ParseVisitor-class.html#source,Method codega.config.SaveVisitor.source()=codega.config.SaveVisitor-class.html#source,Variable codega.config.Target.source=codega.config.Target-class.html#source,Variable codega.context.Context.source=codega.context.Context-class.html#source,Module codega.source=codega.source-module.html"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-22', 'source', 'link-22');">source</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">abstract</tt> </tt>
+<a name="GeneratorBase.generate"></a><div id="GeneratorBase.generate-def"><a name="L79"></a><tt class="py-lineno"> 79</tt> <a class="py-toggle" href="#" id="GeneratorBase.generate-toggle" onclick="return toggle('GeneratorBase.generate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#generate">generate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.generate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.generate-expanded"><a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-docstring">'''Generate output and return it</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">        source -- Source XML tree</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">        context -- Generation context</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+</div><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.bind"></a><div id="GeneratorBase.bind-def"><a name="L87"></a><tt class="py-lineno"> 87</tt> <a class="py-toggle" href="#" id="GeneratorBase.bind-toggle" onclick="return toggle('GeneratorBase.bind');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#bind">bind</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">parent</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.bind-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.bind-expanded"><a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-docstring">'''Bind the generator to a parent.</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">        A generator can only be bound once, after that it's bound forever.</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">        parent -- Parent generator</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name"><a title="codega.config.NodeBase._parent
+codega.generator.GeneratorBase._parent" class="py-name" href="#" onclick="return doclink('link-23', '_parent', 'link-13');">_parent</a></tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-24" class="py-name"><a title="codega.error.StateError" class="py-name" href="#" onclick="return doclink('link-24', 'StateError', 'link-1');">StateError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Generator already bound!"</tt><tt class="py-op">)</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="codega.config.NodeBase._parent
+codega.generator.GeneratorBase._parent" class="py-name" href="#" onclick="return doclink('link-25', '_parent', 'link-13');">_parent</a></tt> <tt class="py-op">=</tt> <tt id="link-26" class="py-name" targets="Variable codega.config.NodeBase.parent=codega.config.NodeBase-class.html#parent,Variable codega.generator.GeneratorBase.parent=codega.generator.GeneratorBase-class.html#parent"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-26', 'parent', 'link-26');">parent</a></tt> </tt>
+</div><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.__call__"></a><div id="GeneratorBase.__call__-def"><a name="L101"></a><tt class="py-lineno">101</tt> <a class="py-toggle" href="#" id="GeneratorBase.__call__-toggle" onclick="return toggle('GeneratorBase.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.__call__-expanded"><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Method codega.generator.GeneratorBase.match()=codega.generator.GeneratorBase-class.html#match"><a title="codega.generator.GeneratorBase.match" class="py-name" href="#" onclick="return doclink('link-27', 'match', 'link-27');">match</a></tt><tt class="py-op">(</tt><tt id="link-28" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-28', 'source', 'link-22');">source</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">"Source cannot be generated because generator doesn't match the proper node"</tt><tt class="py-op">)</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-29" class="py-name" targets="Method codega.generator.FilterGenerator.generate()=codega.generator.FilterGenerator-class.html#generate,Method codega.generator.FunctionGenerator.generate()=codega.generator.FunctionGenerator-class.html#generate,Method codega.generator.GeneratorBase.generate()=codega.generator.GeneratorBase-class.html#generate,Method codega.generator.PriorityGenerator.generate()=codega.generator.PriorityGenerator-class.html#generate,Method codega.generator.TemplateGenerator.generate()=codega.generator.TemplateGenerator-class.html#generate"><a title="codega.generator.FilterGenerator.generate
+codega.generator.FunctionGenerator.generate
+codega.generator.GeneratorBase.generate
+codega.generator.PriorityGenerator.generate
+codega.generator.TemplateGenerator.generate" class="py-name" href="#" onclick="return doclink('link-29', 'generate', 'link-29');">generate</a></tt><tt class="py-op">(</tt><tt id="link-30" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-30', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt id="link-31" class="py-name" targets="Module codega.context=codega.context-module.html"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-31', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.__str__"></a><div id="GeneratorBase.__str__-def"><a name="L107"></a><tt class="py-lineno">107</tt> <a class="py-toggle" href="#" id="GeneratorBase.__str__-toggle" onclick="return toggle('GeneratorBase.__str__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#__str__">__str__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.__str__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.__str__-expanded"><a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">'generator %d, priority = %d'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">id</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-32', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"> </tt>
+<a name="GeneratorBase.__repr__"></a><div id="GeneratorBase.__repr__-def"><a name="L110"></a><tt class="py-lineno">110</tt> <a class="py-toggle" href="#" id="GeneratorBase.__repr__-toggle" onclick="return toggle('GeneratorBase.__repr__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#__repr__">__repr__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.__repr__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.__repr__-expanded"><a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">"%s(%s)"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="GeneratorBase.run"></a><div id="GeneratorBase.run-def"><a name="L114"></a><tt class="py-lineno">114</tt> <a class="py-toggle" href="#" id="GeneratorBase.run-toggle" onclick="return toggle('GeneratorBase.run');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.GeneratorBase-class.html#run">run</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">tree</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GeneratorBase.run-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="GeneratorBase.run-expanded"><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt id="link-33" class="py-name" targets="Variable codega.config.Target.generator=codega.config.Target-class.html#generator,Module codega.generator=codega.generator-module.html"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-33', 'generator', 'link-33');">generator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">cls</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt id="link-34" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-34', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Method codega.generator.GeneratorBase.validate()=codega.generator.GeneratorBase-class.html#validate"><a title="codega.generator.GeneratorBase.validate" class="py-name" href="#" onclick="return doclink('link-35', 'validate', 'link-35');">validate</a></tt><tt class="py-op">(</tt><tt class="py-name">tree</tt><tt class="py-op">,</tt> <tt id="link-36" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-36', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-37" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-37', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-38" class="py-name"><a title="codega.generator.FilterGenerator.generate
+codega.generator.FunctionGenerator.generate
+codega.generator.GeneratorBase.generate
+codega.generator.PriorityGenerator.generate
+codega.generator.TemplateGenerator.generate" class="py-name" href="#" onclick="return doclink('link-38', 'generate', 'link-29');">generate</a></tt><tt class="py-op">(</tt><tt class="py-name">tree</tt><tt class="py-op">,</tt> <tt id="link-39" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-39', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt>
+<a name="FunctionGenerator"></a><div id="FunctionGenerator-def"><a name="L119"></a><tt class="py-lineno">119</tt> <a class="py-toggle" href="#" id="FunctionGenerator-toggle" onclick="return toggle('FunctionGenerator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html">FunctionGenerator</a><tt class="py-op">(</tt><tt class="py-base-class">GeneratorBase</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FunctionGenerator-expanded"><a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">    <tt class="py-docstring">'''A function is provided to do the generation</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">    _function -- Generator function</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt id="link-40" class="py-name" targets="Variable codega.generator.FunctionGenerator._function=codega.generator.FunctionGenerator-class.html#_function"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-40', '_function', 'link-40');">_function</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt>
+<a name="FunctionGenerator.__init__"></a><div id="FunctionGenerator.__init__-def"><a name="L128"></a><tt class="py-lineno">128</tt> <a class="py-toggle" href="#" id="FunctionGenerator.__init__-toggle" onclick="return toggle('FunctionGenerator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">generator</tt><tt class="py-op">,</tt> <tt class="py-param">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-41" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-41', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FunctionGenerator.__init__-expanded"><a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-42" class="py-name" targets="Class codega.generator.FunctionGenerator=codega.generator.FunctionGenerator-class.html"><a title="codega.generator.FunctionGenerator" class="py-name" href="#" onclick="return doclink('link-42', 'FunctionGenerator', 'link-42');">FunctionGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-43" class="py-name" targets="Method codega.build.BuildTask.__init__()=codega.build.BuildTask-class.html#__init__,Method codega.build.Builder.__init__()=codega.build.Builder-class.html#__init__,Method codega.build.ConfigBuilder.__init__()=codega.build.ConfigBuilder-class.html#__init__,Method codega.build.TaskBase.__init__()=codega.build.TaskBase-class.html#__init__,Method codega.commands.CommandMain.__init__()=codega.commands.CommandMain-class.html#__init__,Method codega.commands.base.CommandBase.__init__()=codega.commands.base.CommandBase-class.html#__init__,Method codega.commands.base.CommandContainer.__init__()=codega.commands.base.CommandContainer-class.html#__init__,Method codega.commands.base.CommandHelp.__init__()=codega.commands.base.CommandHelp-class.html#__init__,Method codega.commands.base.OptparsedCommand.__init__()=codega.commands.base.OptparsedCommand-class.html#__init__,Method codega.commands.build.CommandBuild.__init__()=codega.commands.build.CommandBuild-class.html#__init__,Method codega.commands.clean.CommandClean.__init__()=codega.commands.clean.CommandClean-class.html#__init__,Method codega.commands.make.CommandMake.__init__()=codega.commands.make.CommandMake-class.html#__init__,Method codega.commands.pack.CommandPack.__init__()=codega.commands.pack.CommandPack-class.html#__init__,Method codega.config.Config.SourceCollection.__init__()=codega.config.Config.SourceCollection-class.html#__init__,Method codega.config.Config.TargetCollection.__init__()=codega.config.Config.TargetCollection-class.html#__init__,Method codega.config.Config.__init__()=codega.config.Config-class.html#__init__,Method codega.config.ModuleReference.__init__()=codega.config.ModuleReference-class.html#__init__,Method codega.config.NodeBase.__init__()=codega.config.NodeBase-class.html#__init__,Method codega.config.ParseVisitor.__init__()=codega.config.ParseVisitor-class.html#__init__,Method codega.config.PathList.__init__()=codega.config.PathList-class.html#__init__,Method codega.config.Settings.__init__()=codega.config.Settings-class.html#__init__,Method codega.config.Source.__init__()=codega.config.Source-class.html#__init__,Method codega.config.Target.__init__()=codega.config.Target-class.html#__init__,Method codega.context.Context.__init__()=codega.context.Context-class.html#__init__,Method codega.error.ParseError.__init__()=codega.error.ParseError-class.html#__init__,Method codega.error.ResourceError.__init__()=codega.error.ResourceError-class.html#__init__,Method codega.error.TemplateNotFoundError.__init__()=codega.error.TemplateNotFoundError-class.html#__init__,Method codega.generator.FilterGenerator.__init__()=codega.generator.FilterGenerator-class.html#__init__,Method codega.generator.FunctionGenerator.__init__()=codega.generator.FunctionGenerator-class.html#__init__,Method codega.generator.GeneratorBase.__init__()=codega.generator.GeneratorBase-class.html#__init__,Method codega.generator.ObjectGenerator.__init__()=codega.generator.ObjectGenerator-class.html#__init__,Method codega.generator.PriorityGenerator.__init__()=codega.generator.PriorityGenerator-class.html#__init__,Method codega.generator.TemplateGenerator.__init__()=codega.generator.TemplateGenerator-class.html#__init__,Method codega.ordereddict.OrderedDict.__init__()=codega.ordereddict.OrderedDict-class.html#__init__,Method codega.rsclocator.FallbackLocator.__init__()=codega.rsclocator.FallbackLocator-class.html#__init__,Method codega.rsclocator.FileResourceLocator.__init__()=codega.rsclocator.FileResourceLocator-class.html#__init__,Method codega.rsclocator.ModuleLocator.__init__()=codega.rsclocator.ModuleLocator-class.html#__init__,Method codega.rsclocator.ResourceLocatorBase.__init__()=codega.rsclocator.ResourceLocatorBase-class.html#__init__,Method codega.template.TemplatesetBase.__init__()=codega.template.TemplatesetBase-class.html#__init__,Method codega.version.Version.__init__()=codega.version.Version-class.html#__init__"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-43', '__init__', 'link-43');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">matcher</tt><tt class="py-op">,</tt> <tt id="link-44" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-44', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-45" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-45', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-46', '_function', 'link-40');">_function</a></tt> <tt class="py-op">=</tt> <tt id="link-47" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-47', 'generator', 'link-33');">generator</a></tt> </tt>
+</div><a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"> </tt>
+<a name="FunctionGenerator.generate"></a><div id="FunctionGenerator.generate-def"><a name="L133"></a><tt class="py-lineno">133</tt> <a class="py-toggle" href="#" id="FunctionGenerator.generate-toggle" onclick="return toggle('FunctionGenerator.generate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html#generate">generate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator.generate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FunctionGenerator.generate-expanded"><a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-48" class="py-name"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-48', '_function', 'link-40');">_function</a></tt><tt class="py-op">(</tt><tt id="link-49" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-49', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt id="link-50" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-50', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"> </tt>
+<a name="FunctionGenerator.bind"></a><div id="FunctionGenerator.bind-def"><a name="L136"></a><tt class="py-lineno">136</tt> <a class="py-toggle" href="#" id="FunctionGenerator.bind-toggle" onclick="return toggle('FunctionGenerator.bind');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html#bind">bind</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">parent</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator.bind-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FunctionGenerator.bind-expanded"><a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-51" class="py-name"><a title="codega.generator.FunctionGenerator" class="py-name" href="#" onclick="return doclink('link-51', 'FunctionGenerator', 'link-42');">FunctionGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-52" class="py-name" targets="Method codega.generator.FilterGenerator.bind()=codega.generator.FilterGenerator-class.html#bind,Method codega.generator.FunctionGenerator.bind()=codega.generator.FunctionGenerator-class.html#bind,Method codega.generator.GeneratorBase.bind()=codega.generator.GeneratorBase-class.html#bind,Method codega.generator.TemplateGenerator.bind()=codega.generator.TemplateGenerator-class.html#bind"><a title="codega.generator.FilterGenerator.bind
+codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-52', 'bind', 'link-52');">bind</a></tt><tt class="py-op">(</tt><tt id="link-53" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-53', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-54" class="py-name"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-54', '_function', 'link-40');">_function</a></tt> <tt class="py-op">=</tt> <tt class="py-name">types</tt><tt class="py-op">.</tt><tt class="py-name">MethodType</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-55" class="py-name"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-55', '_function', 'link-40');">_function</a></tt><tt class="py-op">,</tt> <tt id="link-56" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-56', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"> </tt>
+<a name="FunctionGenerator.__str__"></a><div id="FunctionGenerator.__str__-def"><a name="L141"></a><tt class="py-lineno">141</tt> <a class="py-toggle" href="#" id="FunctionGenerator.__str__-toggle" onclick="return toggle('FunctionGenerator.__str__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html#__str__">__str__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator.__str__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FunctionGenerator.__str__-expanded"><a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">'function generator %s, priority = %d'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-57" class="py-name"><a title="codega.generator.FunctionGenerator._function" class="py-name" href="#" onclick="return doclink('link-57', '_function', 'link-40');">_function</a></tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-58" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-58', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">staticmethod</tt> </tt>
+<a name="FunctionGenerator.decorate"></a><div id="FunctionGenerator.decorate-def"><a name="L145"></a><tt class="py-lineno">145</tt> <a class="py-toggle" href="#" id="FunctionGenerator.decorate-toggle" onclick="return toggle('FunctionGenerator.decorate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FunctionGenerator-class.html#decorate">decorate</a><tt class="py-op">(</tt><tt class="py-param">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-59" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-59', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FunctionGenerator.decorate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FunctionGenerator.decorate-expanded"><a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-docstring">'''Creates a FunctionGenerator from the decorated function</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">        matcher -- Generator matcher</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">        priority -- Generator function</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">__decorator</tt><tt class="py-op">(</tt><tt class="py-param">func</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt id="link-60" class="py-name"><a title="codega.generator.FunctionGenerator" class="py-name" href="#" onclick="return doclink('link-60', 'FunctionGenerator', 'link-42');">FunctionGenerator</a></tt><tt class="py-op">(</tt><tt class="py-name">func</tt><tt class="py-op">,</tt> <tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">matcher</tt><tt class="py-op">,</tt> <tt id="link-61" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-61', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-62" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-62', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">__decorator</tt> </tt>
+</div></div><a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"> </tt>
+<a name="TemplateGenerator"></a><div id="TemplateGenerator-def"><a name="L158"></a><tt class="py-lineno">158</tt> <a class="py-toggle" href="#" id="TemplateGenerator-toggle" onclick="return toggle('TemplateGenerator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html">TemplateGenerator</a><tt class="py-op">(</tt><tt class="py-base-class">GeneratorBase</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="TemplateGenerator-expanded"><a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">    <tt class="py-docstring">'''Generates output with a template.</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-docstring">    _template -- Template class</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring">    _bindings -- Function generating bindings</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">    <tt id="link-63" class="py-name" targets="Variable codega.generator.TemplateGenerator._template=codega.generator.TemplateGenerator-class.html#_template"><a title="codega.generator.TemplateGenerator._template" class="py-name" href="#" onclick="return doclink('link-63', '_template', 'link-63');">_template</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">    <tt id="link-64" class="py-name" targets="Variable codega.generator.TemplateGenerator._bindings=codega.generator.TemplateGenerator-class.html#_bindings"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-64', '_bindings', 'link-64');">_bindings</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"> </tt>
+<a name="TemplateGenerator.__init__"></a><div id="TemplateGenerator.__init__-def"><a name="L169"></a><tt class="py-lineno">169</tt> <a class="py-toggle" href="#" id="TemplateGenerator.__init__-toggle" onclick="return toggle('TemplateGenerator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">template</tt><tt class="py-op">,</tt> <tt class="py-param">bindings</tt><tt class="py-op">,</tt> <tt class="py-param">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-65" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-65', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TemplateGenerator.__init__-expanded"><a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-66" class="py-name" targets="Class codega.generator.TemplateGenerator=codega.generator.TemplateGenerator-class.html"><a title="codega.generator.TemplateGenerator" class="py-name" href="#" onclick="return doclink('link-66', 'TemplateGenerator', 'link-66');">TemplateGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-67" class="py-name"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-67', '__init__', 'link-43');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">matcher</tt><tt class="py-op">,</tt> <tt id="link-68" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-68', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-69" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-69', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-70" class="py-name"><a title="codega.generator.TemplateGenerator._template" class="py-name" href="#" onclick="return doclink('link-70', '_template', 'link-63');">_template</a></tt> <tt class="py-op">=</tt> <tt id="link-71" class="py-name" targets="Module codega.template=codega.template-module.html"><a title="codega.template" class="py-name" href="#" onclick="return doclink('link-71', 'template', 'link-71');">template</a></tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-72" class="py-name"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-72', '_bindings', 'link-64');">_bindings</a></tt> <tt class="py-op">=</tt> <tt class="py-name">bindings</tt> </tt>
+</div><a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"> </tt>
+<a name="TemplateGenerator.generate"></a><div id="TemplateGenerator.generate-def"><a name="L175"></a><tt class="py-lineno">175</tt> <a class="py-toggle" href="#" id="TemplateGenerator.generate-toggle" onclick="return toggle('TemplateGenerator.generate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html#generate">generate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator.generate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TemplateGenerator.generate-expanded"><a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-73" class="py-name"><a title="codega.generator.TemplateGenerator._template" class="py-name" href="#" onclick="return doclink('link-73', '_template', 'link-63');">_template</a></tt><tt class="py-op">.</tt><tt id="link-74" class="py-name" targets="Method codega.template.TemplateBase.render()=codega.template.TemplateBase-class.html#render,Method codega.template.TemplatesetBase.render()=codega.template.TemplatesetBase-class.html#render"><a title="codega.template.TemplateBase.render
+codega.template.TemplatesetBase.render" class="py-name" href="#" onclick="return doclink('link-74', 'render', 'link-74');">render</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-75" class="py-name"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-75', '_bindings', 'link-64');">_bindings</a></tt><tt class="py-op">(</tt><tt id="link-76" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-76', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt id="link-77" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-77', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"> </tt>
+<a name="TemplateGenerator.bind"></a><div id="TemplateGenerator.bind-def"><a name="L178"></a><tt class="py-lineno">178</tt> <a class="py-toggle" href="#" id="TemplateGenerator.bind-toggle" onclick="return toggle('TemplateGenerator.bind');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html#bind">bind</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">parent</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator.bind-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TemplateGenerator.bind-expanded"><a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-78" class="py-name"><a title="codega.generator.TemplateGenerator" class="py-name" href="#" onclick="return doclink('link-78', 'TemplateGenerator', 'link-66');">TemplateGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-79" class="py-name"><a title="codega.generator.FilterGenerator.bind
+codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-79', 'bind', 'link-52');">bind</a></tt><tt class="py-op">(</tt><tt id="link-80" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-80', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line"> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-81" class="py-name"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-81', '_bindings', 'link-64');">_bindings</a></tt> <tt class="py-op">=</tt> <tt class="py-name">types</tt><tt class="py-op">.</tt><tt class="py-name">MethodType</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-82" class="py-name"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-82', '_bindings', 'link-64');">_bindings</a></tt><tt class="py-op">,</tt> <tt id="link-83" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-83', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"> </tt>
+<a name="TemplateGenerator.__str__"></a><div id="TemplateGenerator.__str__-def"><a name="L183"></a><tt class="py-lineno">183</tt> <a class="py-toggle" href="#" id="TemplateGenerator.__str__-toggle" onclick="return toggle('TemplateGenerator.__str__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html#__str__">__str__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator.__str__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TemplateGenerator.__str__-expanded"><a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">'template generator %s, priority = %d'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-84" class="py-name"><a title="codega.generator.TemplateGenerator._bindings" class="py-name" href="#" onclick="return doclink('link-84', '_bindings', 'link-64');">_bindings</a></tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-85" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-85', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">staticmethod</tt> </tt>
+<a name="TemplateGenerator.decorate"></a><div id="TemplateGenerator.decorate-def"><a name="L187"></a><tt class="py-lineno">187</tt> <a class="py-toggle" href="#" id="TemplateGenerator.decorate-toggle" onclick="return toggle('TemplateGenerator.decorate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.TemplateGenerator-class.html#decorate">decorate</a><tt class="py-op">(</tt><tt class="py-param">template</tt><tt class="py-op">,</tt> <tt class="py-param">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-86" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-86', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TemplateGenerator.decorate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="TemplateGenerator.decorate-expanded"><a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line">        <tt class="py-docstring">'''Creates a FunctionGenerator from the decorated function</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"><tt class="py-docstring">        template -- Template for the generator</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"><tt class="py-docstring">        matcher -- Generator matcher</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line"><tt class="py-docstring">        priority -- Generator function</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">__decorator</tt><tt class="py-op">(</tt><tt class="py-param">func</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt id="link-87" class="py-name"><a title="codega.generator.TemplateGenerator" class="py-name" href="#" onclick="return doclink('link-87', 'TemplateGenerator', 'link-66');">TemplateGenerator</a></tt><tt class="py-op">(</tt><tt id="link-88" class="py-name"><a title="codega.template" class="py-name" href="#" onclick="return doclink('link-88', 'template', 'link-71');">template</a></tt><tt class="py-op">,</tt> <tt class="py-name">func</tt><tt class="py-op">,</tt> <tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">matcher</tt><tt class="py-op">,</tt> <tt id="link-89" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-89', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-90" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-90', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">__decorator</tt> </tt>
+</div></div><a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line"> </tt>
+<a name="FilterGenerator"></a><div id="FilterGenerator-def"><a name="L201"></a><tt class="py-lineno">201</tt> <a class="py-toggle" href="#" id="FilterGenerator-toggle" onclick="return toggle('FilterGenerator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html">FilterGenerator</a><tt class="py-op">(</tt><tt class="py-base-class">GeneratorBase</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FilterGenerator-expanded"><a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">    <tt class="py-docstring">'''Filter the output of another generator. The priority and matchers are taken from</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"><tt class="py-docstring">    the wrapped generator.</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line"><tt class="py-docstring">    _subgenerator -- The wrapped generator</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"><tt class="py-docstring">    _filters -- The filter function(s)</tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">    <tt id="link-91" class="py-name" targets="Variable codega.generator.FilterGenerator._subgenerator=codega.generator.FilterGenerator-class.html#_subgenerator"><a title="codega.generator.FilterGenerator._subgenerator" class="py-name" href="#" onclick="return doclink('link-91', '_subgenerator', 'link-91');">_subgenerator</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">    <tt id="link-92" class="py-name" targets="Variable codega.generator.FilterGenerator._filters=codega.generator.FilterGenerator-class.html#_filters"><a title="codega.generator.FilterGenerator._filters" class="py-name" href="#" onclick="return doclink('link-92', '_filters', 'link-92');">_filters</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line"> </tt>
+<a name="FilterGenerator.__init__"></a><div id="FilterGenerator.__init__-def"><a name="L213"></a><tt class="py-lineno">213</tt> <a class="py-toggle" href="#" id="FilterGenerator.__init__-toggle" onclick="return toggle('FilterGenerator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">generator</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">filters</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FilterGenerator.__init__-expanded"><a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-93" class="py-name"><a title="codega.generator.FilterGenerator._filters" class="py-name" href="#" onclick="return doclink('link-93', '_filters', 'link-92');">_filters</a></tt> <tt class="py-op">=</tt> <tt class="py-name">filters</tt> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-94" class="py-name"><a title="codega.generator.FilterGenerator._subgenerator" class="py-name" href="#" onclick="return doclink('link-94', '_subgenerator', 'link-91');">_subgenerator</a></tt> <tt class="py-op">=</tt> <tt id="link-95" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-95', 'generator', 'link-33');">generator</a></tt> </tt>
+<a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line"> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-96" class="py-name" targets="Class codega.generator.FilterGenerator=codega.generator.FilterGenerator-class.html"><a title="codega.generator.FilterGenerator" class="py-name" href="#" onclick="return doclink('link-96', 'FilterGenerator', 'link-96');">FilterGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-97" class="py-name"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-97', '__init__', 'link-43');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt id="link-98" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-98', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-99" class="py-name"><a title="codega.generator.GeneratorBase.match" class="py-name" href="#" onclick="return doclink('link-99', 'match', 'link-27');">match</a></tt><tt class="py-op">,</tt> <tt id="link-100" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-100', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-101" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-101', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-102" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-102', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"> </tt>
+<a name="FilterGenerator.generate"></a><div id="FilterGenerator.generate-def"><a name="L219"></a><tt class="py-lineno">219</tt> <a class="py-toggle" href="#" id="FilterGenerator.generate-toggle" onclick="return toggle('FilterGenerator.generate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html#generate">generate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator.generate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FilterGenerator.generate-expanded"><a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line">        <tt class="py-docstring">'''Generate an output from the subgenerator and call the filters on it'''</tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line">        <tt class="py-name">output</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-103" class="py-name"><a title="codega.generator.FilterGenerator._subgenerator" class="py-name" href="#" onclick="return doclink('link-103', '_subgenerator', 'link-91');">_subgenerator</a></tt><tt class="py-op">(</tt><tt id="link-104" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-104', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt id="link-105" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-105', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line"> </tt>
+<a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">filt</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-106" class="py-name"><a title="codega.generator.FilterGenerator._filters" class="py-name" href="#" onclick="return doclink('link-106', '_filters', 'link-92');">_filters</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line">            <tt class="py-name">output</tt> <tt class="py-op">=</tt> <tt class="py-name">filt</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">output</tt><tt class="py-op">)</tt> </tt>
+<a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line"> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">output</tt> </tt>
+</div><a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line"> </tt>
+<a name="FilterGenerator.bind"></a><div id="FilterGenerator.bind-def"><a name="L229"></a><tt class="py-lineno">229</tt> <a class="py-toggle" href="#" id="FilterGenerator.bind-toggle" onclick="return toggle('FilterGenerator.bind');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html#bind">bind</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">parent</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator.bind-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FilterGenerator.bind-expanded"><a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-107" class="py-name"><a title="codega.generator.FilterGenerator" class="py-name" href="#" onclick="return doclink('link-107', 'FilterGenerator', 'link-96');">FilterGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-108" class="py-name"><a title="codega.generator.FilterGenerator.bind
+codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-108', 'bind', 'link-52');">bind</a></tt><tt class="py-op">(</tt><tt id="link-109" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-109', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-110" class="py-name"><a title="codega.generator.FilterGenerator._subgenerator" class="py-name" href="#" onclick="return doclink('link-110', '_subgenerator', 'link-91');">_subgenerator</a></tt><tt class="py-op">.</tt><tt id="link-111" class="py-name"><a title="codega.generator.FilterGenerator.bind
+codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-111', 'bind', 'link-52');">bind</a></tt><tt class="py-op">(</tt><tt id="link-112" class="py-name"><a title="codega.config.NodeBase.parent
+codega.generator.GeneratorBase.parent" class="py-name" href="#" onclick="return doclink('link-112', 'parent', 'link-26');">parent</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"> </tt>
+<a name="FilterGenerator.add_filter"></a><div id="FilterGenerator.add_filter-def"><a name="L233"></a><tt class="py-lineno">233</tt> <a class="py-toggle" href="#" id="FilterGenerator.add_filter-toggle" onclick="return toggle('FilterGenerator.add_filter');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html#add_filter">add_filter</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">filter</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator.add_filter-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FilterGenerator.add_filter-expanded"><a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line">        <tt class="py-docstring">'''Appends a filter to the filter list'''</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-113" class="py-name"><a title="codega.generator.FilterGenerator._filters" class="py-name" href="#" onclick="return doclink('link-113', '_filters', 'link-92');">_filters</a></tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">filter</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">staticmethod</tt> </tt>
+<a name="FilterGenerator.decorate"></a><div id="FilterGenerator.decorate-def"><a name="L239"></a><tt class="py-lineno">239</tt> <a class="py-toggle" href="#" id="FilterGenerator.decorate-toggle" onclick="return toggle('FilterGenerator.decorate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.FilterGenerator-class.html#decorate">decorate</a><tt class="py-op">(</tt><tt class="py-param">filter</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FilterGenerator.decorate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FilterGenerator.decorate-expanded"><a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line">        <tt class="py-docstring">'''Decorate a generator with a filter.</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line"><tt class="py-docstring">        Multiple filters are appended so a FilterGenerator isn't repeted'''</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line"> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">__decorator</tt><tt class="py-op">(</tt><tt class="py-param">generator</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt id="link-114" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-114', 'generator', 'link-33');">generator</a></tt><tt class="py-op">,</tt> <tt id="link-115" class="py-name"><a title="codega.generator.FilterGenerator" class="py-name" href="#" onclick="return doclink('link-115', 'FilterGenerator', 'link-96');">FilterGenerator</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line">                <tt id="link-116" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-116', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-117" class="py-name" targets="Method codega.generator.FilterGenerator.add_filter()=codega.generator.FilterGenerator-class.html#add_filter"><a title="codega.generator.FilterGenerator.add_filter" class="py-name" href="#" onclick="return doclink('link-117', 'add_filter', 'link-117');">add_filter</a></tt><tt class="py-op">(</tt><tt class="py-name">filter</tt><tt class="py-op">)</tt> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt id="link-118" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-118', 'generator', 'link-33');">generator</a></tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line"> </tt>
+<a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt id="link-119" class="py-name"><a title="codega.generator.FilterGenerator" class="py-name" href="#" onclick="return doclink('link-119', 'FilterGenerator', 'link-96');">FilterGenerator</a></tt><tt class="py-op">(</tt><tt id="link-120" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-120', 'generator', 'link-33');">generator</a></tt><tt class="py-op">,</tt> <tt class="py-name">filter</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line"> </tt>
+<a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">__decorator</tt> </tt>
+</div></div><a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line"> </tt>
+<a name="PriorityGenerator"></a><div id="PriorityGenerator-def"><a name="L253"></a><tt class="py-lineno">253</tt> <a class="py-toggle" href="#" id="PriorityGenerator-toggle" onclick="return toggle('PriorityGenerator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.PriorityGenerator-class.html">PriorityGenerator</a><tt class="py-op">(</tt><tt class="py-base-class">GeneratorBase</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PriorityGenerator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PriorityGenerator-expanded"><a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">    <tt class="py-docstring">'''A list of generators which are tried one-by-one until one can handle the source</tt> </tt>
+<a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line"><tt class="py-docstring">    Members:</tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line"><tt class="py-docstring">    _generators -- Heap-sorted list of generators. Items are in (priority, generator) format</tt> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line"> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line">    <tt id="link-121" class="py-name" targets="Variable codega.generator.PriorityGenerator._generators=codega.generator.PriorityGenerator-class.html#_generators"><a title="codega.generator.PriorityGenerator._generators" class="py-name" href="#" onclick="return doclink('link-121', '_generators', 'link-121');">_generators</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line"> </tt>
+<a name="PriorityGenerator.__internal_matcher"></a><div id="PriorityGenerator.__internal_matcher-def"><a name="L262"></a><tt class="py-lineno">262</tt> <a class="py-toggle" href="#" id="PriorityGenerator.__internal_matcher-toggle" onclick="return toggle('PriorityGenerator.__internal_matcher');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.PriorityGenerator-class.html#__internal_matcher">__internal_matcher</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PriorityGenerator.__internal_matcher-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PriorityGenerator.__internal_matcher-expanded"><a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line">        <tt class="py-docstring">'''Matching is done by aggregating the matchers of registered sub-generators'''</tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line"> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">pri</tt><tt class="py-op">,</tt> <tt class="py-name">gen</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-122" class="py-name"><a title="codega.generator.PriorityGenerator._generators" class="py-name" href="#" onclick="return doclink('link-122', '_generators', 'link-121');">_generators</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">gen</tt><tt class="py-op">.</tt><tt id="link-123" class="py-name"><a title="codega.generator.GeneratorBase.match" class="py-name" href="#" onclick="return doclink('link-123', 'match', 'link-27');">match</a></tt><tt class="py-op">(</tt><tt id="link-124" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-124', 'source', 'link-22');">source</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+<a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"> </tt>
+<a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line"> </tt>
+<a name="PriorityGenerator.__init__"></a><div id="PriorityGenerator.__init__-def"><a name="L271"></a><tt class="py-lineno">271</tt> <a class="py-toggle" href="#" id="PriorityGenerator.__init__-toggle" onclick="return toggle('PriorityGenerator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.PriorityGenerator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-125" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-125', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PriorityGenerator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PriorityGenerator.__init__-expanded"><a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-126" class="py-name" targets="Class codega.generator.PriorityGenerator=codega.generator.PriorityGenerator-class.html"><a title="codega.generator.PriorityGenerator" class="py-name" href="#" onclick="return doclink('link-126', 'PriorityGenerator', 'link-126');">PriorityGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-127" class="py-name"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-127', '__init__', 'link-43');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">matcher</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-128" class="py-name" targets="Method codega.generator.PriorityGenerator.__internal_matcher()=codega.generator.PriorityGenerator-class.html#__internal_matcher"><a title="codega.generator.PriorityGenerator.__internal_matcher" class="py-name" href="#" onclick="return doclink('link-128', '__internal_matcher', 'link-128');">__internal_matcher</a></tt><tt class="py-op">,</tt> <tt id="link-129" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-129', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-130" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-130', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line"> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-131" class="py-name"><a title="codega.generator.PriorityGenerator._generators" class="py-name" href="#" onclick="return doclink('link-131', '_generators', 'link-121');">_generators</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+</div><a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line"> </tt>
+<a name="PriorityGenerator.register"></a><div id="PriorityGenerator.register-def"><a name="L276"></a><tt class="py-lineno">276</tt> <a class="py-toggle" href="#" id="PriorityGenerator.register-toggle" onclick="return toggle('PriorityGenerator.register');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.PriorityGenerator-class.html#register">register</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">generator</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PriorityGenerator.register-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PriorityGenerator.register-expanded"><a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line">        <tt class="py-docstring">'''Register a generator</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line"><tt class="py-docstring">        Arguments:</tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line"><tt class="py-docstring">        generator -- Generator object</tt> </tt>
+<a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line"><tt class="py-docstring">        priority -- Priority of generator</tt> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line"><tt class="py-docstring">        '''</tt> </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line"> </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt id="link-132" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-132', 'generator', 'link-33');">generator</a></tt><tt class="py-op">,</tt> <tt id="link-133" class="py-name" targets="Class codega.generator.GeneratorBase=codega.generator.GeneratorBase-class.html"><a title="codega.generator.GeneratorBase" class="py-name" href="#" onclick="return doclink('link-133', 'GeneratorBase', 'link-133');">GeneratorBase</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt class="py-name">TypeError</tt><tt class="py-op">(</tt><tt class="py-string">"Invalid generator type (not subclass of GeneratorBase)"</tt><tt class="py-op">)</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line"> </tt>
+<a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line">        <tt class="py-name">heapq</tt><tt class="py-op">.</tt><tt class="py-name">heappush</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-134" class="py-name"><a title="codega.generator.PriorityGenerator._generators" class="py-name" href="#" onclick="return doclink('link-134', '_generators', 'link-121');">_generators</a></tt><tt class="py-op">,</tt> <tt class="py-op">(</tt><tt id="link-135" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-135', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-136" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-136', 'priority', 'link-17');">priority</a></tt><tt class="py-op">,</tt> <tt id="link-137" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-137', 'generator', 'link-33');">generator</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line">        <tt id="link-138" class="py-name"><a title="codega.config.Target.generator
+codega.generator" class="py-name" href="#" onclick="return doclink('link-138', 'generator', 'link-33');">generator</a></tt><tt class="py-op">.</tt><tt id="link-139" class="py-name"><a title="codega.generator.FilterGenerator.bind
+codega.generator.FunctionGenerator.bind
+codega.generator.GeneratorBase.bind
+codega.generator.TemplateGenerator.bind" class="py-name" href="#" onclick="return doclink('link-139', 'bind', 'link-52');">bind</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L289"></a><tt class="py-lineno">289</tt>  <tt class="py-line"> </tt>
+<a name="PriorityGenerator.generate"></a><div id="PriorityGenerator.generate-def"><a name="L290"></a><tt class="py-lineno">290</tt> <a class="py-toggle" href="#" id="PriorityGenerator.generate-toggle" onclick="return toggle('PriorityGenerator.generate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.PriorityGenerator-class.html#generate">generate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">source</tt><tt class="py-op">,</tt> <tt class="py-param">context</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PriorityGenerator.generate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="PriorityGenerator.generate-expanded"><a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line">        <tt class="py-docstring">'''Try to generate source with each contained generator instance'''</tt> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line"> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line">        <tt class="py-name">heap</tt> <tt class="py-op">=</tt> <tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-140" class="py-name"><a title="codega.generator.PriorityGenerator._generators" class="py-name" href="#" onclick="return doclink('link-140', '_generators', 'link-121');">_generators</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line"> </tt>
+<a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-name">heap</tt><tt class="py-op">:</tt> </tt>
+<a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line">            <tt class="py-name">pri</tt><tt class="py-op">,</tt> <tt class="py-name">gen</tt> <tt class="py-op">=</tt> <tt class="py-name">heapq</tt><tt class="py-op">.</tt><tt class="py-name">heappop</tt><tt class="py-op">(</tt><tt class="py-name">heap</tt><tt class="py-op">)</tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line"> </tt>
+<a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">gen</tt><tt class="py-op">.</tt><tt id="link-141" class="py-name"><a title="codega.generator.GeneratorBase.match" class="py-name" href="#" onclick="return doclink('link-141', 'match', 'link-27');">match</a></tt><tt class="py-op">(</tt><tt id="link-142" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-142', 'source', 'link-22');">source</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line">                <tt id="link-143" class="py-name"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-143', 'logger', 'link-4');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">'Generating source %r with priority generator %r (matching sub-generator %r)'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt id="link-144" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-144', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">gen</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">gen</tt><tt class="py-op">.</tt><tt id="link-145" class="py-name"><a title="codega.generator.FilterGenerator.generate
+codega.generator.FunctionGenerator.generate
+codega.generator.GeneratorBase.generate
+codega.generator.PriorityGenerator.generate
+codega.generator.TemplateGenerator.generate" class="py-name" href="#" onclick="return doclink('link-145', 'generate', 'link-29');">generate</a></tt><tt class="py-op">(</tt><tt id="link-146" class="py-name"><a title="codega.config.ParseVisitor.source
+codega.config.SaveVisitor.source
+codega.config.Target.source
+codega.context.Context.source
+codega.source" class="py-name" href="#" onclick="return doclink('link-146', 'source', 'link-22');">source</a></tt><tt class="py-op">,</tt> <tt id="link-147" class="py-name"><a title="codega.context" class="py-name" href="#" onclick="return doclink('link-147', 'context', 'link-31');">context</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line"> </tt>
+<a name="L302"></a><tt class="py-lineno">302</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">"Source cannot be generated"</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L303"></a><tt class="py-lineno">303</tt>  <tt class="py-line"> </tt>
+<a name="ObjectGenerator"></a><div id="ObjectGenerator-def"><a name="L304"></a><tt class="py-lineno">304</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L305"></a><tt class="py-lineno">305</tt>  <tt class="py-line"><tt class="py-comment"># Object generators</tt> </tt>
+<a name="L306"></a><tt class="py-lineno">306</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L307"></a><tt class="py-lineno">307</tt> <a class="py-toggle" href="#" id="ObjectGenerator-toggle" onclick="return toggle('ObjectGenerator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="codega.generator.ObjectGenerator-class.html">ObjectGenerator</a><tt class="py-op">(</tt><tt class="py-base-class">PriorityGenerator</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ObjectGenerator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ObjectGenerator-expanded"><a name="L308"></a><tt class="py-lineno">308</tt>  <tt class="py-line">    <tt class="py-docstring">'''The list of generators is extracted from the instance on start'''</tt> </tt>
+<a name="L309"></a><tt class="py-lineno">309</tt>  <tt class="py-line"> </tt>
+<a name="ObjectGenerator.__init__"></a><div id="ObjectGenerator.__init__-def"><a name="L310"></a><tt class="py-lineno">310</tt> <a class="py-toggle" href="#" id="ObjectGenerator.__init__-toggle" onclick="return toggle('ObjectGenerator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.ObjectGenerator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">priority</tt> <tt class="py-op">=</tt> <tt id="link-148" class="py-name"><a title="codega.generator.PRI_BASE" class="py-name" href="#" onclick="return doclink('link-148', 'PRI_BASE', 'link-7');">PRI_BASE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ObjectGenerator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ObjectGenerator.__init__-expanded"><a name="L311"></a><tt class="py-lineno">311</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-149" class="py-name" targets="Class codega.generator.ObjectGenerator=codega.generator.ObjectGenerator-class.html"><a title="codega.generator.ObjectGenerator" class="py-name" href="#" onclick="return doclink('link-149', 'ObjectGenerator', 'link-149');">ObjectGenerator</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-150" class="py-name"><a title="codega.build.BuildTask.__init__
+codega.build.Builder.__init__
+codega.build.ConfigBuilder.__init__
+codega.build.TaskBase.__init__
+codega.commands.CommandMain.__init__
+codega.commands.base.CommandBase.__init__
+codega.commands.base.CommandContainer.__init__
+codega.commands.base.CommandHelp.__init__
+codega.commands.base.OptparsedCommand.__init__
+codega.commands.build.CommandBuild.__init__
+codega.commands.clean.CommandClean.__init__
+codega.commands.make.CommandMake.__init__
+codega.commands.pack.CommandPack.__init__
+codega.config.Config.SourceCollection.__init__
+codega.config.Config.TargetCollection.__init__
+codega.config.Config.__init__
+codega.config.ModuleReference.__init__
+codega.config.NodeBase.__init__
+codega.config.ParseVisitor.__init__
+codega.config.PathList.__init__
+codega.config.Settings.__init__
+codega.config.Source.__init__
+codega.config.Target.__init__
+codega.context.Context.__init__
+codega.error.ParseError.__init__
+codega.error.ResourceError.__init__
+codega.error.TemplateNotFoundError.__init__
+codega.generator.FilterGenerator.__init__
+codega.generator.FunctionGenerator.__init__
+codega.generator.GeneratorBase.__init__
+codega.generator.ObjectGenerator.__init__
+codega.generator.PriorityGenerator.__init__
+codega.generator.TemplateGenerator.__init__
+codega.ordereddict.OrderedDict.__init__
+codega.rsclocator.FallbackLocator.__init__
+codega.rsclocator.FileResourceLocator.__init__
+codega.rsclocator.ModuleLocator.__init__
+codega.rsclocator.ResourceLocatorBase.__init__
+codega.template.TemplatesetBase.__init__
+codega.version.Version.__init__" class="py-name" href="#" onclick="return doclink('link-150', '__init__', 'link-43');">__init__</a></tt><tt class="py-op">(</tt><tt id="link-151" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-151', 'priority', 'link-17');">priority</a></tt> <tt class="py-op">=</tt> <tt id="link-152" class="py-name"><a title="codega.generator.GeneratorBase.priority" class="py-name" href="#" onclick="return doclink('link-152', 'priority', 'link-17');">priority</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L312"></a><tt class="py-lineno">312</tt>  <tt class="py-line"> </tt>
+<a name="L313"></a><tt class="py-lineno">313</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-153" class="py-name" targets="Method codega.generator.ObjectGenerator._collect()=codega.generator.ObjectGenerator-class.html#_collect"><a title="codega.generator.ObjectGenerator._collect" class="py-name" href="#" onclick="return doclink('link-153', '_collect', 'link-153');">_collect</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L314"></a><tt class="py-lineno">314</tt>  <tt class="py-line"> </tt>
+<a name="ObjectGenerator._collect"></a><div id="ObjectGenerator._collect-def"><a name="L315"></a><tt class="py-lineno">315</tt> <a class="py-toggle" href="#" id="ObjectGenerator._collect-toggle" onclick="return toggle('ObjectGenerator._collect');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="codega.generator.ObjectGenerator-class.html#_collect">_collect</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ObjectGenerator._collect-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ObjectGenerator._collect-expanded"><a name="L316"></a><tt class="py-lineno">316</tt>  <tt class="py-line">        <tt class="py-docstring">'''Collect subgenerators from instance'''</tt> </tt>
+<a name="L317"></a><tt class="py-lineno">317</tt>  <tt class="py-line"> </tt>
+<a name="L318"></a><tt class="py-lineno">318</tt>  <tt class="py-line">        <tt id="link-154" class="py-name"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-154', 'logger', 'link-4');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">info</tt><tt class="py-op">(</tt><tt class="py-string">'Initializing object generator %r'</tt> <tt class="py-op">%</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+<a name="L319"></a><tt class="py-lineno">319</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">attr</tt> <tt class="py-keyword">in</tt> <tt class="py-name">dir</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L320"></a><tt class="py-lineno">320</tt>  <tt class="py-line">            <tt class="py-name">val</tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">attr</tt><tt class="py-op">)</tt> </tt>
+<a name="L321"></a><tt class="py-lineno">321</tt>  <tt class="py-line"> </tt>
+<a name="L322"></a><tt class="py-lineno">322</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">val</tt><tt class="py-op">,</tt> <tt id="link-155" class="py-name"><a title="codega.generator.GeneratorBase" class="py-name" href="#" onclick="return doclink('link-155', 'GeneratorBase', 'link-133');">GeneratorBase</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L323"></a><tt class="py-lineno">323</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-156" class="py-name" targets="Method codega.generator.PriorityGenerator.register()=codega.generator.PriorityGenerator-class.html#register"><a title="codega.generator.PriorityGenerator.register" class="py-name" href="#" onclick="return doclink('link-156', 'register', 'link-156');">register</a></tt><tt class="py-op">(</tt><tt class="py-name">val</tt><tt class="py-op">)</tt> </tt>
+<a name="L324"></a><tt class="py-lineno">324</tt>  <tt class="py-line">                <tt id="link-157" class="py-name"><a title="codega.logger" class="py-name" href="#" onclick="return doclink('link-157', 'logger', 'link-4');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">'Registered subgenerator %r'</tt> <tt class="py-op">%</tt> <tt class="py-name">val</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L325"></a><tt class="py-lineno">325</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="codega-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >codega</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Aug 16 20:15:56 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
