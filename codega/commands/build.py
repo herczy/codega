@@ -14,7 +14,7 @@ class CommandBuild(OptparsedCommand):
     def __init__(self):
         options = [
             optparse.make_option('-s', '--source', default = None,
-                                 help = 'Specify the source file'),
+                                 help = 'Specify the source (file, directory, etc., depending on the parser)'),
             optparse.make_option('-p', '--parser', default = 'codega.source:XmlSource',
                                  help = 'Specify the parser in <module>:<source class> format (default: %default)'),
             optparse.make_option('-t', '--target', default = 'codega.out',
