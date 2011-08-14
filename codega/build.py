@@ -5,8 +5,9 @@ from source import SourceBase
 from rsclocator import FileResourceLocator, FallbackLocator
 from generator import GeneratorBase
 from context import Context
-from error import StateError
+from error import StateError, ResourceError
 from decorators import abstract
+import logger
 
 def get_module_time(locator, module):
     mod = locator.import_module(module)
@@ -23,7 +24,7 @@ def get_module_time(locator, module):
 
 class TaskBase(object):
     '''Task base for building
-    
+
     Members:
     _builder -- The parent of the task
     '''
@@ -36,19 +37,23 @@ class TaskBase(object):
     @abstract
     def check_need_run(self):
         '''Check if the task needs to be run'''
-        
+
     @abstract
     def execute(self):
         '''Execute the task'''
-        
+
+    @abstract
+    def get_cleanup_list(self):
+        '''Return list of generated files related to the task to be cleaned up'''
+
 class BuildTask(TaskBase):
     '''Build a configuration target'''
-    
+
     _config = None
     _locator = None
     _source = None
     _target = None
-    
+
     _destination = None
 
     @staticmethod
@@ -57,14 +62,14 @@ class BuildTask(TaskBase):
             return os.stat(filename)[stat.ST_MTIME]
 
         return 0
-    
+
     def __init__(self, parent, config, locator, source, target):
         self._config = config
         self._locator = locator
         self._source = source
         self._target = target
         self._destination = os.path.join(self._locator.find(self._config.paths.destination), self._target.filename)
-        
+
         super(BuildTask, self).__init__(parent)
 
     def check_need_run(self):
@@ -73,7 +78,7 @@ class BuildTask(TaskBase):
             return True
 
         modules = [ 'codega', self._source.parser.module, self._target.generator.module ]
-    
+
         # If the destination modification time is smaller than any other time (mtime
         # of any of the modules or files) we need to rebuild
         time = 0
@@ -99,13 +104,16 @@ class BuildTask(TaskBase):
         destination = open(self._destination, 'w')
         destination.write(output)
         destination.close()
-        
+
+    def get_cleanup_list(self):
+        return [ self._target.filename ]
+
     def get_source(self, source):
         parser = self._source.parser.load(self._locator)
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
         return parser().load(self._source.resource).getroot()
-    
+
 class Builder(object):
     '''Base object for builders
 
@@ -114,10 +122,18 @@ class Builder(object):
     _tasks -- Task backlog
     _locator -- Basic resource locator
     '''
-    
+
     _cache = None
     _tasks = None
     _locator = None
+
+    @property
+    def __tasks_iterator(self):
+        def __iterator():
+            while self._tasks:
+                yield self._tasks.pop()
+
+        return __iterator()
 
     def __init__(self, locator):
         self._cache = {}
@@ -133,18 +149,39 @@ class Builder(object):
         return self._cache[key]
 
     def push_task(self, task):
-        self._tasks.append(task)
-        
-    def build(self, force = False):
-        while self._tasks:
-            task = self._tasks.pop()
+        '''Add a task to the task list'''
 
+        self._tasks.append(task)
+
+    def build(self, force = False):
+        '''Build tasks.
+
+        Note that the tasks will be removed!
+        '''
+
+        for task in self.__tasks_iterator:
             if not force and not task.check_need_run():
-                continue 
+                continue
 
             task.execute()
 
         self._tasks = []
+
+    def cleanup(self):
+        '''Clean up the project files'''
+
+        cleanup = list(self._config.cleanup)
+        for task in self.__tasks_iterator:
+            cleanup.extend(task.get_cleanup_list())
+
+        for path in cleanup:
+            try:
+                logger.info('Trying to remove %r', path)
+                os.unlink(self._locator.find(path))
+
+            except ResourceError, e:
+                # ResourceError means no file, so there is nothing to do
+                logger.warning('Removing of %r failed', path)
 
 class ConfigBuilder(Builder):
     '''Build targets from a config'''
@@ -156,15 +193,14 @@ class ConfigBuilder(Builder):
         locator = FallbackLocator()
         for path in config.paths.paths:
             locator.add_locator(FileResourceLocator(base_locator.find(path)))
-            
+
         super(ConfigBuilder, self).__init__(locator)
-    
+
     def add_target(self, target):
         '''Add a configuration target'''
-        
+
         config = target.parent
         source = config.sources[target.source]
-        #import pdb; pdb.set_trace()
         task = BuildTask(self, config, self._locator, source, target)
-        
+
         self.push_task(task)
