@@ -1,61 +1,28 @@
 '''codega specific exceptions'''
 
-class ParameteredError(Exception):
-    '''Error with one or more parameters
-
-    Arguments:
-    _parameters -- Dictionary of additional parameters
-    '''
-
-    _parameters = None
-
-    @property
-    def message(self):
-        return super(ParameteredError, self).__str__()
-
-    def __init__(self, msg, **params):
-        super(ParameteredError, self).__init__(msg)
-
-        self._parameters = dict(params)
-
-    def __str__(self):
-        parms = map(lambda (k, v): '%s = %r' % (k, v), filter(lambda (k, v): v is not None, self._parameters.iteritems()))
-        if not parms:
-            return self.message
-
-        return '%s (%s)' % (self.message, ', '.join(parms))
-
-    def __repr__(self):
-        parms = map(lambda (k, v): '%s = %r' % (k, v), filter(lambda (k, v): v is not None, self._parameters.iteritems()))
-        parms.insert(0, 'message = %r' % self.message)
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(parms))
-
-    def __getattr__(self, name):
-        return self._parameters[name]
-
-class ResourceError(ParameteredError):
+class ResourceError(Exception):
     '''Resource error, thrown when a resource is not found'''
 
-    def __init__(self, msg, resource = None):
-        super(ResourceError, self).__init__(msg, resource = resource)
+    def __init__(self, msg, resource):
+        super(ResourceError, self).__init__("%s (resource = %r)" % (msg, resource))
 
-class TemplateNotFoundError(ParameteredError):
+class TemplateNotFoundError(Exception):
     '''Thrown when a template is not found in the collection'''
 
-    def __init__(self, msg, tplset = None):
-        super(TemplateNotFoundError, self).__init__(msg, tplset = tplset)
+    def __init__(self, msg, tplset):
+        super(TemplateNotFoundError, self).__init__("%s (template set = %r)" % (msg, tplset))
 
-class ParseError(ParameteredError):
+class ConfigError(Exception):
+    ''''The configuration is invalid'''
+
+class ParseError(ConfigError):
     '''The given source could not be parsed'''
 
     def __init__(self, msg, lineno):
-        super(ParseError, self).__init__(msg, lineno = lineno)
+        super(ParseError, self).__init__("%s (at line %d)" % (msg, lineno))
 
 class VersionMismatchError(Exception):
     '''The version isn't what it supposed to be'''
 
 class StateError(Exception):
     '''The state of the object is not what it's supposed to be'''
-
-class ConfigError(Exception):
-    ''''The configuration is invalid'''
