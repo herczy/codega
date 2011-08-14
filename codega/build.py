@@ -112,7 +112,7 @@ class BuildTask(TaskBase):
         parser = self._source.parser.load(self._locator)
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
-        return parser().load(self._source.resource).getroot()
+        return parser().load(self._source.resource, self._locator).getroot()
 
 class Builder(object):
     '''Base object for builders
