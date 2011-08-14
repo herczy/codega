@@ -21,6 +21,12 @@ class ParseError(ConfigError):
     def __init__(self, msg, lineno):
         super(ParseError, self).__init__("%s (at line %d)" % (msg, lineno))
 
+class SaveError(ConfigError):
+    '''Errors with saving a configuration structure'''
+
+class BuildError(Exception):
+    '''Error building the specified target'''
+
 class VersionMismatchError(Exception):
     '''The version isn't what it supposed to be'''
 

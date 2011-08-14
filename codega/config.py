@@ -9,6 +9,7 @@ from visitor import *
 from source import XmlSource, validate_xml
 from rsclocator import ModuleLocator
 from version import Version
+from bzrlib.util.configobj.configobj import ParseError
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
@@ -564,47 +565,58 @@ class UpdateVisitor(ExplicitVisitor):
         raise VersionMismatchError("Configs with version %s are not supported" % version)
 
 def parse_config_file(filename):
-    logger.debug('Loading config file %s', filename)
-
-    # Initialize configuration object
-    config = Config()
-
-    # Parse raw XML file
     try:
-        xml_root = XmlSource().load_from_file(filename = filename).getroot()
+        logger.debug('Loading config file %s', filename)
+
+        # Initialize configuration object
+        config = Config()
+
+        # Parse raw XML file
+        try:
+            xml_root = XmlSource().load_from_file(filename = filename).getroot()
+
+        except Exception, e:
+            raise ParseError("Could not load source XML: %s" % e, 0)
+
+        # Update the XML tree if needed (this needs pre-verifying the version)
+        if not xml_root.attrib.has_key('version'):
+            raise ParseError("Configuration version cannot be determined", 1)
+
+        try:
+            version = Version.load_from_string(xml_root.attrib['version'])
+
+        except ValueError:
+            raise ParseError("Invalid version format %s" % xml_root.attrib['version'], 1)
+
+        xml_root = UpdateVisitor().visit(version, xml_root)
+
+        # Validate the XML root with the config.xsd. The config.xsd file always
+        # refers to the current version (see UpdateVisitor.version_current)
+        try:
+            validate_xml(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
+
+        except etree.DocumentInvalid, e:
+            raise ParseError('Configuration is invalid', e.error_log.last_error.line)
+
+        # Parse the XML structure
+        visitor = ParseVisitor()
+        try:
+            visitor.visit(config, xml_root)
+
+        except Exception, e:
+            raise ParseError(str(e), visitor._current_node.sourceline)
+
+        return config
 
     except Exception, e:
-        raise ParseError("Could not load source XML: %s" % e, 0)
+        if isinstance(e, ParseError):
+            raise
 
-    # Update the XML tree if needed (this needs pre-verifying the version)
-    if not xml_root.attrib.has_key('version'):
-        raise ParseError("Configuration version cannot be determined", 1)
-
-    try:
-        version = Version.load_from_string(xml_root.attrib['version'])
-
-    except ValueError:
-        raise ParseError("Invalid version format %s" % xml_root.attrib['version'], 1)
-
-    xml_root = UpdateVisitor().visit(version, xml_root)
-
-    # Validate the XML root with the config.xsd. The config.xsd file always
-    # refers to the current version (see UpdateVisitor.version_current)
-    try:
-        validate_xml(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
-
-    except etree.DocumentInvalid, e:
-        raise ParseError('Configuration is invalid', e.error_log.last_error.line)
-
-    # Parse the XML structure
-    visitor = ParseVisitor()
-    try:
-        visitor.visit(config, xml_root)
-
-    except Exception, e:
-        raise ParseError(str(e), visitor._current_node.sourceline)
-
-    return config
+        raise ParseError('Error detected during parsing: %s' % e, 0)
 
 def save_config(config):
-    return etree.tostring(SaveVisitor().visit(config), pretty_print = True)
+    try:
+        return etree.tostring(SaveVisitor().visit(config), pretty_print = True)
+
+    except Exception, e:
+        raise SaveError('Error detected while saving the config: %s' % e)

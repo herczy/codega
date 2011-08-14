@@ -8,6 +8,7 @@ from context import Context
 from error import StateError, ResourceError
 from decorators import abstract
 import logger
+from codega.error import BuildError
 
 def get_module_time(locator, module):
     mod = locator.import_module(module)
@@ -159,29 +160,37 @@ class Builder(object):
         Note that the tasks will be removed!
         '''
 
-        for task in self.__tasks_iterator:
-            if not force and not task.check_need_run():
-                continue
+        try:
+            for task in self.__tasks_iterator:
+                if not force and not task.check_need_run():
+                    continue
 
-            task.execute()
+                task.execute()
 
-        self._tasks = []
+            self._tasks = []
+
+        except Exception, e:
+            raise BuildError('Error detected during build: %s' % e)
 
     def cleanup(self):
         '''Clean up the project files'''
 
-        cleanup = []
-        for task in self.__tasks_iterator:
-            cleanup.extend(task.get_cleanup_list())
+        try:
+            cleanup = []
+            for task in self.__tasks_iterator:
+                cleanup.extend(task.get_cleanup_list())
 
-        for path in cleanup:
-            try:
-                logger.info('Trying to remove %r', path)
-                os.unlink(self._locator.find(path))
+            for path in cleanup:
+                try:
+                    logger.info('Trying to remove %r', path)
+                    os.unlink(self._locator.find(path))
 
-            except ResourceError, e:
-                # ResourceError means no file, so there is nothing to do
-                logger.warning('Removing of %r failed', path)
+                except ResourceError, e:
+                    # ResourceError means no file, so there is nothing to do
+                    logger.warning('Removing of %r failed', path)
+
+        except Exception, e:
+            raise BuildError("Error detected during cleanup: %s" % e)
 
 class ConfigBuilder(Builder):
     '''Build targets from a config'''
