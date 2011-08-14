@@ -10,16 +10,22 @@ from decorators import abstract
 import logger
 from codega.error import BuildError
 
+def get_mtime(filename):
+    if os.path.exists(filename):
+        return os.stat(filename)[stat.ST_MTIME]
+
+    return 0
+
 def get_module_time(locator, module):
     mod = locator.import_module(module)
     dirname, basename = os.path.split(mod.__file__)
 
     if os.path.splitext(basename)[0] != '__init__':
-        return BuildTask.mtime(mod.__file__)
+        return get_mtime(mod.__file__)
 
     res = []
     for root, dirs, files in os.walk(dirname):
-        res.extend((BuildTask.mtime(os.path.join(root, f)) for f in files))
+        res.extend((get_mtime(os.path.join(root, f)) for f in files))
 
     return max(res)
 
@@ -57,13 +63,6 @@ class BuildTask(TaskBase):
 
     _destination = None
 
-    @staticmethod
-    def mtime(filename):
-        if os.path.exists(filename):
-            return os.stat(filename)[stat.ST_MTIME]
-
-        return 0
-
     def __init__(self, parent, config, locator, source, target):
         self._config = config
         self._locator = locator
@@ -83,10 +82,10 @@ class BuildTask(TaskBase):
         # If the destination modification time is smaller than any other time (mtime
         # of any of the modules or files) we need to rebuild
         time = 0
-        time = max(time, BuildTask.mtime(self._source.resource))
+        time = max(time, get_mtime(self._source.resource))
         time = reduce(max, [ get_module_time(self._locator, m) for m in modules ], time)
 
-        return BuildTask.mtime(self._destination) < time
+        return get_mtime(self._destination) < time
 
     def execute(self):
         # Generation context
