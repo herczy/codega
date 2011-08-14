@@ -35,8 +35,8 @@ class Version(object):
         try:
             self._components = map(int, components)
 
-        except TypeError:
-            raise TypeError("Version components can only be values convertable to ints")
+        except ValueError:
+            raise ValueError("Version components can only be values convertable to ints")
 
     def __getitem__(self, index):
         '''Get version component.

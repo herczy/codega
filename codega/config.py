@@ -571,7 +571,11 @@ def parse_config_file(filename):
     config = Config()
 
     # Parse raw XML file
-    xml_root = XmlSource().load_from_file(filename = filename).getroot()
+    try:
+        xml_root = XmlSource().load_from_file(filename = filename).getroot()
+
+    except Exception, e:
+        raise ParseError("Could not load source XML: %s" % e, 0)
 
     # Update the XML tree if needed (this needs pre-verifying the version)
     if not xml_root.attrib.has_key('version'):
@@ -580,7 +584,7 @@ def parse_config_file(filename):
     try:
         version = Version.load_from_string(xml_root.attrib['version'])
 
-    except TypeError:
+    except ValueError:
         raise ParseError("Invalid version format %s" % xml_root.attrib['version'], 1)
 
     xml_root = UpdateVisitor().visit(version, xml_root)
