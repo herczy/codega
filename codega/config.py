@@ -12,7 +12,7 @@ from version import Version
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
-latest_version = Version(1, 1)
+latest_version = Version(1, 2)
 
 def config_property(name, property_type = basestring, enable_change = True):
     if enable_change:
@@ -290,6 +290,7 @@ class Config(NodeBase):
     _paths -- Path list
     _sources -- Dict of sources
     _targets -- Dict of targets
+    _cleanup -- Cleanup list
 
     _dependencies -- Dependencies between targets and sources
     '''
@@ -356,10 +357,12 @@ class Config(NodeBase):
     _paths = None
     _sources = None
     _targets = None
+    _cleanup = None
     _dependencies = None
     paths = config_property('_paths', enable_change = False)
     sources = config_property('_sources', enable_change = False)
     targets = config_property('_targets', enable_change = False)
+    cleanup = config_property('_cleanup', enable_change = False)
 
     @property
     def version(self):
@@ -389,6 +392,7 @@ class Config(NodeBase):
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
+        self._cleanup = []
         self._dependencies = {}
 
 class ParseVisitor(ClassVisitor):
@@ -466,6 +470,9 @@ class ParseVisitor(ClassVisitor):
                 self.visit(target, chld)
                 node.targets[target.filename] = target
 
+            elif chld.tag == 'cleanup':
+                node.cleanup.append(chld.text)
+
 class SaveVisitor(ClassVisitor):
     '''Parse the internal config representation into an XML tree representation'''
 
@@ -527,6 +534,7 @@ class SaveVisitor(ClassVisitor):
         res.append(self.visit(node.paths))
         res.extend([self.visit(source) for source in node.sources.values()])
         res.extend([self.visit(target) for target in node.targets.values()])
+        res.extend([build_element('cleanup', text = filename) for filename in node.cleanup])
 
         return res
 
@@ -545,6 +553,7 @@ class UpdateVisitor(ExplicitVisitor):
     * 1.0 -- Initial version
     * 1.1 -- Renamed /config/source/filename to /config/source/resource since in this
              version we accept non-file based sources too.
+    * 1.2 -- Added cleanup section
     '''
 
     @visitor(Version(1, 0))
@@ -555,6 +564,19 @@ class UpdateVisitor(ExplicitVisitor):
             node.tag = 'resource'
         xml_root.attrib['version'] = '1.1'
         return self.visit(Version(1, 1), xml_root)
+
+    @visitor(Version(1, 1))
+    def update_1_1(self, version, xml_root):
+        '''Update 1.1 configs to 1.2
+
+        No modification needed, just check if there is a section cleanup (it should be invalid
+        according to the the old config format)'''
+
+        cleanup = xml_root.find('cleanup')
+        if cleanup is not None:
+            raise ParseError("Version 1.1 did not support cleanup sections", cleanup.sourceline)
+
+        return self.visit(Version(1, 2), xml_root)
 
     @visitor(latest_version)
     def version_current(self, version, xml_root):
@@ -594,7 +616,7 @@ def parse_config_file(filename):
         validate_xml(xml_root, filename = 'config.xsd', locator = ModuleLocator(__import__(__name__)))
 
     except etree.DocumentInvalid, e:
-        raise ParseError('Configuration is invalid', e.error_log.last_error.line)
+        raise ParseError('Configuration is invalid: %s' % e, e.error_log.last_error.line)
 
     # Parse the XML structure
     visitor = ParseVisitor()

@@ -13,6 +13,9 @@
         
         <!-- targets -->
         <xs:element ref="target" minOccurs="1" maxOccurs="unbounded" />
+
+        <!-- cleanup -->
+        <xs:element name="cleanup" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
@@ -60,6 +63,7 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
 
   <!-- settings -->
   <xs:group name="settings">
