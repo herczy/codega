@@ -75,6 +75,83 @@ class TestVisitors(TestCase):
         self.assertEqual(target.settings.test0, 'value0')
         self.assertEqual(target.settings.test1.test2, 'value2')
 
+class TestFunctions(TestCase):
+    def test_validators(self):
+        # Module validator
+        self.assertTrue(module_validator.match('a'))
+        self.assertTrue(module_validator.match('_'))
+        self.assertTrue(module_validator.match('a0'))
+        self.assertTrue(module_validator.match('a.b'))
+        self.assertTrue(module_validator.match('a0.b'))
+        self.assertTrue(module_validator.match('a.b0'))
+
+        self.assertFalse(module_validator.match('a..b'))
+        self.assertFalse(module_validator.match('a.0.b'))
+        self.assertFalse(module_validator.match('a.0.b'))
+        self.assertFalse(module_validator.match('.a'))
+        self.assertFalse(module_validator.match('-'))
+        self.assertFalse(module_validator.match('+'))
+
+        # Class validator
+        self.assertTrue(classname_validator.match('validname'))
+        self.assertTrue(classname_validator.match('__000___'))
+
+        self.assertFalse(classname_validator.match('a.b'))
+        self.assertFalse(classname_validator.match('0b'))
+        self.assertFalse(classname_validator.match('0_'))
+        self.assertFalse(classname_validator.match('-'))
+        self.assertFalse(classname_validator.match('+'))
+
+    def test_config_property(self):
+        class A(object):
+            _x = None
+            x = config_property('_x')
+
+        value = A()
+        value.x = 'a'
+        self.assertEqual(value.x, 'a')
+        del value.x
+        self.assertEqual(value.x, None)
+
+        class B(object):
+            _x = None
+            x = config_property('_x', property_type = int)
+
+        value = B()
+        value.x = 1
+        self.assertEqual(value.x, 1)
+        self.assertRaises(TypeError, setattr, value, 'x', 'a')
+        self.assertRaises(TypeError, setattr, value, 'x', 5689342875823523546955236523)
+        del value.x
+        self.assertEqual(value.x, None)
+
+        class C(object):
+            _x = []
+            x = config_property('_x', enable_change = False)
+
+        value = C()
+        self.assertEqual(value.x, [])
+        self.assertRaises(AttributeError, setattr, value, 'x', [])
+        self.assertRaises(AttributeError, delattr, value, 'x')
+        value.x.append(1)
+        self.assertEqual(value.x, [1])
+
+    def test_build_element(self):
+        attrib = dict(a = 'a', b = 'b')
+        root = build_element('test', attributes = attrib, text = 'x')
+        self.assertTrue(isinstance(root, etree._Element))
+        self.assertEqual(root.tag, 'test')
+        self.assertEqual(root.attrib, attrib)
+        self.assertEqual(root.text, 'x')
+        self.assertEqual(list(root), [])
+
+        root = build_element('test', attributes = attrib, children = [ build_element('test0') ])
+        self.assertTrue(isinstance(root, etree._Element))
+        self.assertEqual(root.tag, 'test')
+        self.assertEqual(root.attrib, attrib)
+        self.assertEqual(root.text, None)
+        self.assertNotEqual(list(root), [])
+
 class TestSettings(TestCase):
     def test_basic(self):
         settings = Settings(None)

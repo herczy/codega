@@ -30,7 +30,7 @@ def config_property(name, property_type = basestring, enable_change = True):
         def setter(self, value):
             raise AttributeError("Attribute cannot be set")
 
-        def deleter(self, value):
+        def deleter(self):
             raise AttributeError("Attribute cannot be deleted")
 
     def getter(self):
@@ -38,9 +38,10 @@ def config_property(name, property_type = basestring, enable_change = True):
 
     return property(getter, setter, deleter)
 
-def build_element(tag, attributes = {}, text = '', children = []):
+def build_element(tag, attributes = {}, text = None, children = []):
     res = etree.Element(tag)
-    res.text = text
+    if text is not None:
+        res.text = text
     for k, v in attributes.iteritems():
         res.attrib[k] = v
     res.extend(children)
