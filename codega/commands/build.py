@@ -32,48 +32,4 @@ class CommandBuild(OptparsedCommand):
         super(CommandBuild, self).__init__('build', options, helpstring = 'Build the source with specified generator')
 
     def execute(self):
-        if not self.opts.source:
-            logger.critical('Missing source')
-            return False
-
-        if not self.opts.generator:
-            logger.critical('Missing generator')
-            return False
-
-        config = Config()
-
-        # Create source object
-        source = Source(config)
-        source.name = 'source'
-        source.resource = self.opts.source
-        if self.opts.parser:
-            source.parser.load_from_string(self.opts.parser)
-        config.sources[source.name] = source
-
-        # Create target object
-        target = Target(config)
-        target.source = 'source'
-        target.filename = self.opts.target
-        target.generator.load_from_string(self.opts.generator)
-        config.targets[target.filename] = target
-
-        config.paths.destination = '.'
-        for inc in self.opts.include:
-            if not os.path.isdir(inc):
-                logger.critical('Invalid path %r' % inc)
-                return False
-            config.paths.paths.append(inc)
-        config.version = Version(1, 0)
-
-        conf_xml = save_config(config)
-        logger.debug('Equivalent configuration:')
-        map(lambda line: logger.debug(line), conf_xml.split('\n'))
-        if self.opts.config:
-            conf_file = open(self.opts.config, 'w')
-            conf_file.write(conf_xml)
-            conf_file.close()
-
-        config_builder = ConfigBuilder(config, FileResourceLocator('.'))
-        config_builder.add_target(target)
-        config_builder.build(force = True)
-        return True
+        return ConfigBuilder.run_build('build', self.opts.source, self.opts.parser, self.opts.target, self.opts.generator, includes = self.opts.include, config_dest = self.opts.config)

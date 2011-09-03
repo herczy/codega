@@ -53,7 +53,7 @@ def get_mark(func, mark_type):
     return func.__marks__[mark_type]
 
 def collect_marked(functions, mark_type, mark_value = None):
-    '''Collect all functions marked in the object.
+    '''Collect all functions marked in the dictionary.
 
     Arguments:
     functions -- A dictionary to collect from
@@ -73,3 +73,8 @@ def collect_marked(functions, mark_type, mark_value = None):
             continue
 
         yield mark, value
+
+def collect_marked_bound(obj, *args, **kwargs):
+    '''Collect all methods marked bound to the object'''
+
+    return collect_marked(dict((k, getattr(obj, k)) for k in dir(obj)), *args, **kwargs)
