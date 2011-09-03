@@ -108,7 +108,7 @@ class BuildTask(TaskBase):
 
     _destination = None
 
-    def __init__(self, parent, config, locator, source, target, cache):
+    def __init__(self, builder, config, locator, source, target, cache):
         self._config = config
         self._locator = locator
         self._source = source
@@ -116,7 +116,7 @@ class BuildTask(TaskBase):
         self._destination = os.path.join(self._locator.find(self._config.paths.destination), self._target.filename)
         self._cache = cache
 
-        super(BuildTask, self).__init__(parent)
+        super(BuildTask, self).__init__(builder)
 
     def get_source(self, source):
         parser = self._source.parser.load(self._locator)
