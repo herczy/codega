@@ -167,8 +167,8 @@ class BuildTask(TaskBase):
 
     @job('cleanup')
     def job_cleanup(self, job_id, force):
-        if os.path.isfile(self._target.filename):
-            os.remove(self._target.filename)
+        if os.path.isfile(self._destination):
+            os.remove(self._destination)
 
 class Builder(object):
     '''Base object for builders
@@ -204,6 +204,17 @@ class Builder(object):
         except Exception, e:
             raise BuildError('Error detected during build: %s' % e)
 
+class ProxyTask(TaskBase):
+    '''Wrap function as a task'''
+
+    def __init__(self, builder, build_function):
+        self._build_function = build_function
+
+        super(ProxyTask, self).__init__(builder)
+
+    def build(self, job_id, force = False, skip = None):
+        self._build_function(job_id = job_id, force = force)
+
 class ConfigBuilder(Builder):
     '''Build targets from a config
     
@@ -234,8 +245,13 @@ class ConfigBuilder(Builder):
 
         self.push_task(task)
 
+    def add_external(self, external, targets = (), force = False):
+        task = ProxyTask(self, lambda job_id, force: ConfigBuilder.run_make(job_id, external, targets = targets, force = force))
+        self.push_task(task)
+
     @staticmethod
     def run_make(job_id, config_file, targets = (), force = False):
+        #import pdb; pdb.set_trace()
         # Check if file exists
         if not os.path.isfile(config_file):
             logger.critical("File %r not found", config_file)
@@ -260,8 +276,17 @@ class ConfigBuilder(Builder):
         else:
             build_list = config.targets.values()
 
+        # Populate external dependency list
+        externals = list(config.external)
+
         # Populate config builder
         config_builder = ConfigBuilder(config, base_locator)
+
+        # ... with externals
+        for external in externals:
+            config_builder.add_external(external, targets = targets, force = force)
+
+        # ... and with targets
         for target in build_list:
             logger.debug('Adding target %s' % target.filename)
             config_builder.add_target(target)

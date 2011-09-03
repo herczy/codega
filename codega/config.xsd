@@ -6,13 +6,16 @@
     <xs:complexType>
       <xs:sequence>
         <!-- paths -->
-        <xs:element ref="paths" />
+        <xs:element ref="paths" minOccurs="0" maxOccurs="1" />
+
+        <!-- sub-configs -->
+        <xs:element name="external" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
 
         <!-- sources -->
-        <xs:element ref="source" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element ref="source" minOccurs="0" maxOccurs="unbounded" />
         
         <!-- targets -->
-        <xs:element ref="target" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element ref="target" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>

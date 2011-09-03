@@ -13,7 +13,7 @@ from bzrlib.util.configobj.configobj import ParseError
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
-latest_version = Version(1, 1)
+latest_version = Version(1, 2)
 
 def config_property(name, property_type = basestring, enable_change = True):
     if enable_change:
@@ -292,6 +292,7 @@ class Config(NodeBase):
     _paths -- Path list
     _sources -- Dict of sources
     _targets -- Dict of targets
+    _external -- List of external build dependencies
 
     _dependencies -- Dependencies between targets and sources
     '''
@@ -358,10 +359,14 @@ class Config(NodeBase):
     _paths = None
     _sources = None
     _targets = None
+    _external = None
+
     _dependencies = None
+
     paths = config_property('_paths', enable_change = False)
     sources = config_property('_sources', enable_change = False)
     targets = config_property('_targets', enable_change = False)
+    external = config_property('_external', enable_change = False)
 
     @property
     def version(self):
@@ -391,6 +396,7 @@ class Config(NodeBase):
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
+        self._external = []
         self._dependencies = {}
 
 class ParseVisitor(ClassVisitor):
@@ -466,6 +472,9 @@ class ParseVisitor(ClassVisitor):
             if chld.tag == 'paths':
                 self.visit(node.paths, chld)
 
+            elif chld.tag == 'external':
+                node.external.append(chld.text.strip())
+
             elif chld.tag == 'source':
                 source = Source(node)
                 self.visit(source, chld)
@@ -535,6 +544,7 @@ class SaveVisitor(ClassVisitor):
         res = etree.Element('config')
         res.attrib['version'] = str(node.version)
         res.append(self.visit(node.paths))
+        res.extend([build_element('external', text = ext) for ext in node.external])
         res.extend([self.visit(source) for source in node.sources.values()])
         res.extend([self.visit(target) for target in node.targets.values()])
 
@@ -555,6 +565,10 @@ class UpdateVisitor(ExplicitVisitor):
     * 1.0 -- Initial version
     * 1.1 -- Renamed /config/source/filename to /config/source/resource since in this
              version we accept non-file based sources too.
+    * 1.2 -- Added 'external' tag so other config files could be built from the config.
+             This also means that the mandatory minimum count of targets/sources and paths
+             changes to 0 since the externals define other kinds of tasks and paths for
+             themselves and the config can be used to tie other configs together.
     '''
 
     @visitor(Version(1, 0))
@@ -565,6 +579,12 @@ class UpdateVisitor(ExplicitVisitor):
             node.tag = 'resource'
         xml_root.attrib['version'] = '1.1'
         return self.visit(Version(1, 1), xml_root)
+
+    @visitor(Version(1, 1))
+    def update_1_1(self, version, xml_root):
+        '''Update 1.1 configs to 1.2'''
+
+        return self.visit(Version(1, 2), xml_root)
 
     @visitor(latest_version)
     def version_current(self, version, xml_root):
