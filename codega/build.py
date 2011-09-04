@@ -202,6 +202,7 @@ class Builder(object):
                 task.build(job_id, force = force)
 
         except Exception, e:
+            logger.exception(preface = 'Build error', line_prefix = '** ')
             raise BuildError('Error detected during build: %s' % e)
 
 class ProxyTask(TaskBase):

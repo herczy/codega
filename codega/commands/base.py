@@ -47,10 +47,11 @@ class CommandBase(object):
         exception -- Caught exception
         '''
 
-        for line in desc_long.split('\n'):
-            logger.debug(line)
-
-        logger.error('An error occured during the execution of %s: %s', self.name, desc_short)
+        logger.exception(preface = 'An error occured during the execution of %s' % self.name,
+                         level = logger.ERROR,
+                         short_desc = desc_short,
+                         long_desc = desc_long,
+                         level_trace = logger.DEBUG)
 
     def run(self, argv):
         try:
