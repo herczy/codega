@@ -307,18 +307,40 @@ class PriorityGenerator(GeneratorBase):
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
 
+    __skip__ = ('_parent',)
+
     def __init__(self, priority = PRI_BASE):
         super(ObjectGenerator, self).__init__(priority = priority)
 
         self._collect()
 
+    @classmethod
+    def _collect_skip_list(cls):
+        if not hasattr(cls, '_skip_resolved'):
+            # Get collection of methods to skip
+            skip_resolved = []
+
+            for rescls in cls.__mro__:
+                if issubclass(rescls, ObjectGenerator) and hasattr(rescls, '__skip__'):
+                    skip_resolved.extend(rescls.__skip__)
+
+            cls._skip_resolved = set(skip_resolved)
+
+        return cls._skip_resolved
     def _collect(self):
         '''Collect subgenerators from instance'''
 
+        # Check if object generator has a skip-set
+        skip_set = self.__class__._collect_skip_list()
+
         logger.info('Initializing object generator %r' % self)
         for attr in dir(self):
+            if attr in skip_set:
+                logger.info('Skipping attribute %s since it\'s in the skip list' % attr)
+                continue
+
             val = getattr(self, attr)
 
             if isinstance(val, GeneratorBase):
                 self.register(val)
-                logger.debug('Registered subgenerator %r' % val)
+                logger.debug('Registered %s subgenerator %r' % (attr, val))
