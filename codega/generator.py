@@ -39,7 +39,7 @@ class GeneratorBase(object):
     _priority = None
     _parent = None
 
-    def __init__(self, config = None, matcher = None, priority = PRI_BASE):
+    def __init__(self, matcher = None, priority = PRI_BASE):
         self._matcher = matcher
         self._priority = priority
 
