@@ -9,7 +9,6 @@ from visitor import *
 from source import XmlSource, validate_xml
 from rsclocator import ModuleLocator
 from version import Version
-from bzrlib.util.configobj.configobj import ParseError
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
@@ -526,7 +525,9 @@ class SaveVisitor(ClassVisitor):
         res.append(build_element('source', text = node.source))
         res.append(build_element('generator', text = self.visit(node.generator)))
         res.append(build_element('target', text = node.filename))
-        res.append(self.visit(node.settings))
+
+        if not node.settings.empty:
+            res.append(self.visit(node.settings))
 
         return res
 
