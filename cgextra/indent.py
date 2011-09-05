@@ -63,12 +63,14 @@ def disclaimer(context, comment = hash_comment):
 
     targetfile = context.target.filename
     srcfile = context.source.resource
+    prsref = str(context.source.parser)
     genref = str(context.target.generator)
 
-    text = '''THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT WILL
-MAY BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)
+    text = '''THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT MAY
+BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)
 
 Source file         %(srcfile)s
+Parser class        %(prsref)s
 Target file         %(targetfile)s
 Generator class     %(genref)s''' % locals()
 
