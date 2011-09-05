@@ -97,14 +97,11 @@ class TestGenerators(TestCase):
         p.register(p2)
         p.register(p3)
 
+        self.assertTrue(len(p._generators) == 4)
         self.assertTrue(p0.priority == PRI_BASE)
-        self.assertTrue(p0.parent == p)
         self.assertTrue(p1.priority == PRI_BASE)
-        self.assertTrue(p1.parent == p)
         self.assertTrue(p2.priority == PRI_BASE)
-        self.assertTrue(p2.parent == p)
         self.assertTrue(p3.priority == PRI_LOW)
-        self.assertTrue(p3.parent == p)
 
         self.assertTrue(p.match(0))
         self.assertTrue(p.match(1))

@@ -14,6 +14,7 @@ PRI_FALLBACK -- Fallback priority
 
 import heapq
 import types
+import copy
 
 from error import StateError
 from decorators import abstract
@@ -284,8 +285,9 @@ class PriorityGenerator(GeneratorBase):
         if not isinstance(generator, GeneratorBase):
             raise TypeError("Invalid generator type (not subclass of GeneratorBase)")
 
-        heapq.heappush(self._generators, (generator.priority, generator))
-        generator.bind(self)
+        generator_copy = copy.copy(generator)
+        heapq.heappush(self._generators, (generator_copy.priority, generator_copy))
+        generator_copy.bind(self)
 
     def generate(self, source, context):
         '''Try to generate source with each contained generator instance'''
