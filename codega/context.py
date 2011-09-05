@@ -32,5 +32,5 @@ class Context(object):
     def settings(self):
         return self._target.settings
 
-    def map(self, generator, sources):
-        return map(lambda source: generator(source, self), sources)
+    def map(self, generator, sources, filt_expr = lambda node: True):
+        return map(lambda source: generator(source, self), filter(filt_expr, sources))
