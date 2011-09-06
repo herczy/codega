@@ -67,7 +67,7 @@ class MakoTemplateset(TemplatesetBase):
         tpl = self._lookup.get_template(fname)
         tpl = tpl.get_def(defname)
 
-        return MakoTemplate(name, tpl)
+        return MakoTemplate(tpl)
     get_template.__doc__ = TemplatesetBase.get_template.__doc__
 
 class InlineMakoTemplate(MakoTemplate):
