@@ -267,7 +267,7 @@ class ConfigBuilder(Builder):
             config = parse_config_file(config_file)
 
         except ParseError, parse_error:
-            logger.error('Parse error (at line %s): %s' % (parse_error.lineno, parse_error.message))
+            logger.error('Parse error: %s', parse_error)
             return False
 
         # Populate list of build targets
