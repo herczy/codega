@@ -17,15 +17,6 @@ class MatcherBase(object):
     def neg(self):
         return CombinedMatcher(operator.__not__, self)
 
-    def __and__(self, other):
-        return CombinedMatcher(operator.__and__, self, other)
-
-    def __or__(self, other):
-        return CombinedMatcher(operator.__or__, self, other)
-
-    def __xor__(self, other):
-        return CombinedMatcher(operator.__xor__, self, other)
-
 class FunctionMatcher(MatcherBase):
     '''MatcherBase wrapper for functions
 
@@ -107,5 +98,27 @@ def cls(cls):
     @matcher
     def __matcher(source):
         return isinstance(source, cls)
+
+    return __matcher
+
+def any(*matchers):
+    @matcher
+    def __matcher(source):
+        for matcher in matchers:
+            if matcher(source):
+                return True
+
+        return False
+
+    return __matcher
+
+def all(*matcher):
+    @matcher
+    def __matcher(source):
+        for matcher in matchers:
+            if not matcher(source):
+                return False
+
+        return False
 
     return __matcher
