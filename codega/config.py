@@ -425,7 +425,9 @@ class ParseVisitor(ClassVisitor):
     @visitor(Source)
     def source(self, node, xml_node):
         node.name = xml_node.find('name').text
-        node.resource = xml_node.find('resource').text
+
+        resource = xml_node.find('resource').text
+        node.resource = '' if not resource else resource
 
         parser = xml_node.find('parser')
         if parser is not None:
