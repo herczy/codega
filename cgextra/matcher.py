@@ -10,7 +10,7 @@ class MatcherBase(object):
     '''Matcher base class'''
 
     @abstract
-    def __call__(self, source):
+    def __call__(self, source, context):
         '''Match check call'''
 
     @property
@@ -31,51 +31,51 @@ class FunctionMatcher(MatcherBase):
 
         self._function = func
 
-    def __call__(self, source):
-        return self._function(source)
+    def __call__(self, source, context):
+        return self._function(source, context)
 
 class CombinedMatcher(MatcherBase):
     '''Emulates a result
 
     Members:
-    _operand -- Result combining function
+    _operator -- Result combining function
     _arguments -- Other matchers whose results get combined
     '''
 
-    _operand = None
+    _operator = None
     _arguments = None
 
-    def __init__(self, operand, *arguments):
-        self._operand = operand
+    def __init__(self, operantor, *arguments):
+        self._operator = operantor
         self._arguments = arguments
 
-    def __call__(self, source):
-        return self._operand(*map(lambda matcher: matcher(source), self._arguments))
+    def __call__(self, source, context):
+        return self._operator(*map(lambda matcher: matcher(source, context), self._arguments))
 
 matcher = FunctionMatcher
 
 @matcher
-def all(source):
+def all(source, context):
     return True
 
 @matcher
-def none(source):
+def none(source, context):
     return False
 
 @matcher
-def comment(source):
+def comment(source, context):
     return isinstance(source, etree._Comment)
 
 def tag(tag):
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         return source.tag == tag
 
     return __matcher
 
 def parent(tag):
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         parent = source.getparent()
         if parent is None:
             return tag is None
@@ -89,23 +89,23 @@ def xpath(xpath):
     xpath = etree.XPath(xpath)
 
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         return source in xpath(source)
 
     return __matcher
 
 def cls(cls):
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         return isinstance(source, cls)
 
     return __matcher
 
 def any(*matchers):
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         for matcher in matchers:
-            if matcher(source):
+            if matcher(source, context):
                 return True
 
         return False
@@ -114,9 +114,9 @@ def any(*matchers):
 
 def all(*matcher):
     @matcher
-    def __matcher(source):
+    def __matcher(source, context):
         for matcher in matchers:
-            if not matcher(source):
+            if not matcher(source, context):
                 return False
 
         return False

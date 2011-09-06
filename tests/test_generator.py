@@ -35,23 +35,23 @@ template_1 = TemplateMockup('template #1 (context = %(context)r, source = %(sour
 template_2 = TemplateMockup('template #2 (context = %(context)r, source = %(source)r, name = %(name)r', 'context', 'source', 'name')
 
 class MyObjectGenerator(ObjectGenerator):
-    @FunctionGenerator.decorate(matcher = lambda s: s == 0)
+    @FunctionGenerator.decorate(matcher = lambda s, c: s == 0)
     def generator_0(self, source, context):
         # No template, no document, this should be a FunctionGenerator
         return 'FunctionSubgenerator %r context %r' % (source, context)
 
-    @TemplateGenerator.decorate(matcher = lambda s: s == 1, template = template_1)
+    @TemplateGenerator.decorate(matcher = lambda s, c: s == 1, template = template_1)
     def generator_1(self, source, context):
         # Template explicitly specified
         return dict(name = 'testrunner!', source = source, context = context)
 
-    @TemplateGenerator.decorate(matcher = lambda s: s == 2, template = template_2)
+    @TemplateGenerator.decorate(matcher = lambda s, c: s == 2, template = template_2)
     def generator_2(self, source, context):
         # Template explicitly specified
         return dict(name = 'testrunner!', source = source, context = context)
 
 class TestGenerators(TestCase):
-    matcher = lambda self, src: src == 0
+    matcher = lambda self, src, context: src == 0
 
     def check(self, obj, source, context, expected):
         self.assertEqual(str(obj(source, context)), expected)
@@ -60,8 +60,8 @@ class TestGenerators(TestCase):
         p = SimpleGenerator(matcher = self.matcher)
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
-        self.assertTrue(p.match(0))
-        self.assertFalse(p.match(1))
+        self.assertTrue(p.match(0, None))
+        self.assertFalse(p.match(1, None))
         self.check(p, 0, 1, 'SimpleGenerator 0 1')
         self.assertRaises(ValueError, p, 1, None)
 
@@ -69,8 +69,8 @@ class TestGenerators(TestCase):
         p = FunctionGenerator(fungen, matcher = self.matcher)
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
-        self.assertTrue(p.match(0))
-        self.assertFalse(p.match(1))
+        self.assertTrue(p.match(0, None))
+        self.assertFalse(p.match(1, None))
         self.check(p, 0, 1, 'fungen 0 1')
         self.assertRaises(ValueError, p, 1, None)
 
@@ -79,16 +79,16 @@ class TestGenerators(TestCase):
         p = TemplateGenerator(tpl, lambda x, c: dict(value = x, context = c), matcher = self.matcher)
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
-        self.assertTrue(p.match(0))
-        self.assertFalse(p.match(1))
+        self.assertTrue(p.match(0, None))
+        self.assertFalse(p.match(1, None))
         self.check(p, 0, 1, 'template 0 1')
         self.assertRaises(ValueError, p, 1, None)
 
     def test_priority_generator(self):
-        p0 = SimpleGenerator(matcher = lambda s: s == 0)
-        p1 = SimpleGenerator(matcher = lambda s: s == 1)
-        p2 = SimpleGenerator(matcher = lambda s: s == 2)
-        p3 = FunctionGenerator(fungen, matcher = lambda s: s == 0, priority = PRI_LOW)
+        p0 = SimpleGenerator(matcher = lambda s, c: s == 0)
+        p1 = SimpleGenerator(matcher = lambda s, c: s == 1)
+        p2 = SimpleGenerator(matcher = lambda s, c: s == 2)
+        p3 = FunctionGenerator(fungen, matcher = lambda s, c: s == 0, priority = PRI_LOW)
         p = PriorityGenerator()
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
@@ -103,10 +103,10 @@ class TestGenerators(TestCase):
         self.assertTrue(p2.priority == PRI_BASE)
         self.assertTrue(p3.priority == PRI_LOW)
 
-        self.assertTrue(p.match(0))
-        self.assertTrue(p.match(1))
-        self.assertTrue(p.match(2))
-        self.assertFalse(p.match(3))
+        self.assertTrue(p.match(0, None))
+        self.assertTrue(p.match(1, None))
+        self.assertTrue(p.match(2, None))
+        self.assertFalse(p.match(3, None))
 
         self.check(p, 0, 1, 'SimpleGenerator 0 1')
         self.check(p, 1, 1, 'SimpleGenerator 1 1')
@@ -118,10 +118,10 @@ class TestGenerators(TestCase):
         self.assertTrue(p.priority == 0)
         self.assertTrue(p.parent == None)
 
-        self.assertTrue(p.match(0))
-        self.assertTrue(p.match(1))
-        self.assertTrue(p.match(2))
-        self.assertFalse(p.match(3))
+        self.assertTrue(p.match(0, None))
+        self.assertTrue(p.match(1, None))
+        self.assertTrue(p.match(2, None))
+        self.assertFalse(p.match(3, None))
 
         self.check(p, 0, 1, "FunctionSubgenerator 0 context 1")
         self.check(p, 1, 1, "template #1 (context = 1, source = 1, name = 'testrunner!'")

@@ -64,7 +64,7 @@ class GeneratorBase(object):
         context -- Validation context
         '''
 
-    def match(self, source):
+    def match(self, source, context):
         '''Check if the source node matches some criteria.
 
         Arguments:
@@ -74,7 +74,7 @@ class GeneratorBase(object):
         if self._matcher is None:
             return True
 
-        return self._matcher(source)
+        return self._matcher(source, context)
 
     @abstract
     def generate(self, source, context):
@@ -100,7 +100,7 @@ class GeneratorBase(object):
         self._parent = parent
 
     def __call__(self, source, context):
-        if not self.match(source):
+        if not self.match(source, context):
             raise ValueError("Source cannot be generated because generator doesn't match the proper node")
 
         return self.generate(source, context)
@@ -260,11 +260,11 @@ class PriorityGenerator(GeneratorBase):
 
     _generators = None
 
-    def __internal_matcher(self, source):
+    def __internal_matcher(self, source, context):
         '''Matching is done by aggregating the matchers of registered sub-generators'''
 
         for pri, gen in self._generators:
-            if gen.match(source):
+            if gen.match(source, context):
                 return True
 
         return False
@@ -297,7 +297,7 @@ class PriorityGenerator(GeneratorBase):
         while heap:
             pri, gen = heapq.heappop(heap)
 
-            if gen.match(source):
+            if gen.match(source, context):
                 logger.debug('Generating source %r with priority generator %r (matching sub-generator %r)' % (source, self, gen))
                 return gen.generate(source, context)
 
@@ -329,6 +329,7 @@ class ObjectGenerator(PriorityGenerator):
             cls._skip_resolved = set(skip_resolved)
 
         return cls._skip_resolved
+
     def _collect(self):
         '''Collect subgenerators from instance'''
 
