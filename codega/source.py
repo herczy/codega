@@ -38,6 +38,12 @@ class XmlSource(FileSourceBase):
     def load_fileobj(self, fileobj):
         return etree.parse(fileobj)
 
+class NullSource(SourceBase):
+    '''This source parses nothing and returns nothing'''
+
+    def load(self, resource, resource_locator = None):
+        return etree.ElementTree()
+
 def validate_xml(xml, *args, **kwargs):
     '''Load an XSD source and validate XML with it
 
