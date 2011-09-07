@@ -112,13 +112,13 @@ def any(*matchers):
 
     return __matcher
 
-def all(*matcher):
+def all(*matchers):
     @matcher
     def __matcher(source, context):
         for matcher in matchers:
             if not matcher(source, context):
                 return False
 
-        return False
+        return True
 
     return __matcher

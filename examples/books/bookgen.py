@@ -6,7 +6,8 @@ from cgextra.dicttools import *
 from cgextra import matcher
 
 class CBookGenerator(ObjectGenerator):
-    @inline(matcher = matcher.tag('bookshelf'))
+    @match(matcher.tag('bookshelf'))
+    @generator(inline)
     def generator_main(self, source, context):
         '''
         #include <stdio.h>
@@ -43,7 +44,8 @@ class CBookGenerator(ObjectGenerator):
 
         return dict(books = context.map(self, source))
 
-    @inline(matcher = matcher.tag('book'))
+    @match(matcher.tag('book'))
+    @generator(inline)
     def generator_book(self, source, context):
         '''{ "${str(title)}", "${str(author)}", "${str(published)}" },'''
 
@@ -54,7 +56,8 @@ class CBookGenerator(ObjectGenerator):
         return exclude_internals(locals())
 
 class HtmlBookGenerator(ObjectGenerator):
-    @inline(matcher = matcher.tag('bookshelf'))
+    @match(matcher.tag('bookshelf'))
+    @generator(inline)
     def generator_main(self, source, context):
         '''
         <html>
@@ -72,7 +75,8 @@ class HtmlBookGenerator(ObjectGenerator):
 
         return dict(books = context.map(self, source))
 
-    @inline(matcher = matcher.tag('book'))
+    @match(matcher.tag('book'))
+    @generator(inline)
     def generator_book(self, source, context):
         '''${str(author)} - ${str(title)} (${str(published)})'''
 
