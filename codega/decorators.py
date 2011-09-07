@@ -15,11 +15,42 @@ def abstract(func):
 
     return __wrapper
 
-def mark(mark_type, mark_value):
-    '''Mark a class with some value.
+def init_mark(func):
+    '''Init markings on function'''
 
-    This is usefull if the function needs to have some distinct identifier
+    if not hasattr(func, '__marks__'):
+        func.__marks__ = {}
+
+def set_mark(func, mark_type, mark_value):
+    '''Mark a function with some value.
+
+    This is useful if the function needs to have some distinct identifier
     for easier identification.
+
+    Arguments:
+    func -- Function to be marked
+    mark_type -- Mark type. A function may only be marked with a type once.
+                 If attempted more than one time, an error is raised.
+    mark_value -- Mark value. Can be checked against
+    '''
+
+    init_mark(func)
+
+    if func.__marks__.has_key(mark_type):
+        raise RuntimeError("Function %s has already been marked with %s" % (func.__name__, mark_type))
+
+    func.__marks__[mark_type] = mark_value
+
+def copy_marks(dest, src):
+    '''Copy the marks on src to dest'''
+
+    init_mark(dest)
+
+    if hasattr(src, '__marks__'):
+        dest.__marks__.update(src.__marks__)
+
+def mark(mark_type, mark_value):
+    '''Decorator wrapper for set_mark
 
     Arguments:
     mark_type -- Mark type. A function may only be marked with a type once.
@@ -28,13 +59,7 @@ def mark(mark_type, mark_value):
     '''
 
     def __decorator(func):
-        if not hasattr(func, '__marks__'):
-            func.__marks__ = {}
-
-        if func.__marks__.has_key(mark_type):
-            raise RuntimeError("Function %s has already been marked with %s" % (func.__name__, mark_type))
-
-        func.__marks__[mark_type] = mark_value
+        set_mark(func, mark_type, mark_value)
         return func
 
     return __decorator
@@ -49,6 +74,14 @@ def get_mark(func, mark_type):
 
     if not has_mark(func, mark_type):
         raise AttributeError("The function %s has no mark %s" % (func.__name__, mark_type))
+
+    return func.__marks__[mark_type]
+
+def get_mark_default(func, mark_type, default = None):
+    '''Return the value of the given mark or default if mark is not found'''
+
+    if not has_mark(func, mark_type):
+        return default
 
     return func.__marks__[mark_type]
 

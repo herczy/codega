@@ -14,10 +14,9 @@ PRI_FALLBACK -- Fallback priority
 
 import heapq
 import types
-import copy
 
 from error import StateError
-from decorators import abstract
+from decorators import *
 import logger
 
 PRI_HIGHEST = -100
@@ -28,33 +27,7 @@ PRI_LOWEST = 100
 PRI_FALLBACK = 1000
 
 class GeneratorBase(object):
-    '''Generator base class
-
-    Arguments:
-    _matcher -- Function that checks the source XML prior to generation
-    _priority -- Priority of the generator
-    _parent -- Parent of the generator or none for root generators
-    '''
-
-    _matcher = None
-    _priority = None
-    _parent = None
-
-    def __init__(self, matcher = None, priority = PRI_BASE):
-        self._matcher = matcher
-        self._priority = priority
-
-    @property
-    def priority(self):
-        '''Priority property'''
-
-        return self._priority
-
-    @property
-    def parent(self):
-        '''Parent property'''
-
-        return self._parent
+    '''Generator base class'''
 
     def validate(self, source, context):
         '''Validate source
@@ -63,18 +36,6 @@ class GeneratorBase(object):
         source -- Source node
         context -- Validation context
         '''
-
-    def match(self, source, context):
-        '''Check if the source node matches some criteria.
-
-        Arguments:
-        source -- Source node
-        '''
-
-        if self._matcher is None:
-            return True
-
-        return self._matcher(source, context)
 
     @abstract
     def generate(self, source, context):
@@ -85,37 +46,20 @@ class GeneratorBase(object):
         context -- Generation context
         '''
 
-    def bind(self, parent):
-        '''Bind the generator to a parent.
-
-        A generator can only be bound once, after that it's bound forever.
-
-        Arguments:
-        parent -- Parent generator
-        '''
-
-        if self._parent is not None:
-            raise StateError("Generator already bound!")
-
-        self._parent = parent
-
     def __call__(self, source, context):
-        if not self.match(source, context):
-            raise ValueError("Source cannot be generated because generator doesn't match the proper node")
-
+        self.validate(source, context)
         return self.generate(source, context)
 
     def __str__(self):
-        return 'generator %d, priority = %d' % (id(self), self.priority)
+        return 'generator:%d' % id(self)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self)
 
     @classmethod
-    def run(cls, tree, context):
-        generator = cls()
-        generator.validate(tree, context)
-        return generator.generate(tree, context)
+    def run(cls, source, context):
+        obj = cls()
+        return obj(source, context)
 
 class FunctionGenerator(GeneratorBase):
     '''A function is provided to do the generation
@@ -126,35 +70,17 @@ class FunctionGenerator(GeneratorBase):
 
     _function = None
 
-    def __init__(self, generator, matcher = None, priority = PRI_BASE):
-        super(FunctionGenerator, self).__init__(matcher = matcher, priority = priority)
+    def __init__(self, generator):
+        super(FunctionGenerator, self).__init__()
 
         self._function = generator
 
     def generate(self, source, context):
         return self._function(source, context)
 
-    def bind(self, parent):
-        super(FunctionGenerator, self).bind(parent)
-
-        self._function = types.MethodType(self._function, parent)
-
-    def __str__(self):
-        return 'function generator %s, priority = %d' % (self._function.__name__, self.priority)
-
-    @staticmethod
-    def decorate(matcher = None, priority = PRI_BASE):
-        '''Creates a FunctionGenerator from the decorated function
-
-        Arguments:
-        matcher -- Generator matcher
-        priority -- Generator function
-        '''
-
-        def __decorator(func):
-            return FunctionGenerator(func, matcher = matcher, priority = priority)
-
-        return __decorator
+    @classmethod
+    def factory(cls, func):
+        return cls(func)
 
 class TemplateGenerator(GeneratorBase):
     '''Generates output with a template.
@@ -167,8 +93,8 @@ class TemplateGenerator(GeneratorBase):
     _template = None
     _bindings = None
 
-    def __init__(self, template, bindings, matcher = None, priority = PRI_BASE):
-        super(TemplateGenerator, self).__init__(matcher = matcher, priority = priority)
+    def __init__(self, template, bindings):
+        super(TemplateGenerator, self).__init__()
 
         self._template = template
         self._bindings = bindings
@@ -176,78 +102,46 @@ class TemplateGenerator(GeneratorBase):
     def generate(self, source, context):
         return self._template.render(self._bindings(source, context))
 
-    def bind(self, parent):
-        super(TemplateGenerator, self).bind(parent)
+    @classmethod
+    def factory(cls, template):
+        '''Create a factory for template generator'''
 
-        self._bindings = types.MethodType(self._bindings, parent)
+        def __factory(func):
+            return cls(template, func)
 
-    def __str__(self):
-        return 'template generator %s, priority = %d' % (self._bindings.__name__, self.priority)
+        return __factory
 
-    @staticmethod
-    def decorate(template, matcher = None, priority = PRI_BASE):
-        '''Creates a FunctionGenerator from the decorated function
-
-        Arguments:
-        template -- Template for the generator
-        matcher -- Generator matcher
-        priority -- Generator function
-        '''
-
-        def __decorator(func):
-            return TemplateGenerator(template, func, matcher = matcher, priority = priority)
-
-        return __decorator
-
-class FilterGenerator(GeneratorBase):
+class FilterGenerator(FunctionGenerator):
     '''Filter the output of another generator. The priority and matchers are taken from
     the wrapped generator.
     
     Members:
-    _subgenerator -- The wrapped generator
     _filters -- The filter function(s)
     '''
 
-    _subgenerator = None
     _filters = None
 
     def __init__(self, generator, *filters):
-        self._filters = filters
-        self._subgenerator = generator
+        super(FilterGenerator, self).__init__(generator)
 
-        super(FilterGenerator, self).__init__(matcher = generator.match, priority = generator.priority)
+        self._filters = list(filters)
 
     def generate(self, source, context):
         '''Generate an output from the subgenerator and call the filters on it'''
 
-        output = self._subgenerator(source, context)
+        output = super(FilterGenerator, self).generate(source, context)
 
         for filt in self._filters:
             output = filt(self, output)
 
         return output
 
-    def bind(self, parent):
-        super(FilterGenerator, self).bind(parent)
-        self._subgenerator.bind(parent)
-
-    def add_filter(self, filter):
-        '''Appends a filter to the filter list'''
-
-        self._filters.append(filter)
-
-    @staticmethod
-    def decorate(filter):
-        '''Decorate a generator with a filter.
-        
-        Multiple filters are appended so a FilterGenerator isn't repeted'''
+    @classmethod
+    def factory(cls, *filters):
+        '''Decorate a generator function with a set of filters'''
 
         def __decorator(generator):
-            if isinstance(generator, FilterGenerator):
-                generator.add_filter(filter)
-                return generator
-
-            return FilterGenerator(generator, filter)
+            return cls(generator, *filters)
 
         return __decorator
 
@@ -260,34 +154,24 @@ class PriorityGenerator(GeneratorBase):
 
     _generators = None
 
-    def __internal_matcher(self, source, context):
-        '''Matching is done by aggregating the matchers of registered sub-generators'''
-
-        for pri, gen in self._generators:
-            if gen.match(source, context):
-                return True
-
-        return False
-
-    def __init__(self, priority = PRI_BASE):
-        super(PriorityGenerator, self).__init__(matcher = self.__internal_matcher, priority = priority)
+    def __init__(self):
+        super(PriorityGenerator, self).__init__()
 
         self._generators = []
 
-    def register(self, generator):
+    def register(self, generator, priority = PRI_BASE, matcher = None):
         '''Register a generator
 
         Arguments:
         generator -- Generator object
         priority -- Priority of generator
+        matcher -- Generator matcher
         '''
 
         if not isinstance(generator, GeneratorBase):
             raise TypeError("Invalid generator type (not subclass of GeneratorBase)")
 
-        generator_copy = copy.copy(generator)
-        heapq.heappush(self._generators, (generator_copy.priority, generator_copy))
-        generator_copy.bind(self)
+        heapq.heappush(self._generators, (priority, (generator, matcher)))
 
     def generate(self, source, context):
         '''Try to generate source with each contained generator instance'''
@@ -295,9 +179,9 @@ class PriorityGenerator(GeneratorBase):
         heap = list(self._generators)
 
         while heap:
-            pri, gen = heapq.heappop(heap)
+            pri, (gen, matcher) = heapq.heappop(heap)
 
-            if gen.match(source, context):
+            if matcher is None or matcher(source, context):
                 logger.debug('Generating source %r with priority generator %r (matching sub-generator %r)' % (source, self, gen))
                 return gen.generate(source, context)
 
@@ -306,44 +190,61 @@ class PriorityGenerator(GeneratorBase):
 #
 # Object generators
 #
+def generator(factory = None):
+    '''Mark the function as a generator. If factory is set, the
+    generator function will be passed to the factory and the result
+    is used.'''
+
+    return mark('generator', factory)
+
+def match(matcher):
+    '''Add a matcher to the generator'''
+
+    def __decorate(func):
+        if not has_mark(func, 'matchers'):
+            set_mark(func, 'matchers', [])
+
+        get_mark(func, 'matchers').append(matcher)
+        return func
+
+    return __decorate
+
+def priority(priority):
+    '''Specify priority of the generator'''
+
+    return mark('priority', priority)
+
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
 
-    __skip__ = ('_parent',)
-
-    def __init__(self, priority = PRI_BASE):
-        super(ObjectGenerator, self).__init__(priority = priority)
+    def __init__(self):
+        super(ObjectGenerator, self).__init__()
 
         self._collect()
 
-    @classmethod
-    def _collect_skip_list(cls):
-        if not hasattr(cls, '_skip_resolved'):
-            # Get collection of methods to skip
-            skip_resolved = []
+    @staticmethod
+    def __get_internal_matcher(matchers):
 
-            for rescls in cls.__mro__:
-                if issubclass(rescls, ObjectGenerator) and hasattr(rescls, '__skip__'):
-                    skip_resolved.extend(rescls.__skip__)
+        def __matcher(source, context):
+            for matcher in matchers:
+                if not matcher(source, context):
+                    return False
 
-            cls._skip_resolved = set(skip_resolved)
+            return True
 
-        return cls._skip_resolved
+        return __matcher
 
     def _collect(self):
         '''Collect subgenerators from instance'''
 
-        # Check if object generator has a skip-set
-        skip_set = self.__class__._collect_skip_list()
+        for factory, generator in collect_marked_bound(self, 'generator'):
+            priority = get_mark_default(generator, 'priority', PRI_BASE)
+            matchers = get_mark_default(generator, 'matchers', [])
 
-        logger.info('Initializing object generator %r' % self)
-        for attr in dir(self):
-            if attr in skip_set:
-                logger.info('Skipping attribute %s since it\'s in the skip list' % attr)
-                continue
+            logger.info('Registering sub-generator %r into generator %r; priority=%d, matchers=%r', generator, self, priority, matchers)
 
-            val = getattr(self, attr)
+            if factory is not None:
+                logger.debug('Factory found for sub-generator %r: %r', generator, factory)
+                generator = factory(generator)
 
-            if isinstance(val, GeneratorBase):
-                self.register(val)
-                logger.debug('Registered %s subgenerator %r' % (attr, val))
+            self.register(generator, priority = priority, matcher = ObjectGenerator.__get_internal_matcher(matchers))

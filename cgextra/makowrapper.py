@@ -9,7 +9,7 @@ from mako.template import Template as ExternalMakoTemplate
 
 from codega.stringio import StringIO
 
-from codega.generator import TemplateGenerator, PRI_BASE
+from codega.generator import TemplateGenerator, generator, PRI_BASE
 from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 
@@ -104,17 +104,9 @@ class DocstringMakoTemplate(InlineMakoTemplate):
         tpl = '\n'.join(tpl_deindented)
         super(DocstringMakoTemplate, self).__init__(tpl)
 
-def inline(matcher = None, priority = PRI_BASE):
-    '''Creates a FunctionGenerator from the decorated function, using
-    its docstring as an inline template source.
+def inline(func):
+    '''Creates a TemplateGenerator from the decorated function, using
+    its docstring as an inline template source.'''
 
-    Arguments:
-    matcher -- Generator matcher
-    priority -- Generator function
-    '''
-
-    def __decorator(func):
-        template = DocstringMakoTemplate(func)
-        return TemplateGenerator(template, func, matcher = matcher, priority = priority)
-
-    return __decorator
+    template = DocstringMakoTemplate(func)
+    return TemplateGenerator.factory(template)(func)
