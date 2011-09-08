@@ -8,7 +8,6 @@ from codega import logger
 
 from priority import PriorityGenerator, PRI_BASE
 
-
 def generator(factory = None):
     '''Mark the function as a generator. If factory is set, the
     generator function will be passed to the factory and the result
@@ -43,6 +42,7 @@ class ObjectGenerator(PriorityGenerator):
 
     @staticmethod
     def __get_internal_matcher(matchers):
+        '''Create an internal matcher for registering a sub-generator in PriorityGenerator'''
 
         def __matcher(source, context):
             for matcher in matchers:

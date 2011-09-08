@@ -2,21 +2,14 @@
 
 from codega.generator.object import ObjectGenerator, match, generator
 from codega.generator.function import FunctionGenerator
-from codega.generator.filter import FilterGenerator
+from codega.generator.filter import FilterGenerator, add_filter
 
 from cgextra.makowrapper import inline
 from cgextra.indent import indent
 from cgextra import matcher
 
-def indent_filter(func):
-    '''Adds indentation for the output of func'''
-
-    return FilterGenerator(func, lambda generator, text: indent(text, indent_string = '    '))
-
-def indent_inline_filter(func):
-    '''Adds indentation for the output of func'''
-
-    return FilterGenerator(inline(func), lambda generator, text: indent(text, indent_string = '    '))
+def bound_filter(indent_function, *args, **kwargs):
+    return add_filter(lambda generator, text: indent_function(text, *args, **kwargs))
 
 class PyGen(ObjectGenerator):
     @match(matcher.root)
@@ -76,7 +69,8 @@ class PyGen(ObjectGenerator):
         return dict(rows = context.map(self, source))
 
     @match(matcher.tag('row'))
-    @generator(indent_inline_filter)
+    @bound_filter(indent, level = 2)
+    @generator(FilterGenerator.factory(inline))
     def generate_row(self, source, context):
         '''
         DataRow(
@@ -88,6 +82,7 @@ class PyGen(ObjectGenerator):
         return dict(entries = context.map(self, source))
 
     @match(matcher.tag('entry'))
-    @generator(indent_filter)
+    @bound_filter(indent, level = 2)
+    @generator(FilterGenerator.factory())
     def generate_entry(self, source, context):
         return 'DataEntry("""%s""")' % source.text

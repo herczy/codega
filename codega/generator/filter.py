@@ -3,7 +3,30 @@ Filter generators process the output of some other generators with the help of
 the filter function list. Each function is applied subsequently.
 '''
 
+from codega.decorators import *
+from codega.error import StateError
+
 from function import FunctionGenerator
+
+def add_filter(filter):
+    '''
+    Mark a function as having filters. This will be used when the FilterGenerator
+    is constructed.
+    '''
+
+    def __decorator(func):
+        if not has_mark(func, 'filters'):
+            set_mark(func, 'filters', [])
+
+        # Since the add_filter will mostly be used as a decorator and because decorators
+        # are applied in reverse order (the closest one to the function definition gets
+        # applied first) we should apply the new filter to the beginning of the list so
+        # the filter statements are easier to read.
+        get_mark(func, 'filters').insert(0, filter)
+
+        return func
+
+    return __decorator
 
 class FilterGenerator(FunctionGenerator):
     '''Filter the output of another generator. The priority and matchers are taken from
@@ -31,10 +54,23 @@ class FilterGenerator(FunctionGenerator):
         return output
 
     @classmethod
-    def factory(cls, *filters):
-        '''Decorate a generator function with a set of filters'''
+    def factory(cls, subfactory = None):
+        '''
+        The sub-factory will be used to create a generator. The results of this generator will
+        be used as the base of the filter.
+        
+        If no sub-factory is given, the function is used without any wrapping.
+        '''
 
-        def __decorator(generator):
-            return cls(generator, *filters)
+        def __decorator(func):
+            if not has_mark(func, 'filters'):
+                raise StateError('The current function was marked as a %s yet it has no filters defined' % cls.__name__)
+
+            generator = func
+            if subfactory is not None:
+                generator = subfactory(generator)
+
+            # Collect the filter definitions, if there are any.
+            return cls(generator, *get_mark(func, 'filters'))
 
         return __decorator
