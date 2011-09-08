@@ -1,5 +1,5 @@
 from codega.source import *
-from codega.generator import GeneratorBase
+from codega.generator.base import GeneratorBase
 
 from lxml import etree
 

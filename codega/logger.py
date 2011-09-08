@@ -23,7 +23,8 @@ def prepare():
         '0' : CRITICAL,
     }
 
-    logging.basicConfig(format = '%(levelname) -10s %(message)s')
+    #logging.basicConfig(format = '%(levelname) -10s %(message)s')
+    logging.basicConfig(format = '%(message)s')
 
     for ndx, opt in enumerate(sys.argv):
         if opt == '-v' or opt == '--verbosity':
@@ -61,8 +62,8 @@ def exception(preface = None, level = DEBUG, short_desc = None, long_desc = None
     if level_trace is None:
         level_trace = level
 
-    if line_prefix is None:
-        line_prefix = ''
+    #if line_prefix is None:
+    line_prefix = ''
 
     if preface is None:
         log(level, short_desc)

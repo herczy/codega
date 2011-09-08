@@ -2,7 +2,11 @@ from unittest import TestCase
 import os
 import os.path
 
-from codega.generator import *
+from codega.generator.base import *
+from codega.generator.function import *
+from codega.generator.template import *
+from codega.generator.priority import *
+from codega.generator.object import *
 
 class SimpleGenerator(GeneratorBase):
     def generate(self, source, context):

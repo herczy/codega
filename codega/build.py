@@ -3,7 +3,7 @@ import stat
 
 from source import SourceBase
 from rsclocator import FileResourceLocator, FallbackLocator
-from generator import GeneratorBase
+from generator.base import GeneratorBase
 from context import Context
 from error import StateError, ResourceError, ParseError
 from config import save_config, parse_config_file, Config, Source, Target
