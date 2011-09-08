@@ -9,7 +9,7 @@ from mako.template import Template as ExternalMakoTemplate
 
 from codega.stringio import StringIO
 
-from codega.generator import TemplateGenerator, generator, PRI_BASE
+from codega.generator.template import TemplateGenerator
 from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 

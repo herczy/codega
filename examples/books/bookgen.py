@@ -1,5 +1,5 @@
 from codega.template import *
-from codega.generator import *
+from codega.generator.object import *
 
 from cgextra.makowrapper import inline
 from cgextra.dicttools import *

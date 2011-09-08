@@ -1,4 +1,4 @@
-from codega.generator import GeneratorBase
+from codega.generator.base import GeneratorBase
 from codega.version import Version
 
 from cStringIO import StringIO
