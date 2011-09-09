@@ -44,7 +44,7 @@ class MakoTemplate(TemplateBase):
 
         return buf.getvalue()
 
-    render.__doc__ = help(TemplateBase.render)
+    render.__doc__ = TemplateBase.render.__doc__
 
 class MakoTemplateset(TemplatesetBase):
     '''Mako templateset (a wrapper to mako.lookup.TemplateLookup)
@@ -68,7 +68,7 @@ class MakoTemplateset(TemplatesetBase):
         tpl = tpl.get_def(defname)
 
         return MakoTemplate(tpl)
-    get_template.__doc__ = help(TemplatesetBase.get_template)
+    get_template.__doc__ = TemplatesetBase.get_template.__doc__
 
 class InlineMakoTemplate(MakoTemplate):
     '''Wrapper for mako templates.
