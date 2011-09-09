@@ -1,12 +1,6 @@
-import os
-import os.path
-import sys
 import optparse
 
-from codega.config import *
-from codega.build import Builder, ConfigBuilder
-from codega.rsclocator import FileResourceLocator
-from codega import logger
+from codega.builder.config import ConfigBuilder
 
 from base import OptparsedCommand
 

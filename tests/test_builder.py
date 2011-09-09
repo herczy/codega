@@ -8,7 +8,8 @@ from lxml import etree
 import codega
 
 from codega.config import *
-from codega.build import *
+from codega.builder.base import TaskBase, job
+from codega.builder.builder import Builder
 from codega.decorators import get_mark
 
 class TestBuild(TestCase):
