@@ -55,11 +55,11 @@ class CombinedMatcher(MatcherBase):
 matcher = FunctionMatcher
 
 @matcher
-def all(source, context):
+def true(source, context):
     return True
 
 @matcher
-def none(source, context):
+def false(source, context):
     return False
 
 @matcher
