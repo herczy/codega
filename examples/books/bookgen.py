@@ -1,8 +1,7 @@
-from codega.template import *
-from codega.generator.object import *
+from codega.generator.object import ObjectGenerator, generator, match
 
 from cgextra.makowrapper import inline
-from cgextra.dicttools import *
+from cgextra.dicttools import exclude_internals
 from cgextra import matcher
 
 class CBookGenerator(ObjectGenerator):

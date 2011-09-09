@@ -8,7 +8,6 @@ from logging import debug, info, warning, error, critical, log, DEBUG, INFO, WAR
 
 def prepare():
     import logging
-    import sys
 
     levels = {
         'debug' : DEBUG,

@@ -1,13 +1,5 @@
 from unittest import TestCase
 
-import re
-import os
-import os.path
-from lxml import etree
-
-import codega
-
-from codega.config import *
 from codega.builder.base import TaskBase, job
 from codega.builder.builder import Builder
 from codega.decorators import get_mark

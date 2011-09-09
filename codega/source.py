@@ -3,7 +3,6 @@
 load() loads an XML eigther from a file or a string'''
 from lxml import etree
 
-from stringio import StringIO
 from decorators import abstract
 
 class SourceBase(object):

@@ -1,6 +1,5 @@
 '''Helps put together command-line interface commands'''
 
-import os
 import sys
 import optparse
 
@@ -130,13 +129,13 @@ class CommandContainer(CommandBase):
 
     def execute(self):
         if len(self._args) == 0:
-            print >>sys.stderr, "Missing command"
+            print >> sys.stderr, "Missing command"
             return False
 
         cmd, passon = self._args[0], self._args[1:]
 
         if not self._commands.has_key(cmd):
-            print >>sys.stderr, 'Command %s not found' % cmd
+            print >> sys.stderr, 'Command %s not found' % cmd
             return False
 
         return self._commands[cmd].run(passon)
@@ -160,7 +159,7 @@ class CommandHelp(CommandBase):
 
     def prepare(self, argv):
         if len(argv) != 0:
-            critical("Help takes no arguments")
+            logger.critical("Help takes no arguments")
             return False
 
         return True
@@ -174,9 +173,9 @@ class CommandHelp(CommandBase):
 
             lst.append((cmd, obj.helpstring))
 
-        print >>sys.stderr, self._container.helpstring
-        print >>sys.stderr
+        print >> sys.stderr, self._container.helpstring
+        print >> sys.stderr
         for cmd, helpstring in lst:
-            print >>sys.stderr, ' %s%s %s' % (cmd, ' ' * (maxcmd - len(cmd) + 3), helpstring)
+            print >> sys.stderr, ' %s%s %s' % (cmd, ' ' * (maxcmd - len(cmd) + 3), helpstring)
 
         return True

@@ -5,8 +5,6 @@ Common unit test tools.
 import os
 import tempfile
 
-from unittest import TestCase
-
 def make_tempfile(*args, **kwargs):
     class __section(object):
         def __enter__(self):

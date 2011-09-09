@@ -1,9 +1,8 @@
-import os, os.path
-import sys
+import os.path
 
 from unittest import TestCase
 
-from codega.rsclocator import *
+from codega.rsclocator import FileResourceLocator, ModuleLocator, FallbackLocator
 from codega.error import ResourceError
 
 path0 = os.path.dirname(__file__)

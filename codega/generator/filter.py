@@ -3,7 +3,7 @@ Filter generators process the output of some other generators with the help of
 the filter function list. Each function is applied subsequently.
 '''
 
-from codega.decorators import *
+from codega.decorators import has_mark, set_mark, get_mark
 from codega.error import StateError
 
 from function import FunctionGenerator

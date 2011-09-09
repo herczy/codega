@@ -1,7 +1,6 @@
 '''Generate a Python script for dumping the data'''
 
 from codega.generator.object import ObjectGenerator, match, generator
-from codega.generator.function import FunctionGenerator
 from codega.generator.filter import FilterGenerator, add_filter
 
 from cgextra.makowrapper import inline

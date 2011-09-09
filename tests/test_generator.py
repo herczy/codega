@@ -1,12 +1,10 @@
 from unittest import TestCase
-import os
-import os.path
 
-from codega.generator.base import *
-from codega.generator.function import *
-from codega.generator.template import *
-from codega.generator.priority import *
-from codega.generator.object import *
+from codega.generator.base import GeneratorBase
+from codega.generator.function import FunctionGenerator
+from codega.generator.template import TemplateGenerator
+from codega.generator.priority import PriorityGenerator, PRI_LOW
+from codega.generator.object import ObjectGenerator, generator, match
 
 class SimpleGenerator(GeneratorBase):
     def generate(self, source, context):

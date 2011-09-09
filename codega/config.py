@@ -3,9 +3,9 @@ import re
 from lxml import etree
 
 import logger
-from error import *
+from error import ParseError, SaveError, VersionMismatchError
 from ordereddict import OrderedDict, DictMixin
-from visitor import *
+from visitor import ClassVisitor, ExplicitVisitor, visitor
 from source import XmlSource, validate_xml
 from rsclocator import ModuleLocator
 from version import Version
@@ -315,7 +315,7 @@ class Config(NodeBase):
             try:
                 return super(Config.SourceCollection, self).__getitem__(key)
 
-            except KeyError, e:
+            except KeyError:
                 raise KeyError("Source %s not found" % key)
 
         def __delitem__(self, key):
@@ -351,7 +351,7 @@ class Config(NodeBase):
             try:
                 return super(Config.TargetCollection, self).__getitem__(key)
 
-            except KeyError, e:
+            except KeyError:
                 raise KeyError("Target %s not found" % key)
 
     _version = None
@@ -380,7 +380,7 @@ class Config(NodeBase):
             try:
                 version = Version.load_from_string(value)
 
-            except Exception, e:
+            except Exception:
                 raise ValueError("Invalid version string %r" % value)
 
         else:

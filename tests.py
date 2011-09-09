@@ -1,9 +1,7 @@
-import os, os.path
+import os.path
 import sys
 
-from unittest import *
-
-import __builtin__
+from unittest import TestLoader, TestSuite, TextTestRunner
 
 runlist = list(sys.argv[1:])
 mypath = os.path.abspath(os.path.dirname(__file__))

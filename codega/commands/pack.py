@@ -1,5 +1,4 @@
 import sys
-import os
 import os.path
 
 from hashlib import sha256
@@ -99,7 +98,7 @@ class CommandPack(CommandBase):
         split = split_data(data)
         main_code = load_main_code()
 
-        print >>target, '''#!/usr/bin/env python
+        print >> target, '''#!/usr/bin/env python
 
 import os
 import os.path

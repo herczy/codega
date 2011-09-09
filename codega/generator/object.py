@@ -3,7 +3,7 @@ Object generators collect specially marked methods and turn them into generators
 the factory specified with generator).
 '''
 
-from codega.decorators import *
+from codega.decorators import mark, has_mark, set_mark, get_mark, get_mark_default, collect_marked_bound
 from codega import logger
 
 from priority import PriorityGenerator, PRI_BASE
