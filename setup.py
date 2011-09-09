@@ -8,7 +8,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(name = "codega",
-        description="Codega code generator framework",
+        description = "Codega code generator framework",
         long_description = """File generator toolkit written in Python
 
 Codeca can be used to generate files from XML inputs using rules
@@ -20,13 +20,13 @@ Mainly intended to parse XML files describing data structures and
 then generating the serialize/deserialize code in various languages,
 but mostly C/C++. However it can be easily used for other purposes
 """,
-        license="BSD",
+        license = "BSD",
         version = open("VERSION").read(),
         author = "Viktor Hercinger",
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
         maintainer_email = "hercinger.viktor@gmail.com",
-        packages = [ 'codega', 'codega.commands' ],
+        packages = [ 'codega', 'codega.commands', 'codega.builder', 'codega.generator' ],
         package_data = { 'codega' : [ 'config.xsd' ] },
         scripts = [ 'cgx' ],
         requires = [ 'lxml' ])
