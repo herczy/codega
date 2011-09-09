@@ -10,6 +10,8 @@ import codega
 from codega.source import XmlSource
 from codega.config import *
 
+from common import make_tempfile
+
 def flatten(text):
     return ''.join(filter(lambda p: not p.isspace(), text))
 
@@ -51,9 +53,9 @@ class TestVisitors(TestCase):
                 if hasattr(self, 'check_%s' % name):
                     getattr(self, 'check_%s' % name)(cfg)
 
-                fd, fn = make_tempfile()
-                os.write(fd, save_config(cfg))
-                parse_config_file(fn)
+                with make_tempfile() as (fd, fn):
+                    os.write(fd, save_config(cfg))
+                    parse_config_file(fn)
 
                 self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
 

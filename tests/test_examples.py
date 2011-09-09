@@ -3,29 +3,30 @@ import os
 import os.path
 import sys
 
+from common import make_tempfile
+
 class TestExamples(TestCase):
     pass
 
 def add_example_test(name, path):
     def __run(self):
-        fd, fn = make_tempfile()
+        with make_tempfile() as (fd, fn):
+            cur = os.getcwd()
+            try:
+                os.chdir(os.path.join(exampledir, name))
+                rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
 
-        cur = os.getcwd()
-        try:
-            os.chdir(os.path.join(exampledir, name))
-            rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
+                if rc == 0:
+                    rc = os.system('../../cgx clean -v debug 2>>%s' % fn)
 
-            if rc == 0:
-                rc = os.system('../../cgx clean -v debug 2>>%s' % fn)
+            finally:
+                os.chdir(cur)
 
-        finally:
-            os.chdir(cur)
+            if rc != 0:
+                print >> sys.stderr, "stderr output from 'cgx build -f'"
+                sys.stderr.write(open(fn, 'r').read())
 
-        if rc != 0:
-            print >>sys.stderr, "stderr output from 'cgx build -f'"
-            sys.stderr.write(open(fn, 'r').read())
-
-        self.assertEqual(rc, 0)
+            self.assertEqual(rc, 0)
 
     setattr(TestExamples, 'test_example_%s' % name, __run)
 
