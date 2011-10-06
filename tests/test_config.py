@@ -10,7 +10,7 @@ import codega
 from codega.source import XmlSource
 from codega.config import *
 
-from common import make_tempfile
+from common import make_tempfile, variant
 
 def flatten(text):
     return ''.join(filter(lambda p: not p.isspace(), text))
@@ -78,31 +78,23 @@ class TestVisitors(TestCase):
         self.assertEqual(target.settings.test1.test2, 'value2')
 
 class TestFunctions(TestCase):
-    def test_validators(self):
-        # Module validator
-        self.assertTrue(module_validator.match('a'))
-        self.assertTrue(module_validator.match('_'))
-        self.assertTrue(module_validator.match('a0'))
-        self.assertTrue(module_validator.match('a.b'))
-        self.assertTrue(module_validator.match('a0.b'))
-        self.assertTrue(module_validator.match('a.b0'))
+    # Module validators
+    @variant('name', 'a', '_', 'a0', 'a.b', 'a0.b', 'a.b0')
+    def test_module_validator_matching(self, name = None):
+        self.assertTrue(module_validator.match(name))
 
-        self.assertFalse(module_validator.match('a..b'))
-        self.assertFalse(module_validator.match('a.0.b'))
-        self.assertFalse(module_validator.match('a.0.b'))
-        self.assertFalse(module_validator.match('.a'))
-        self.assertFalse(module_validator.match('-'))
-        self.assertFalse(module_validator.match('+'))
+    @variant('name', 'a..b', 'a.0.b', '.a', '+', '-')
+    def test_module_validator_not_matching(self, name = None):
+        self.assertFalse(module_validator.match(name))
 
-        # Class validator
-        self.assertTrue(classname_validator.match('validname'))
-        self.assertTrue(classname_validator.match('__000___'))
+    # Class validators
+    @variant('name', 'validname', '__000___')
+    def test_class_validator_matching(self, name = None):
+        self.assertTrue(classname_validator.match(name))
 
-        self.assertFalse(classname_validator.match('a.b'))
-        self.assertFalse(classname_validator.match('0b'))
-        self.assertFalse(classname_validator.match('0_'))
-        self.assertFalse(classname_validator.match('-'))
-        self.assertFalse(classname_validator.match('+'))
+    @variant('name', 'a.b', '0b', '0_', '+', '-')
+    def test_class_validator_not_matching(self, name = None):
+        self.assertFalse(classname_validator.match(name))
 
     def test_config_property(self):
         class A(object):
