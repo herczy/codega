@@ -1,17 +1,11 @@
-from base import AstBase
+from codega.decorators import mark
 
-validators = {}
+from base import AstBase
 
 def validator(name):
     '''Define a validator'''
 
-    def __decorator(func):
-        global validators
-
-        validators[name] = func
-        return func
-
-    return __decorator
+    return mark('validator', name)
 
 def type_validator(name, type):
 
@@ -19,14 +13,16 @@ def type_validator(name, type):
     def __validator(value):
         return isinstance(value, type)
 
-type_validator('string', basestring)
-type_validator('int', int)
-type_validator('bool', bool)
-type_validator('float', float)
-type_validator('tuple', tuple)
-type_validator('list', list)
-type_validator('set', set)
-type_validator('AstBase', AstBase)
+    return __validator
+
+v_string = type_validator('string', basestring)
+v_int = type_validator('int', int)
+v_bool = type_validator('bool', bool)
+v_float = type_validator('float', float)
+v_tuple = type_validator('tuple', tuple)
+v_list = type_validator('list', list)
+v_set = type_validator('set', set)
+v_AstBase = type_validator('AstBase', AstBase)
 
 @validator('any')
 def v_any(value):

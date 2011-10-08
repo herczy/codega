@@ -2,6 +2,8 @@
 
 import types
 
+from codega.decorators import collect_marked_bound
+
 from base import AstType, AstBase
 
 class ModuleCreator(object):
@@ -21,6 +23,12 @@ class ModuleCreator(object):
         '''Load validators from the given dictionary'''
 
         self._module.validators.update(validator)
+
+    def load_validator_module(self, validator_module):
+        '''Load validators from a Python module'''
+
+        for name, validator in collect_marked_bound(validator_module, 'validator'):
+            self.load_validator(name, validator)
 
     def make_type(self, name, required = (), optional = (), validate = {}, base = None):
         '''Add an AST type to the module'''

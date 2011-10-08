@@ -14,13 +14,11 @@ def load_file(file, name = None):
     from codega.logger import error
 
     from spec import Lexer, Parser
-    from validators import validators
 
     if name is None:
         name = os.path.splitext(os.path.basename(file))[0]
 
     module = ModuleCreator(name)
-    module.load_validator_dict(validators)
 
     lexer = Lexer()
     lexer.input(open(file, 'r').read())

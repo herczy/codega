@@ -1,3 +1,5 @@
+import sys
+
 from ply.lex import lex, TOKEN, LexToken
 from ply.yacc import yacc
 
@@ -50,6 +52,7 @@ class Lexer(object):
         'optional' : 'OPTIONAL',
         'from' : 'FROM',
         'pass' : 'PASS',
+        'load' : 'LOAD',
     }
 
     tokens = tuple(keywords.values()) + (
@@ -57,7 +60,7 @@ class Lexer(object):
 
         'LPAREN', 'RPAREN',
         'LBRACKET', 'RBRACKET',
-        'COLON', 'DASH',
+        'COLON', 'DASH', 'DOT',
 
         'BLOCK_START', 'BLOCK_END',
     )
@@ -68,6 +71,7 @@ class Lexer(object):
     t_RBRACKET = r'\]'
     t_COLON = r':'
     t_DASH = r'-'
+    t_DOT = r'\.'
 
     lineno = 0
     indent = 0
@@ -222,6 +226,20 @@ class Parser(object):
 
         self.__init_node(p[2], p[7], base = p[4])
 
+    def p_node_2(self, p):
+        '''node : LOAD ID FROM python_module'''
+
+        modname = '.'.join(p[4])
+        try:
+            __import__(modname)
+            mod = sys.modules[modname]
+
+        except ImportError:
+            self.make_error(modname, 'Cannot import %s' % modname, pos = p.lexpos(4), lineno = p.lineno(4))
+            return
+
+        self.module.load_validator_module(mod)
+
     def p_node_spec_0(self, p):
         '''node_spec : '''
 
@@ -324,6 +342,17 @@ class Parser(object):
                 | ID list'''
 
         p[0] = p[2]
+        p[0].insert(0, p[1])
+
+    def p_python_module_0(self, p):
+        '''python_module : ID'''
+
+        p[0] = [p[1]]
+
+    def p_python_module_1(self, p):
+        '''python_module : ID DOT python_module'''
+
+        p[0] = p[3]
         p[0].insert(0, p[1])
 
     def p_error(self, token):
