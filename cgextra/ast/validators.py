@@ -83,8 +83,8 @@ def v_classname(clsname):
 
     return __validator
 
-@validator('from')
-def v_from(*clsnames):
+@validator('fromcls')
+def v_fromcls(*clsnames):
 
     def __validator(value):
         for base in value.__class__.__mro__:
