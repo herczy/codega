@@ -1,7 +1,7 @@
 '''AST loader
 
 With this, we can load AST specifications like normal Python modules. The AST spec modules
-should have the extension <modulename>.py.ast
+should have the extension <modulename>.past
 '''
 
 import re
@@ -63,7 +63,7 @@ class AstFinder(object):
 
         name = fullname.split('.')[-1]
 
-        checkname = '%s.py.ast' % name
+        checkname = '%s.past' % name
         for cur in path_list:
             fullpath = os.path.join(cur, checkname)
 
