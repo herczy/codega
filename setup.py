@@ -43,5 +43,5 @@ if os.getenv("CG_INSTALL_EXTRA", "1") == "1":
             author_email = "hercinger.viktor@gmail.com",
             maintainer = "Viktor Hercinger",
             maintainer_email = "hercinger.viktor@gmail.com",
-            packages = [ 'cgextra' ],
+            packages = [ 'cgextra', 'cgextra.ast' ],
             requires = [ 'codega', 'lxml', 'mako' ])
