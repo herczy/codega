@@ -26,6 +26,61 @@ def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', st
 
     return '\n'.join(map(__indent_line, text.split('\n')))
 
+def deindent(text, level = None, ignore_wrong_indentation = False, lstrip = True, rstrip = False):
+    '''De-indent a text.
+    
+    Arguments:
+    text -- Text to deindent
+    level -- How many levels to deindent. If set to none and the text has a
+             consistent indent, the indentation level is deduced automatically
+    ignore_wrong_indentation -- If not set, wrongly indented lines will cause
+                                an exception to occur (ValueError). If set, these
+                                lines are left-stripped
+    lstrip -- If set, empty lines are removed from the beginning
+    rstrip -- If set, empty lines are removed from the end
+    '''
+
+    res = []
+    indent_level = level if level is not None else None
+    for line in text.split('\n'):
+        if not line.strip():
+            res.append('')
+            continue
+
+        if indent_level is None:
+            for pos in xrange(len(line)):
+                if not line[pos].isspace():
+                    break
+
+            else:
+                # This can never happen! Or should not
+                assert 0
+
+            indent_level = pos
+
+        if line[:indent_level].strip():
+            # Wrong indentation!
+            if ignore_wrong_indentation:
+                line = line.lstrip()
+
+            else:
+                raise ValueError("Invalid line indentation")
+
+        else:
+            line = line[indent_level:]
+
+        res.append(line)
+
+    if lstrip:
+        while not res[0]:
+            del res[0]
+
+    if rstrip:
+        while not res[-1]:
+            del res[-1]
+
+    return '\n'.join(res)
+
 def c_multi_comment(text):
     '''C multi-line comment.
 

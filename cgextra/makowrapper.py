@@ -13,6 +13,8 @@ from codega.generator.template import TemplateGenerator
 from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 
+from indent import deindent
+
 class MakoTemplate(TemplateBase):
     '''Wrapper for mako templates
 
@@ -84,25 +86,7 @@ class DocstringMakoTemplate(InlineMakoTemplate):
     '''Read a function or class docstring and parse it as a template'''
 
     def __init__(self, fun):
-        tpl = fun.__doc__
-        while tpl[0] == '\n':
-            tpl = tpl[1:]
-
-        indent = 0
-        while tpl[indent] == ' ':
-            indent += 1
-
-        tpl_deindented = []
-        for line in tpl.split('\n'):
-            if line[:indent].strip():
-                # Add line without de-indentation
-                tpl_deindented.append(line)
-                continue
-
-            tpl_deindented.append(line[indent:])
-
-        tpl = '\n'.join(tpl_deindented)
-        super(DocstringMakoTemplate, self).__init__(tpl)
+        super(DocstringMakoTemplate, self).__init__(deindent(fun.__doc__))
 
 def inline(func):
     '''Creates a TemplateGenerator from the decorated function, using
