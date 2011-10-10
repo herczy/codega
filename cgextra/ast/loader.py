@@ -4,19 +4,24 @@ With this, we can load AST specifications like normal Python modules. The AST sp
 should have the extension <modulename>.py.ast
 '''
 
+import re
 import sys
 import os.path
 
 from module import ModuleCreator
 from error import AstError
 
+rx_sanitize_name = re.compile(r'[^a-zA-Z0-9_]')
+
 def load_file(file, name = None):
     from codega.logger import error
 
     from spec import Lexer, Parser
 
+    global rx_sanitize_name
+
     if name is None:
-        name = os.path.splitext(os.path.basename(file))[0]
+        name = rx_sanitize_name.sub('_', os.path.splitext(os.path.basename(file))[0])
 
     module = ModuleCreator(name)
 
