@@ -2,7 +2,7 @@
 
 from decorators import abstract, mark, collect_marked
 
-visitor = lambda value: mark('visit', value)
+visitor = lambda * values: mark('visit', values)
 
 class VisitorType(type):
     '''Meta-class for visitor types.
@@ -12,7 +12,12 @@ class VisitorType(type):
     '''
 
     def __new__(cls, name, bases, mdict):
-        mdict['__visitors__'] = dict(collect_marked(mdict, 'visit'))
+        visitors = {}
+        for marks, func in collect_marked(mdict, 'visit'):
+            for mark in marks:
+                visitors[mark] = func
+
+        mdict['__visitors__'] = visitors
         return type.__new__(cls, name, bases, mdict)
 
 class VisitorBase(object):
