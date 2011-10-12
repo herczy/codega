@@ -61,6 +61,7 @@ class Lexer(object):
         'LPAREN', 'RPAREN',
         'LBRACKET', 'RBRACKET',
         'COLON', 'DASH', 'DOT',
+        'COMMA',
 
         'BLOCK_START', 'BLOCK_END',
     )
@@ -72,6 +73,7 @@ class Lexer(object):
     t_COLON = r':'
     t_DASH = r'-'
     t_DOT = r'\.'
+    t_COMMA = r','
 
     lineno = 0
     indent = 0
@@ -83,7 +85,7 @@ class Lexer(object):
     def t_comment(self, token):
         pass
 
-    @TOKEN(r'"([^"]|")*"')
+    @TOKEN(r'"([^"]|")*?"')
     def t_STRING(self, token):
         token.value = token.value[1:-1].replace('\"', '"')
         return token
@@ -265,7 +267,7 @@ class Parser(object):
     def p_validator_expr_0(self, p):
         '''validator_expr : LPAREN validator_expr RPAREN'''
 
-        p[0] = p[1]
+        p[0] = p[2]
 
     def p_validator_expr_1(self, p):
         '''validator_expr : validator_expr OR validator_expr'''
@@ -332,17 +334,22 @@ class Parser(object):
         return (None, p[2])
 
     def p_list_0(self, p):
-        '''list : '''
+        '''list : list_item'''
 
-        p[0] = []
+        p[0] = [p[1]]
 
     def p_list_1(self, p):
-        '''list : INT list
-                | STRING list
-                | ID list'''
+        '''list : list_item COMMA list'''
 
-        p[0] = p[2]
+        p[0] = p[3]
         p[0].insert(0, p[1])
+
+    def p_list_item(self, p):
+        '''list_item : INT
+                     | STRING
+                     | ID'''
+
+        p[0] = p[1]
 
     def p_python_module_0(self, p):
         '''python_module : ID'''
