@@ -72,6 +72,30 @@ class MakoTemplateset(TemplatesetBase):
         return MakoTemplate(tpl)
     get_template.__doc__ = TemplatesetBase.get_template.__doc__
 
+    def get_subset(self, name):
+        return MakoTemplatesetFile(self._lookup.get_template(name))
+
+class MakoTemplatesetFile(TemplatesetBase):
+    '''Mako file-based templateset (a wrapper to mako.template.Template)
+
+    Members:
+    _template -- Mako master template
+    '''
+
+    _template = None
+
+    def __init__(self, *args, **kwargs):
+        super(MakoTemplatesetFile, self).__init__()
+
+        self._template = ExternalMakoTemplate(*args, **kwargs)
+
+    # TemplateCollection interface
+    def get_template(self, name):
+        tpl = self._template.get_def(name)
+
+        return MakoTemplate(tpl)
+    get_template.__doc__ = TemplatesetBase.get_template.__doc__
+
 class InlineMakoTemplate(MakoTemplate):
     '''Wrapper for mako templates.
     
