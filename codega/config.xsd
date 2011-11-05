@@ -13,15 +13,18 @@
 
         <!-- sources -->
         <xs:element ref="source" minOccurs="0" maxOccurs="unbounded" />
-        
+
         <!-- targets -->
         <xs:element ref="target" minOccurs="0" maxOccurs="unbounded" />
+
+        <!-- copy -->
+        <xs:element ref="copy" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 
-  <!-- 
+  <!--
     top-level elements
   -->
 
@@ -60,6 +63,16 @@
           </xs:complexType>
         </xs:element>
 
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- copy -->
+  <xs:element name="copy">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="source" type="xs:string" />
+        <xs:element name="target" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

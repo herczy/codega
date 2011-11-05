@@ -12,7 +12,7 @@ from version import Version
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
-latest_version = Version(1, 2)
+latest_version = Version(1, 3)
 
 def config_property(name, property_type = basestring, enable_change = True):
     if enable_change:
@@ -263,6 +263,20 @@ class Target(NodeBase):
         self._settings = Settings(self)
         self._generator = ModuleReference(self)
 
+class Copy(NodeBase):
+    '''Copy target entry
+
+    Members:
+    _source -- Source file name
+    _target -- Destination file name
+    '''
+
+    _source = None
+    _target = None
+
+    source = config_property('_source')
+    target = config_property('_target')
+
 class PathList(NodeBase):
     '''List of paths
 
@@ -358,6 +372,7 @@ class Config(NodeBase):
     _paths = None
     _sources = None
     _targets = None
+    _copy = None
     _external = None
 
     _dependencies = None
@@ -365,6 +380,7 @@ class Config(NodeBase):
     paths = config_property('_paths', enable_change = False)
     sources = config_property('_sources', enable_change = False)
     targets = config_property('_targets', enable_change = False)
+    copy = config_property('_copy', enable_change = False)
     external = config_property('_external', enable_change = False)
 
     @property
@@ -395,6 +411,7 @@ class Config(NodeBase):
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
+        self._copy = OrderedDict()
         self._external = []
         self._dependencies = {}
 
@@ -466,6 +483,11 @@ class ParseVisitor(ClassVisitor):
             else:
                 node.paths.append(chld.text)
 
+    @visitor(Copy)
+    def copy(self, node, xml_node):
+        node.source = xml_node.find('source').text
+        node.target = xml_node.find('target').text
+
     @visitor(Config)
     def config(self, node, xml_node):
         node.version = xml_node.attrib['version']
@@ -485,6 +507,11 @@ class ParseVisitor(ClassVisitor):
                 target = Target(node)
                 self.visit(target, chld)
                 node.targets[target.filename] = target
+
+            elif chld.tag == 'copy':
+                copy = Copy(node)
+                self.visit(copy, chld)
+                node.copy[copy.target] = copy
 
 class SaveVisitor(ClassVisitor):
     '''Parse the internal config representation into an XML tree representation'''
@@ -542,6 +569,10 @@ class SaveVisitor(ClassVisitor):
 
         return res
 
+    @visitor(Copy)
+    def copy(self, node):
+        return build_element('copy', children = [build_element('source', text = node.source), build_element('target', text = node.target)])
+
     @visitor(Config)
     def config(self, node):
         res = etree.Element('config')
@@ -550,6 +581,7 @@ class SaveVisitor(ClassVisitor):
         res.extend([build_element('external', text = ext) for ext in node.external])
         res.extend([self.visit(source) for source in node.sources.values()])
         res.extend([self.visit(target) for target in node.targets.values()])
+        res.extend([self.visit(copy) for copy in node.copy.values()])
 
         return res
 
@@ -572,6 +604,7 @@ class UpdateVisitor(ExplicitVisitor):
              This also means that the mandatory minimum count of targets/sources and paths
              changes to 0 since the externals define other kinds of tasks and paths for
              themselves and the config can be used to tie other configs together.
+    * 1.3 -- Added 'copy' tag so a file can be copied to it's destination.
     '''
 
     @visitor(Version(1, 0))
@@ -588,6 +621,12 @@ class UpdateVisitor(ExplicitVisitor):
         '''Update 1.1 configs to 1.2'''
 
         return self.visit(Version(1, 2), xml_root)
+
+    @visitor(Version(1, 2))
+    def update_1_2(self, version, xml_root):
+        '''Update 1.2 configs to 1.3'''
+
+        return self.visit(Version(1, 3), xml_root)
 
     @visitor(latest_version)
     def version_current(self, version, xml_root):

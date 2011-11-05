@@ -77,6 +77,12 @@ class TestVisitors(TestCase):
         self.assertEqual(target.settings.test0, 'value0')
         self.assertEqual(target.settings.test1.test2, 'value2')
 
+    def check_parse01(self, cfg):
+        self.check_parse00(cfg)
+
+        self.assertEqual(cfg.copy['y'].source, 'x')
+        self.assertEqual(cfg.copy['y'].target, 'y')
+
 class TestFunctions(TestCase):
     def test_validators(self):
         # Module validator

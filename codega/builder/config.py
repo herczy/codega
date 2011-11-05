@@ -13,6 +13,7 @@ from codega.version import Version
 from builder import Builder
 from target import TargetTask
 from proxy import ProxyTask
+from codega.builder.copy import CopyTask
 
 class ConfigBuilder(Builder):
     '''Build targets from a config
@@ -46,6 +47,10 @@ class ConfigBuilder(Builder):
 
     def add_external(self, external, targets = (), force = False):
         task = ProxyTask(self, lambda job_id, force: ConfigBuilder.run_make(job_id, external, targets = targets, force = force))
+        self.push_task(task)
+
+    def add_copy(self, copy):
+        task = CopyTask(self, copy.parent, self._locator, copy.source, copy.target)
         self.push_task(task)
 
     @staticmethod
@@ -83,12 +88,18 @@ class ConfigBuilder(Builder):
 
         # ... with externals
         for external in externals:
+            logger.debug('Adding external %s' % external)
             config_builder.add_external(external, targets = targets, force = force)
 
         # ... and with targets
         for target in build_list:
             logger.debug('Adding target %s' % target.filename)
             config_builder.add_target(target)
+
+        # ... and with copy list
+        for copy in config.copy.values():
+            logger.debug('Adding copy task %s' % copy.target)
+            config_builder.add_copy(copy)
 
         # Run build for targets
         config_builder.build(job_id, force = force)
