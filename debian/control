@@ -17,5 +17,5 @@ Package: codega-extra
 Architecture: all
 Homepage: http://github.com/herczy/codega
 XB-Python-Version: ${python:Versions}
-Depends: ${misc:Depends}, ${python:Depends}, python-lxml (>= 2.2.4), python-ply (>= 3.3), python-mako (>= 0.2.5)
+Depends: ${misc:Depends}, ${python:Depends}, python-lxml (>= 2.2.4), python-ply (>= 3.3), python-mako (>= 0.2.5), codega-core
 Description: codega code generation framework - extra module
