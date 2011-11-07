@@ -1,3 +1,3 @@
 usr/bin/cgx
 usr/lib/python2.6/dist-packages/codega/*
-usr/lib/python2.6/dist-packages/codega-0.5.0_.egg-info
+usr/lib/python2.6/dist-packages/codega-*.egg-info
