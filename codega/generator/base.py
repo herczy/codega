@@ -31,8 +31,3 @@ class GeneratorBase(object):
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self)
-
-    @classmethod
-    def run(cls, source, context):
-        obj = cls()
-        return obj(source, context)

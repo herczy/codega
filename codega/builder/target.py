@@ -72,9 +72,13 @@ class TargetTask(TaskBase):
 
         # Generate output
         generator = self._target.generator.load(self._locator)
-        if not issubclass(generator, GeneratorBase):
+        if isinstance(generator, type) and issubclass(generator, GeneratorBase):
+            generator = generator()
+
+        elif not isinstance(generator, GeneratorBase):
             raise StateError("Generator reference %s could not be loaded" % generator)
-        output = generator.run(data, context)
+
+        output = generator.generate(data, context)
 
         # Write output
         destination = open(self._destination, 'w')
