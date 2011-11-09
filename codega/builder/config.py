@@ -26,11 +26,16 @@ def process_settings(target, settings):
 
         actual = target.settings
         for index, component in enumerate(key[:-1]):
-            if component in actual:
-                raise ParseError("Key %r already exists in settings" % '.'.join(key[:index]), 0)
+            if component not in actual:
+                actual[component] = Settings.RecursiveContainer()
 
-            actual[component] = Settings.RecursiveContainer()
+            elif not isinstance(actual[component], Settings.RecursiveContainer):
+                raise ParseError("Key %r is not a container" % '.'.join(key[:index]), 0)
+
             actual = actual[component]
+
+        if key[-1] in actual:
+            raise ParseError("Key %r already exists in settings" % '.'.join(key[-1]), 0)
 
         actual[key[-1]] = value
 
