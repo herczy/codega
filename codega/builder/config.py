@@ -5,15 +5,34 @@ Configuration builder, is a facade to the build sub-system
 import os.path
 
 from codega import logger
-from codega.config import Config, Source, Target, parse_config_file, save_config
+from codega.config import Config, Source, Target, parse_config_file, save_config, \
+    Settings
 from codega.rsclocator import FallbackLocator, FileResourceLocator
 from codega.error import ParseError
 from codega.version import Version
+from codega.builder.copy import CopyTask
 
 from builder import Builder
 from target import TargetTask
 from proxy import ProxyTask
-from codega.builder.copy import CopyTask
+
+def process_settings(target, settings):
+    for setting in settings:
+        key, value = setting.split('=', 1)
+
+        key = key.split('.')
+        if filter(lambda s: len(s) == 0, key):
+            raise ParseError("Empty key component found in settings", 0)
+
+        actual = target.settings
+        for index, component in enumerate(key[:-1]):
+            if component in actual:
+                raise ParseError("Key %r already exists in settings" % '.'.join(key[:index]), 0)
+
+            actual[component] = Settings.RecursiveContainer()
+            actual = actual[component]
+
+        actual[key[-1]] = value
 
 class ConfigBuilder(Builder):
     '''Build targets from a config
@@ -106,7 +125,7 @@ class ConfigBuilder(Builder):
         return True
 
     @staticmethod
-    def run_build(job_id, source, parser, target, generator, includes = (), config_dest = None):
+    def run_build(job_id, source, parser, target, generator, includes = (), config_dest = None, settings = None):
         if not source:
             logger.critical('Missing source')
             return False
@@ -140,6 +159,10 @@ class ConfigBuilder(Builder):
                 return False
             config.paths.paths.append(inc)
         config.version = Version(1, 0)
+
+        # Process settings
+        if settings != None:
+            process_settings(target_obj, settings)
 
         # Save config if requested
         if config_dest is not None:

@@ -21,9 +21,12 @@ class CommandBuild(OptparsedCommand):
 
             optparse.make_option('-c', '--config', default = None,
                                  help = 'Write the equivalent config to the given file'),
+
+            optparse.make_option('-S', '--set', default = [], action = 'append',
+                                 help = 'Append custom settings in the form of key=value')
         ]
 
         super(CommandBuild, self).__init__('build', options, helpstring = 'Build the source with specified generator')
 
     def execute(self):
-        return ConfigBuilder.run_build('build', self.opts.source, self.opts.parser, self.opts.target, self.opts.generator, includes = self.opts.include, config_dest = self.opts.config)
+        return ConfigBuilder.run_build('build', self.opts.source, self.opts.parser, self.opts.target, self.opts.generator, includes = self.opts.include, config_dest = self.opts.config, settings = self.opts.set)
