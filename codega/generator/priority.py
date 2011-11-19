@@ -52,7 +52,7 @@ class PriorityGenerator(GeneratorBase):
 
         heapq.heappush(self._generators, (priority, (generator, matcher)))
 
-    def generate(self, source, context):
+    def get_handler(self, source, context):
         '''Try to generate source with each contained generator instance'''
 
         heap = list(self._generators)
@@ -62,6 +62,9 @@ class PriorityGenerator(GeneratorBase):
 
             if matcher is None or matcher(source, context):
                 logger.debug('Generating source %r with priority generator %r (matching sub-generator %r)' % (source, self, gen))
-                return gen.generate(source, context)
+                return gen
 
         raise ValueError("Source cannot be generated")
+
+    def generate(self, source, context):
+        return self.get_handler(source, context)(source, context)
