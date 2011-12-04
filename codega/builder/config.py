@@ -70,7 +70,7 @@ class ConfigBuilder(Builder):
         self.push_task(task)
 
     def add_external(self, external, targets = (), force = False):
-        task = ProxyTask(self, lambda job_id, force: ConfigBuilder.run_make(job_id, external, targets = targets, force = force))
+        task = ProxyTask(self, lambda phase_id, force: ConfigBuilder.run_make(phase_id, external, targets = targets, force = force))
         self.push_task(task)
 
     def add_copy(self, copy):
@@ -78,7 +78,7 @@ class ConfigBuilder(Builder):
         self.push_task(task)
 
     @staticmethod
-    def run_make(job_id, config_file, targets = (), force = False):
+    def run_make(phase_id, config_file, targets = (), force = False):
         #import pdb; pdb.set_trace()
         # Check if file exists
         if not os.path.isfile(config_file):
@@ -126,11 +126,11 @@ class ConfigBuilder(Builder):
             config_builder.add_copy(copy)
 
         # Run build for targets
-        config_builder.build(job_id, force = force)
+        config_builder.build(phase_id, force = force)
         return True
 
     @staticmethod
-    def run_build(job_id, source, parser, target, generator, includes = (), config_dest = None, settings = None):
+    def run_build(phase_id, source, parser, target, generator, includes = (), config_dest = None, settings = None):
         if not source:
             logger.critical('Missing source')
             return False
@@ -180,6 +180,6 @@ class ConfigBuilder(Builder):
 
         config_builder = ConfigBuilder(config, FileResourceLocator('.'))
         config_builder.add_target(target_obj)
-        config_builder.build(job_id, force = True)
+        config_builder.build(phase_id, force = True)
         return True
 

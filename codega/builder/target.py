@@ -10,7 +10,7 @@ from codega.context import Context
 from codega.source import SourceBase
 from codega.error import StateError
 
-from base import TaskBase, job
+from base import TaskBase, phase
 from time import get_module_time, get_mtime
 
 class TargetTask(TaskBase):
@@ -40,16 +40,16 @@ class TargetTask(TaskBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
         return parser().load(self._source.resource, self._locator).getroot()
 
-    @job('parse')
-    def job_parse(self, job_id, force):
+    @phase('parse')
+    def phase_parse(self, phase_id, force):
         key = self._source.name
         if force or not self._cache.has_key(key):
             self._cache[key] = self.get_source(self._source)
 
         return self._cache[key]
 
-    @job('build', depends = ('parse',))
-    def job_build(self, job_id, force):
+    @phase('build', depends = ('parse',))
+    def phase_build(self, phase_id, force):
         # Check if we need to rebuild the target
         if not force and os.path.exists(self._destination):
             modules = [ 'codega', self._source.parser.module, self._target.generator.module ]
@@ -85,8 +85,8 @@ class TargetTask(TaskBase):
         destination.write(output)
         destination.close()
 
-    @job('cleanup')
-    def job_cleanup(self, job_id, force):
+    @phase('cleanup')
+    def phase_cleanup(self, phase_id, force):
         if os.path.isfile(self._destination):
             os.remove(self._destination)
 

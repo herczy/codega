@@ -10,7 +10,7 @@ from codega.context import Context
 from codega.source import SourceBase
 from codega.error import StateError
 
-from base import TaskBase, job
+from base import TaskBase, phase
 from time import get_mtime
 
 class CopyTask(TaskBase):
@@ -29,8 +29,8 @@ class CopyTask(TaskBase):
 
         super(CopyTask, self).__init__(builder)
 
-    @job('build')
-    def job_build(self, job_id, force):
+    @phase('build')
+    def phase_build(self, phase_id, force):
         if not force and os.path.exists(self._target):
             if get_mtime(self._target) >= get_mtime(self._source):
                 return
@@ -40,7 +40,7 @@ class CopyTask(TaskBase):
         destination.write(open(self._source, 'r').read())
         destination.close()
 
-    @job('cleanup')
-    def job_cleanup(self, job_id, force):
+    @phase('cleanup')
+    def phase_cleanup(self, phase_id, force):
         if os.path.isfile(self._destination):
             os.remove(self._destination)

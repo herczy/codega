@@ -25,7 +25,7 @@ class Builder(object):
 
         self._tasks.append(task)
 
-    def build(self, job_id, force = False):
+    def build(self, phase_id, force = False):
         '''Build tasks.
 
         Note that the tasks will be removed!
@@ -33,8 +33,8 @@ class Builder(object):
 
         try:
             for task in self._tasks:
-                logger.debug('Running job %s on task %s' % (job_id, task))
-                task.build(job_id, force = force)
+                logger.debug('Running phase %s on task %s' % (phase_id, task))
+                task.build(phase_id, force = force)
 
         except Exception, e:
             logger.exception(preface = 'Build error', line_prefix = '** ')

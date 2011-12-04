@@ -1,42 +1,42 @@
 from unittest import TestCase
 
-from codega.builder.base import TaskBase, job
+from codega.builder.base import TaskBase, phase
 from codega.builder.builder import Builder
 from codega.decorators import get_mark
 
 class TestBuild(TestCase):
-    def test_job(self):
-        @job('a', depends = ('b', 'c'))
+    def test_phase(self):
+        @phase('a', depends = ('b', 'c'))
         def x():
             pass
 
-        self.assertEqual(get_mark(x, 'task_job'), ('a', ('b', 'c')))
+        self.assertEqual(get_mark(x, 'task_phase'), ('a', ('b', 'c')))
 
     def test_task_base(self):
         okay = set()
         class TestTask(TaskBase):
-            @job('a')
-            def job_a(self, jid, force):
-                okay.add(self.job_a)
+            @phase('a')
+            def phase_a(self, jid, force):
+                okay.add(self.phase_a)
 
-            @job('b', depends = ('a',))
-            def job_b(self, jid, force):
-                okay.add(self.job_b)
+            @phase('b', depends = ('a',))
+            def phase_b(self, jid, force):
+                okay.add(self.phase_b)
 
         task = TestTask(None)
 
-        self.assertEqual(set(task.list_supported_jobs()), set(['a', 'b']))
+        self.assertEqual(set(task.list_supported_phases()), set(['a', 'b']))
 
         task.build('a')
-        self.assertEqual(okay, set([task.job_a]))
+        self.assertEqual(okay, set([task.phase_a]))
         okay = set()
 
         task.build('b')
-        self.assertEqual(okay, set([task.job_a, task.job_b]))
+        self.assertEqual(okay, set([task.phase_a, task.phase_b]))
         okay = set()
 
         task.build('b', skip = ['a'])
-        self.assertEqual(okay, set([task.job_b]))
+        self.assertEqual(okay, set([task.phase_b]))
         okay = set()
 
     def test_builder(self):
@@ -44,8 +44,8 @@ class TestBuild(TestCase):
         class TestTask(TaskBase):
             value = 0
 
-            @job('a')
-            def job_a(self, jid, force):
+            @phase('a')
+            def phase_a(self, jid, force):
                 okay.add(self)
 
         builder = Builder()

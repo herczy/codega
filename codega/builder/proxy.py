@@ -13,5 +13,5 @@ class ProxyTask(TaskBase):
 
         super(ProxyTask, self).__init__(builder)
 
-    def build(self, job_id, force = False, skip = None):
-        self._build_function(job_id = job_id, force = force)
+    def build(self, phase_id, force = False, skip = None):
+        self._build_function(phase_id = phase_id, force = force)
