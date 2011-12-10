@@ -1,0 +1,11 @@
+path of target is '12345'
+add path '789'
+
+load source 'name' from 'source.xml'
+load source 'name2' from 'source.xml' with 'a:b'
+generate target file 'source.cc' with 'my.generator:source' from 'name'
+  set 'setting.key' to 'something'
+  set 'setting.other' to 'some other thing'
+  set 'other' to 'foo'
+external 'extfile.xml'
+copy 'a.c' to 'b.c'
