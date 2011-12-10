@@ -7,8 +7,13 @@ from lxml import etree
 
 import codega
 
+from codega.rsclocator import *
 from codega.source import XmlSource
+
+from codega.config.structures import *
+from codega.config.loader import *
 from codega.config import *
+from codega.config.saver import *
 
 from common import make_tempfile
 
@@ -31,14 +36,14 @@ class TestVisitors(TestCase):
         path = os.path.join(os.path.dirname(__file__), 'data')
         for item in os.listdir(path):
             fn, ext = os.path.splitext(item)
-            if ext != '.xml':
+            if ext not in ('.xml', '.codega'):
                 continue
 
             name, expect = os.path.splitext(fn)
             item_path = os.path.join(path, item)
 
             try:
-                cfg = parse_config_file(item_path)
+                cfg = ConfigLoader().load(item_path)
 
             except Exception, e:
                 if expect != '.fail':
@@ -53,11 +58,12 @@ class TestVisitors(TestCase):
                 if hasattr(self, 'check_%s' % name):
                     getattr(self, 'check_%s' % name)(cfg)
 
-                with make_tempfile() as (fd, fn):
+                with make_tempfile(suffix = '.xml') as (fd, fn):
                     os.write(fd, save_config(cfg))
-                    parse_config_file(fn)
+                    ConfigLoader().load(fn)
 
-                self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
+                if ext == '.xml':
+                    self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
 
     def check_parse00(self, cfg):
         self.assertEqual(cfg.paths.destination, './')
@@ -82,6 +88,29 @@ class TestVisitors(TestCase):
 
         self.assertEqual(cfg.copy['y'].source, 'x')
         self.assertEqual(cfg.copy['y'].target, 'y')
+
+    def check_parse02(self, cfg):
+        self.assertEqual(cfg.paths.destination, '12345')
+        self.assertEqual(cfg.paths.paths, ['789'])
+
+        self.assertEqual(cfg.sources['name'].name, 'name')
+        self.assertEqual(cfg.sources['name'].resource, 'source.xml')
+        self.assertEqual(cfg.sources['name'].parser.module, 'codega.source')
+        self.assertEqual(cfg.sources['name'].parser.reference, 'XmlSource')
+
+        self.assertEqual(cfg.sources['name2'].name, 'name2')
+        self.assertEqual(cfg.sources['name2'].resource, 'source.xml')
+        self.assertEqual(cfg.sources['name2'].parser.module, 'a')
+        self.assertEqual(cfg.sources['name2'].parser.reference, 'b')
+
+        target = cfg.targets['source.cc']
+        self.assertEqual(target.source, 'name')
+        self.assertEqual(target.generator.module, 'my.generator')
+        self.assertEqual(target.generator.reference, 'source')
+
+        self.assertEqual(target.settings.setting.key, 'something')
+        self.assertEqual(target.settings.setting.other, 'some other thing')
+        self.assertEqual(target.settings.other, 'foo')
 
 class TestFunctions(TestCase):
     def test_validators(self):

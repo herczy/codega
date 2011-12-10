@@ -5,8 +5,10 @@ Configuration builder, is a facade to the build sub-system
 import os.path
 
 from codega import logger
-from codega.config import Config, Source, Target, parse_config_file, save_config, \
-    Settings
+from codega.config.structures import Config, Source, Target, Settings
+from codega.config.saver import save_config
+from codega.config.loader import ConfigLoader
+
 from codega.rsclocator import FallbackLocator, FileResourceLocator
 from codega.error import ParseError
 from codega.version import Version
@@ -91,7 +93,7 @@ class ConfigBuilder(Builder):
         # Load configuration file
         try:
             logger.info('Loading config file %r', config_file)
-            config = parse_config_file(config_file)
+            config = ConfigLoader().load(config_file)
 
         except ParseError, parse_error:
             logger.error('Parse error: %s', parse_error)
