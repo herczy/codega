@@ -1,0 +1,8 @@
+path of target is '.'
+add path '../basic'
+
+load source 'config' from 'codega.xml'
+generate target file 'config.txt' with 'dumper:DumpGenerator' from 'config'
+  set 'test0' to 'value'
+  set 'test1.test2' to 'value2'
+

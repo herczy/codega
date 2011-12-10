@@ -80,11 +80,30 @@ class ConfigBuilder(Builder):
         self.push_task(task)
 
     @staticmethod
-    def run_make(phase_id, config_file, targets = (), force = False):
-        #import pdb; pdb.set_trace()
+    def get_config(config_file):
+        if config_file is None:
+            if os.path.isfile('codega'):
+                return 'codega'
+
+            elif os.path.isfile('codega.xml'):
+                return 'codega.xml'
+
+        else:
+            if os.path.isfile(config_file):
+                return config_file
+
+    @staticmethod
+    def run_make(phase_id, opt_config_file = None, targets = (), force = False):
+        config_file = ConfigBuilder.get_config(opt_config_file)
+
         # Check if file exists
-        if not os.path.isfile(config_file):
-            logger.critical("File %r not found", config_file)
+        if config_file is None:
+            if opt_config_file:
+                logger.critical("File %r not found", opt_config_file)
+
+            else:
+                logger.critical("No suitable config file could be found")
+
             return False
 
         # Locator from the config file

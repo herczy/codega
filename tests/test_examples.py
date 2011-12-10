@@ -38,7 +38,7 @@ for f in os.listdir(exampledir):
     if not os.path.isdir(abspath):
         continue
 
-    if not os.path.isfile(os.path.join(abspath, 'codega.xml')):
+    if not os.path.isfile(os.path.join(abspath, 'codega.xml')) and not os.path.isfile(os.path.join(abspath, 'codega')):
         continue
 
     add_example_test(f, abspath)

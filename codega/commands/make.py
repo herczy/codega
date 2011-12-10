@@ -9,8 +9,8 @@ class CommandMake(OptparsedCommand):
 
     def __init__(self):
         options = [
-            optparse.make_option('-c', '--config', default = 'codega.xml',
-                                 help = 'Specify config file (default: %default)'),
+            optparse.make_option('-c', '--config', default = None,
+                                 help = 'Specify config file (default: codega or codega.xml)'),
             optparse.make_option('-t', '--target', default = [], action = 'append',
                                  help = 'Specify targets (default: all)'),
             optparse.make_option('-f', '--force', default = False, action = 'store_true',
