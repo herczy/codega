@@ -8,6 +8,7 @@ from custom import ConfigCustomSource
 
 class ConfigLoader(SourceBase):
     def decide_format(self, filename):
+        filename = os.path.basename(filename)
         if filename == 'codega':
             return ConfigCustomSource()
 
