@@ -22,7 +22,7 @@ class Lexer(object):
     )
 
     tokens = tuple(map(str.upper, keywords)) + (
-        'ID', 'STRING', 'NL',
+        'STRING', 'NL',
     )
 
     t_ignore = ' \t'
@@ -43,11 +43,14 @@ class Lexer(object):
 
         return res
 
-    def t_ID(self, t):
-        r'[a-zA-Z]+'
+    def t_keyword(self, t):
+        r'[^\'\s][^\s]*'
 
         if t.value in self.keywords:
             t.type = t.value.upper()
+
+        else:
+            t.type = 'STRING'
 
         return t
 
