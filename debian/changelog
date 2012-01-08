@@ -1,3 +1,9 @@
+codega (0.6.0) maverick; urgency=low
+
+  * Alternate configuration file added 
+
+ -- Hercinger Viktor <herczy@terminus>  Sun, 08 Jan 2012 17:36:17 +0100
+
 codega (0.5.3) maverick; urgency=low
 
   * Minor bugfixes
