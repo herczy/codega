@@ -1,3 +1,10 @@
+codega (0.5.3) maverick; urgency=low
+
+  * Minor bugfixes
+  * Renamed job to phase
+
+ -- Hercinger Viktor <herczy@terminus>  Sun, 08 Jan 2012 17:33:22 +0100
+
 codega (0.5.2) maverick; urgency=low
 
   * Added command line settings specification
