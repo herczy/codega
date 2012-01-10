@@ -18,7 +18,7 @@ class Lexer(object):
         'of', 'is', 'load', 'with', 'generate',
         'file', 'path', 'target', 'source',
         'from', 'copy', 'add', 'set',
-        'to', 'external',
+        'to', 'external', 'transform', 'and',
     )
 
     tokens = tuple(map(str.upper, keywords)) + (
@@ -140,8 +140,8 @@ class Parser(object):
         self.sections['paths'].append(path)
 
     def p_source(self, p):
-        '''source : LOAD SOURCE STRING FROM STRING NL
-                  | LOAD SOURCE STRING FROM STRING WITH STRING NL'''
+        '''source : LOAD SOURCE STRING FROM STRING transform NL
+                  | LOAD SOURCE STRING FROM STRING WITH STRING transform NL'''
 
         source = etree.Element('source')
 
@@ -153,12 +153,45 @@ class Parser(object):
         resource.text = p[5]
         source.append(resource)
 
-        if len(p) > 7:
+        if len(p) > 8:
             parser = etree.Element('parser')
             parser.text = p[7]
             source.append(parser)
 
+            transform = p[8]
+
+        else:
+            transform = p[6]
+
+        source.extend(transform)
+
         self.sections['sources'].append(source)
+
+    def p_transform_0(self, p):
+        '''transform : '''
+
+        p[0] = []
+
+    def p_transform_1(self, p):
+        '''transform : TRANSFORM WITH module_list'''
+
+        p[0] = p[3]
+
+    def p_module_list_0(self, p):
+        '''module_list : STRING'''
+
+        transform = etree.Element('transform')
+        transform.text = p[1]
+        p[0] = [transform]
+
+    def p_module_list_1(self, p):
+        '''module_list : STRING AND module_list'''
+
+        transform = etree.Element('transform')
+        transform.text = p[1]
+
+        p[0] = p[3]
+        p[0].insert(0, transform)
 
     def p_target(self, p):
         '''target : GENERATE TARGET FILE STRING WITH STRING FROM STRING NL settings'''

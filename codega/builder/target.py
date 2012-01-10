@@ -3,7 +3,6 @@ Build tasks handle the building of a target.
 '''
 
 import os.path
-import stat
 
 from codega.generator.base import GeneratorBase
 from codega.context import Context
@@ -38,7 +37,14 @@ class TargetTask(TaskBase):
         parser = self._source.parser.load(self._locator)
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
-        return parser().load(self._source.resource, self._locator).getroot()
+
+        res = parser().load(self._source.resource, self._locator).getroot()
+
+        for transform in source.transform:
+            modtrans = transform.load(self._locator)
+            res = modtrans(res)
+
+        return res
 
     @phase('parse')
     def phase_parse(self, phase_id, force):

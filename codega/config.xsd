@@ -45,6 +45,7 @@
         <xs:element name="name" type="xs:string" />
         <xs:element name="resource" type="xs:string" />
         <xs:element name="parser" type="class_locator" minOccurs="0" maxOccurs="1" />
+        <xs:element name="transform" type="class_locator" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

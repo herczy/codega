@@ -9,7 +9,6 @@ from codega.rsclocator import ModuleLocator
 
 import structures
 from update import UpdateVisitor
-from saver import save_config
 
 class ParseVisitor(ClassVisitor):
     '''Parse the configs XML tree representation to the internal representation.'''
@@ -45,6 +44,12 @@ class ParseVisitor(ClassVisitor):
         parser = xml_node.find('parser')
         if parser is not None:
             self.visit(node.parser, parser)
+
+        for transform in xml_node:
+            if transform.tag == 'transform':
+                transform_module = structures.ModuleReference(node)
+                self.visit(transform_module, transform)
+                node.transform.append(transform_module)
 
     @visitor(structures.Settings.RecursiveContainer)
     def recursive_container(self, node, xml_node):

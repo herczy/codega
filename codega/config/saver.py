@@ -31,6 +31,9 @@ class SaveVisitor(ClassVisitor):
         if not node.parser.is_default:
             res.append(build_element('parser', text = self.visit(node.parser)))
 
+        for transform in node.transform:
+            res.append(build_element('transform', text = self.visit(transform)))
+
         return res
 
     @visitor(structures.Settings.RecursiveContainer)

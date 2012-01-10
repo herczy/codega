@@ -24,6 +24,8 @@ class UpdateVisitor(ExplicitVisitor):
              changes to 0 since the externals define other kinds of tasks and paths for
              themselves and the config can be used to tie other configs together.
     * 1.3 -- Added 'copy' tag so a file can be copied to it's destination.
+    * 1.4 -- Added 'transform' tag to sources. Transformations are module refs that can
+             be used to transform the source to a different structure.
     '''
 
     @visitor(Version(1, 0))
@@ -46,6 +48,12 @@ class UpdateVisitor(ExplicitVisitor):
         '''Update 1.2 configs to 1.3'''
 
         return self.visit(Version(1, 3), xml_root)
+
+    @visitor(Version(1, 3))
+    def update_1_3(self, version, xml_root):
+        '''Update 1.3 configs to 1.4'''
+
+        return self.visit(Version(1, 4), xml_root)
 
     @visitor(latest_version)
     def version_current(self, version, xml_root):

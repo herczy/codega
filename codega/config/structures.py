@@ -206,19 +206,23 @@ class Source(NodeBase):
     _name -- Source name
     _parser -- Parser class reference
     _resource  -- Resource name
+    _transform -- Transformation list
     '''
 
     _name = None
     _parser = None
     _resource = None
+    _transform = None
 
     name = config_property('_name')
     parser = config_property('_parser', enable_change = False)
     resource = config_property('_resource')
+    transform = config_property('_transform', enable_change = False)
 
     def __init__(self, parent):
         super(Source, self).__init__(parent)
 
+        self._transform = []
         self._parser = ModuleReference(self, 'codega.source', 'XmlSource')
 
 class Target(NodeBase):
