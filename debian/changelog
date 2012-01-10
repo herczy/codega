@@ -1,3 +1,9 @@
+codega (0.6.1) maverick; urgency=low
+
+  * Added transform option to source.
+
+ -- Hercinger Viktor <herczy@terminus>  Tue, 10 Jan 2012 20:33:23 +0100
+
 codega (0.6.0) maverick; urgency=low
 
   * Alternate configuration file added 
