@@ -58,7 +58,7 @@ class PriorityGenerator(GeneratorBase):
         heap = list(self._generators)
 
         while heap:
-            pri, (gen, matcher) = heapq.heappop(heap)
+            _, (gen, matcher) = heapq.heappop(heap)
 
             if matcher is None or matcher(source, context):
                 logger.debug('Generating source %r with priority generator %r (matching sub-generator %r)' % (source, self, gen))
