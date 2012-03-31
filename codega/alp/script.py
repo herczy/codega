@@ -25,9 +25,6 @@ class ScriptLexer(Lexer):
     t_ignore = ' \r\n\t'
 
     keywords = dict((s, s.upper()) for s in (
-        # Script information
-        'language', 'author', 'version', 'email',
-
         # Python-style import statements
         'from', 'import', 'as',
 
@@ -44,8 +41,12 @@ class ScriptLexer(Lexer):
         'rule',
     ))
 
+    script_information_keywords = (
+        'language', 'author', 'version', 'email', 'name',
+    )
+
     tokens = tuple(keywords.values()) + (
-        'ID', 'STRING', 'INTEGER',
+        'ID', 'INFOKEYWORD', 'STRING', 'INTEGER',
         'SEMICOLON', 'ARROW', 'MINUS', 'EQ', 'PERIOD',
         'LCURLY', 'RCURLY',
     )
@@ -61,7 +62,10 @@ class ScriptLexer(Lexer):
     def t_ID(self, t):
         r'[a-zA-Z_][a-zA-Z0-9]*'
 
-        if t.value in self.keywords:
+        if t.value in self.script_information_keywords:
+            t.type = 'INFOKEYWORD'
+
+        elif t.value in self.keywords:
             t.type = self.keywords[t.value]
 
         return t
@@ -170,10 +174,7 @@ class ScriptParser(ParserBase):
         '''header : header_entry SEMICOLON header'''
 
     def p_header_entry(self, p):
-        '''header_entry : LANGUAGE ID
-                        | AUTHOR STRING
-                        | EMAIL STRING
-                        | VERSION INTEGER'''
+        '''header_entry : INFOKEYWORD ID'''
 
         self._info.insert(0, p[1], p[2])
 
