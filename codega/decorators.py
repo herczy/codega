@@ -1,5 +1,26 @@
 '''Various commonly used function decorators'''
 
+def set_attributes(name, doc=None):
+    '''
+    Set the name and documentation attributes to the decorated function
+    '''
+
+    def __decorator(func):
+        func.__name__ = name
+        func.__doc__ = doc
+
+        return func
+
+    return __decorator
+
+def copy_attributes(base):
+    '''
+    Copy name and documentation attributes of base
+    to the decorated function.
+    '''
+
+    return set_attributes(base.__name__, doc=base.__doc__)
+
 def abstract(func):
     '''The class method is an abstract.
 
@@ -7,11 +28,9 @@ def abstract(func):
     func -- Decorated function. Will never be called
     '''
 
+    @copy_attributes(func)
     def __wrapper(self, *args, **kwargs):
         raise NotImplementedError("%s.%s is an abstract method" % (self.__class__.__name__, func.__name__))
-
-    __wrapper.__name__ = func.__name__
-    __wrapper.__doc__ = func.__doc__
 
     return __wrapper
 
