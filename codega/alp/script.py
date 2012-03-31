@@ -152,13 +152,11 @@ class ScriptParser(ParserBase):
         bind_members = {}
         for name, cls in meta.classes:
             for index, rule in enumerate(cls.rules):
-                print name, index, rule
                 func = self.create_class_handler_function(name, cls, rule, index)
                 define(bind_members)(func)
 
         for name, ruleset in self._selections:
             for index, rule in enumerate(ruleset):
-                print name, index, rule
                 func = self.create_selection_handler_function(name, rule, index)
                 bind_members[func.__name__] = func
 
