@@ -1,7 +1,3 @@
-from codega.ordereddict import OrderedDict
-from codega.alp.mapper import Mapper
-from codega.decorators import bind
-
 class RuleEntry(object):
     def __init__(self, name, ignore=None, key=None):
         self.name = name
