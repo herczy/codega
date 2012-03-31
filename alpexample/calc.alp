@@ -1,0 +1,83 @@
+#
+# Calculator ALP
+#
+
+ignore SPACES '\s+';
+
+token NAME '[a-zA-Z_][a-zA-Z0-9]*';
+token NUMBER '(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?';
+
+literal EQ '=';
+literal ADD '+';
+literal SUB '-';
+literal MUL '*';
+literal DIV '/';
+literal LPAREN '(';
+literal RPAREN ')';
+
+keyword for;
+keyword do;
+keyword to;
+keyword step;
+
+precedence left(ADD, SUB);
+precedence left(DIV, MUL);
+precedence right(UMINUS);
+
+start production;
+
+selection production
+{
+  rule expression;
+  rule assignment;
+  rule expr_for;
+};
+
+selection expression
+{
+  rule binary_expression;
+  rule unary_expression;
+  rule NUMBER;
+  rule NAME;
+  rule -LPAREN expression -RPAREN;
+};
+
+node binary_expression
+{
+  required operand0;
+  required operator;
+  required operand1;
+
+  rule expression ADD expression;
+  rule expression SUB expression;
+  rule expression MUL expression;
+  rule expression DIV expression;
+};
+
+node unary_expression
+{
+  required operator;
+  required operand;
+
+  rule SUB expression %prec UMINUS;
+};
+
+node assignment
+{
+  required rvalue;
+  required lvalue;
+
+  rule NAME -EQ expression;
+};
+
+node expr_for
+{
+  required bound;
+  required begin;
+  required end;
+  optional step;
+  required assignment;
+  
+  rule -FOR bound=NAME -EQ begin=expression -TO end=expression -DO assignment=assignment;
+  rule -FOR bound=NAME -EQ begin=expression -TO end=expression -STEP step=expression -DO assignment=assignment;
+};
