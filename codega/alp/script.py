@@ -24,7 +24,7 @@ class ParserError(Exception):
 class ScriptLexer(Lexer):
     t_ignore = ' \r\n\t'
 
-    keywords = dict((s, s.upper()) for s in (
+    keywords = (
         # Python-style import statements
         'from', 'import', 'as',
 
@@ -38,35 +38,54 @@ class ScriptLexer(Lexer):
         'optional', 'required',
 
         # Rule definition
-        'rule',
-    ))
+        'rule', 'start',
 
-    script_information_keywords = (
-        'language', 'author', 'version', 'email', 'name',
+        # Precedence
+        'precedence',
+        ('PRECDIR', 'left', 'right'),
+
+        # Script information keywords
+        ('INFOKEYWORD', 'language', 'author', 'version', 'email', 'name'),
     )
 
-    tokens = tuple(keywords.values()) + (
-        'ID', 'INFOKEYWORD', 'STRING', 'INTEGER',
-        'SEMICOLON', 'ARROW', 'MINUS', 'EQ', 'PERIOD',
+    kwmap = {}
+
+    for keyword in keywords:
+        if isinstance(keyword, basestring):
+            kwmap[keyword] = keyword.upper()
+
+        else:
+            _token, keyword_collection = keyword[0], keyword[1:]
+
+            for keyword in keyword_collection:
+                kwmap[keyword] = _token
+
+    tokens = (
+        'ID', 'STRING', 'INTEGER',
+        'SEMICOLON', 'ARROW', 'MINUS', 'EQ', 'PERIOD', 'COMMA',
+        'PRECSYM',
         'LCURLY', 'RCURLY',
-    )
+        'LPAREN', 'RPAREN',
+    ) + tuple(kwmap.values())
 
     t_SEMICOLON = r';'
     t_ARROW = r'=>'
     t_MINUS = r'-'
     t_EQ = r'='
     t_PERIOD = r'\.'
+    t_COMMA = r','
     t_LCURLY = r'{'
     t_RCURLY = r'}'
+    t_LPAREN = r'\('
+    t_RPAREN = r'\)'
+
+    t_PRECSYM = r'%prec'
 
     def t_ID(self, t):
-        r'[a-zA-Z_][a-zA-Z0-9]*'
+        r'[a-zA-Z_][a-zA-Z0-9_]*'
 
-        if t.value in self.script_information_keywords:
-            t.type = 'INFOKEYWORD'
-
-        elif t.value in self.keywords:
-            t.type = self.keywords[t.value]
+        if t.value in self.kwmap:
+            t.type = self.kwmap[t.value]
 
         return t
 
@@ -77,7 +96,7 @@ class ScriptLexer(Lexer):
         return t
 
     def t_INTEGER(self, t):
-        r'(0|[1-9][0-9]*)'
+        r'[+-]?(0|[1-9][0-9]*)'
 
         t.value = int(t.value)
         return t
@@ -97,8 +116,14 @@ class ScriptParser(ParserBase):
         self._baseclass = ast.create_base_node('ScriptBase')
         self._selections = []
 
+        self._precedence = []
+        self._start = 'start'
+
     def create_module(self, name):
         mod = types.ModuleType(name)
+
+        for name, cls in self._baseclass.metainfo.classes:
+            setattr(mod, name, cls)
 
         mod.__info__ = self._info
         mod.__modules__ = self._modules
@@ -139,10 +164,14 @@ class ScriptParser(ParserBase):
     def create_selection_handler_function(self, name, rule, index):
         @set_attributes('p_%s_%d' % (name, index), rule.to_yacc_rule())
         def rule_handler(self, prod):
-            if len(prod) != 2:
+            args, kwargs = rule.create_argument_list(prod[1:])
+            if kwargs:
+                raise ValueError("Selection cannot have keyword argument")
+
+            if len(args) != 1:
                 raise ValueError("Invalid number of values")
 
-            prod[0] = prod[1]
+            prod[0] = args[0]
 
         return rule_handler
 
@@ -150,6 +179,7 @@ class ScriptParser(ParserBase):
         meta = self._baseclass.metainfo
 
         bind_members = {}
+        prec = dict()
         for name, cls in meta.classes:
             for index, rule in enumerate(cls.rules):
                 func = self.create_class_handler_function(name, cls, rule, index)
@@ -160,6 +190,15 @@ class ScriptParser(ParserBase):
                 func = self.create_selection_handler_function(name, rule, index)
                 bind_members[func.__name__] = func
 
+        if self._precedence:
+            prec = []
+
+            for dir, values in self._precedence:
+                prec.append((dir,) + tuple(values))
+
+            bind_members['precedence'] = tuple(prec)
+
+        bind_members['start'] = self._start
         return ParserBase.subclass(name, bind_members)
 
     def p_start(self, p):
@@ -197,6 +236,11 @@ class ScriptParser(ParserBase):
 
         self._modules[p[6]] = __import__(p[4], fromlist=[p[2]])
 
+    def p_main_entry_start(self, p):
+        '''main_entry : START ID'''
+
+        self._start = p[2]
+
     def p_main_entry_token(self, p):
         '''main_entry : TOKEN ID STRING'''
 
@@ -217,20 +261,33 @@ class ScriptParser(ParserBase):
 
         self._lexerfactory.add_ignore_token(p[2], p[3])
 
+    def p_main_entry_precedence(self, p):
+        '''main_entry : PRECEDENCE PRECDIR LPAREN idlist RPAREN'''
+
+        self._precedence.append((p[2], p[4]))
+
+    def make_rules(self, name, *ruleset):
+        res = []
+
+        for entries, prec in ruleset:
+            r = rule.Rule(name, *entries)
+            if prec is not None:
+                r.precedence = prec
+
+            res.append(r)
+
+        return res
+
     def p_main_entry_node(self, p):
         '''main_entry : NODE ID LCURLY node_body RCURLY'''
 
         props, rule_entries = p[4]
-        rules = tuple(rule.Rule(p[2], *re) for re in rule_entries)
-
-        self._baseclass.subclass(p[2], rules=rules, property_definitions=props)
+        self._baseclass.subclass(p[2], rules=self.make_rules(p[2], *rule_entries), property_definitions=props)
 
     def p_main_entry_selection(self, p):
         '''main_entry : SELECTION ID LCURLY rule_list RCURLY'''
 
-        rules = tuple(rule.Rule(p[2], *re) for re in p[4])
-
-        self._selections.append((p[2], rules))
+        self._selections.append((p[2], self.make_rules(p[2], *p[4])))
 
     def p_main_node_body(self, p):
         '''node_body : property_list rule_list'''
@@ -257,7 +314,12 @@ class ScriptParser(ParserBase):
     def p_rule_list_1(self, p):
         '''rule_list : RULE rule_entries SEMICOLON rule_list'''
 
-        p[0] = (p[2],) + p[4]
+        p[0] = ((p[2], None),) + p[4]
+
+    def p_rule_list_2(self, p):
+        '''rule_list : RULE rule_entries PRECSYM ID SEMICOLON rule_list'''
+
+        p[0] = ((p[2], p[4]),) + p[6]
 
     def p_rule_entries_0(self, p):
         '''rule_entries : '''
@@ -277,7 +339,7 @@ class ScriptParser(ParserBase):
     def p_rule_entry_ignored(self, p):
         '''rule_entry : MINUS ID'''
 
-        p[0] = rule.RuleEntry(p[1], ignore=True)
+        p[0] = rule.RuleEntry(p[2], ignore=True)
 
     def p_rule_entry_withkey(self, p):
         '''rule_entry : ID EQ ID'''
@@ -293,6 +355,16 @@ class ScriptParser(ParserBase):
         '''module : ID PERIOD module'''
 
         p[0] = ''.join(p[1:])
+
+    def p_idlist_0(self, p):
+        '''idlist : ID'''
+
+        p[0] = (p[1],)
+
+    def p_idlist_1(self, p):
+        '''idlist : ID COMMA idlist'''
+
+        p[0] = (p[1],) + p[3]
 
 def parse(sourcename, data):
     errctx = ErrorContext()
