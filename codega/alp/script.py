@@ -366,7 +366,7 @@ class ScriptParser(ParserBase):
 
         p[0] = (p[1],) + p[3]
 
-def parse(sourcename, data):
+def parse(sourcename, data, name=None):
     errctx = ErrorContext()
     lexer = ScriptLexer(sourcename, errctx)
     parser = ScriptParser(lexer)
@@ -377,7 +377,10 @@ def parse(sourcename, data):
     if not errctx.result:
         raise ParserError(errctx)
 
-    return parser.create_module(sourcename)
+    if name is None:
+        name = sourcename
 
-def parse_file(filename):
-    return parse(filename, open(filename).read())
+    return parser.create_module(name)
+
+def parse_file(filename, name=None):
+    return parse(filename, open(filename).read(), name=name)

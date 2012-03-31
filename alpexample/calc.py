@@ -8,11 +8,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from codega.logger import prepare
 prepare()
 
-from codega.alp.script import parse_file, ParserError
-from codega.visitor import ClassVisitor, visitor
+from codega.alp import enable_loader
+enable_loader()
 
-name = os.path.join(os.path.dirname(__file__), 'calc.alp')
-mod = parse_file(name)
+import calc as mod #@PydevCodeAnalysisIgnore
+
+from codega.alp.script import ParserError
+from codega.visitor import ClassVisitor, visitor
 
 class PrettyPrint(ClassVisitor):
     @visitor(mod.binary_expression)
