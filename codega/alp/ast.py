@@ -90,15 +90,21 @@ def create_base_node(name, base=object, metainfo=None, metatype=type):
 
             index = 0
             for prop in self.property_definitions:
-                if not args:
+                if not args and not kwargs:
                     break
 
                 if prop.name in kwargs:
                     self.properties[prop.name] = kwargs.pop(prop.name)
 
-                else:
+                elif args:
                     self.properties[prop.name] = args[0]
                     del args[0]
+
+                else:
+                    if prop.klass == REQUIRED:
+                        raise ValueError("Cannot handle required argument")
+
+                    self.properties[prop.name] = None
 
                 index += 1
 
