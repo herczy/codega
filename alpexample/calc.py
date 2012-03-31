@@ -11,25 +11,25 @@ prepare()
 from codega.alp import enable_loader
 enable_loader()
 
-import calc as mod #@PydevCodeAnalysisIgnore
+import calc #@PydevCodeAnalysisIgnore
 
 from codega.alp.script import ParserError
 from codega.visitor import ClassVisitor, visitor
 
 class PrettyPrint(ClassVisitor):
-    @visitor(mod.binary_expression)
+    @visitor(calc.binary_expression)
     def v_binary_expr(self, o):
         return '(%s %s %s)' % (self.visit(o.operand0), o.operator, self.visit(o.operand1))
 
-    @visitor(mod.unary_expression)
+    @visitor(calc.unary_expression)
     def v_unary_expr(self, o):
         return '(%s %s)' % (o.operator, self.visit(o.operand))
 
-    @visitor(mod.assignment)
+    @visitor(calc.assignment)
     def v_assign(self, o):
         return '%s = %s' % (o.rvalue, self.visit(o.lvalue))
 
-    @visitor(mod.expr_for)
+    @visitor(calc.expr_for)
     def v_for(self, o):
         if o.step is None:
             step = 1.0
@@ -44,22 +44,22 @@ class PrettyPrint(ClassVisitor):
 
 vals = {}
 class Evaluate(ClassVisitor):
-    @visitor(mod.binary_expression)
+    @visitor(calc.binary_expression)
     def v_binary_expr(self, o):
         operators = {'+' : operator.add, '-' : operator.sub, '*' : operator.mul, '/' : operator.div}
         return operators[o.operator](self.visit(o.operand0), self.visit(o.operand1))
 
-    @visitor(mod.unary_expression)
+    @visitor(calc.unary_expression)
     def v_unary_expr(self, o):
         operators = {'-' : operator.neg}
         return operators[o.operator](self.visit(o.operand))
 
-    @visitor(mod.assignment)
+    @visitor(calc.assignment)
     def v_assign(self, o):
         vals[o.rvalue] = self.visit(o.lvalue)
         return vals[o.rvalue]
 
-    @visitor(mod.expr_for)
+    @visitor(calc.expr_for)
     def v_for(self, o):
         if o.step is None:
             step = 1.0
@@ -110,7 +110,7 @@ while True:
         break
 
     try:
-        ast = mod.parse(str(index), l)
+        ast = calc.parse(str(index), l)
 
     except ParserError, e:
         print 'ERROR: %s' % e
