@@ -44,16 +44,19 @@ class Lexer(object):
         self.log.debug('Lexer got input; length=%d' % len(data))
 
     def token(self):
+        prev_pos = self.lexer_object.lexpos
+
         token = self.lexer_object.token()
         if token is not None:
             token.location = self.current_location.clone()
-            self.current_location.update(token.value)
 
             self.log.debug('Got next token; value=%r, type=%s, location=%s' % (token.value, token.type, token.location))
 
         else:
             self.log.debug('End of file reached; location=%s' % self.current_location)
 
+        data = self.lexer_object.lexdata[prev_pos:self.lexer_object.lexpos]
+        self.current_location.update(data)
         return token
 
     def ignore_token(self, token):
