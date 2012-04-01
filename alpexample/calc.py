@@ -3,15 +3,16 @@ import sys
 import operator
 import readline
 import atexit
+import math
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from codega.visitor import ClassVisitor, visitor
 from codega.logger import prepare
 prepare()
 
-import calcparser
+from codega.alp.generator.flatten import flatten
 
-from codega.alp.script import ParserError
-from codega.visitor import ClassVisitor, visitor
+import calcparser
 
 class PrettyPrint(ClassVisitor):
     @visitor(calcparser.binary_expression)
@@ -20,11 +21,15 @@ class PrettyPrint(ClassVisitor):
 
     @visitor(calcparser.unary_expression)
     def v_unary_expr(self, o):
-        return '(%s %s)' % (o.properties.operator, self.visit(o.properties.operand))
+        return '%s%s' % (o.properties.operator, self.visit(o.properties.operand))
 
     @visitor(calcparser.assignment)
     def v_assign(self, o):
         return '%s = %s' % (o.properties.rvalue, self.visit(o.properties.lvalue))
+
+    @visitor(calcparser.call)
+    def v_call(self, o):
+        return '%s(%s)' % (o.properties.func, ', '.join(self.visit(a) for a in o.properties.args))
 
     @visitor(calcparser.expr_for)
     def v_for(self, o):
@@ -36,14 +41,30 @@ class PrettyPrint(ClassVisitor):
 
         return '(for %s in %s to %s step %s do %s)' % (o.properties.bound, self.visit(o.properties.begin), self.visit(o.properties.end), step, self.visit(o.properties.assignment))
 
+    @visitor(calcparser.funcdef)
+    def v_funcdef(self, o):
+        return '%s(%s) = %s' % (o.properties.name, ', '.join(self.visit(a) for a in o.properties.args), self.visit(o.properties.expression))
+
     def visit_fallback(self, o):
         return str(o)
 
 vals = {}
+funcs = {}
+for a in dir(math):
+    if a[0] == '_':
+        continue
+
+    v = getattr(math, a)
+    if hasattr(v, '__call__'):
+        funcs[a] = v
+
+    else:
+        vals[a] = v
+
 class Evaluate(ClassVisitor):
     @visitor(calcparser.binary_expression)
     def v_binary_expr(self, o):
-        operators = {'+' : operator.add, '-' : operator.sub, '*' : operator.mul, '/' : operator.div}
+        operators = {'+' : operator.add, '-' : operator.sub, '*' : operator.mul, '/' : operator.div, '^' : operator.pow}
         return operators[o.properties.operator](self.visit(o.properties.operand0), self.visit(o.properties.operand1))
 
     @visitor(calcparser.unary_expression)
@@ -51,10 +72,32 @@ class Evaluate(ClassVisitor):
         operators = {'-' : operator.neg}
         return operators[o.properties.operator](self.visit(o.properties.operand))
 
+    @visitor(calcparser.call)
+    def v_call(self, o):
+        return funcs[o.properties.func](*(self.visit(a) for a in o.properties.args))
+
     @visitor(calcparser.assignment)
     def v_assign(self, o):
         vals[o.properties.rvalue] = self.visit(o.properties.lvalue)
         return vals[o.properties.rvalue]
+
+    @visitor(calcparser.funcdef)
+    def v_funcdef(self, o):
+        def __func(*args):
+            global vals
+            oldvals = vals.copy()
+            try:
+                for arg_passed, arg_name in zip(args, o.properties.args):
+                    vals[arg_name] = arg_passed
+
+                return self.visit(o.properties.expression)
+
+            finally:
+                vals = oldvals
+
+        global funcs
+        funcs[o.properties.name] = __func
+        return 0.0
 
     @visitor(calcparser.expr_for)
     def v_for(self, o):
@@ -77,15 +120,19 @@ class Evaluate(ClassVisitor):
         return res
 
     def visit_fallback(self, o):
-        try:
-            return float(o)
+        if isinstance(o, tuple):
+            return (self.visit(e) for e in o)
 
-        except ValueError:
+        else:
             try:
-                return vals[o]
+                return float(o)
 
-            except KeyError:
-                return 0.0
+            except ValueError:
+                try:
+                    return vals[o]
+
+                except KeyError:
+                    return 0.0
 
 histfile = os.path.join(os.path.dirname(__file__), ".history")
 try:
@@ -108,13 +155,21 @@ while True:
 
     try:
         ast = calcparser.parse(str(index), l)
+        ast = flatten(ast, calcparser.AstBaseClass)
 
     except calcparser.ParserError, e:
         print 'ERROR: %s' % e
         index += 1
         continue
 
-    print '  [%d] %s => %.3lf' % (index, PrettyPrint().visit(ast), Evaluate().visit(ast))
+    pp = '  [%d] %s => ' % (index, PrettyPrint().visit(ast))
+    try:
+        res = '%.3lf' % Evaluate().visit(ast)
+
+    except Exception, e:
+        res = 'ERROR: %s' % e
+
+    print '%s%s' % (pp, res)
     print
 
     index += 1

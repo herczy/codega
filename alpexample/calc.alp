@@ -12,6 +12,8 @@ literal ADD '+';
 literal SUB '-';
 literal MUL '*';
 literal DIV '/';
+literal POW '^';
+literal COMMA ',';
 literal LPAREN '(';
 literal RPAREN ')';
 
@@ -19,9 +21,11 @@ keyword for;
 keyword do;
 keyword to;
 keyword step;
+keyword def;
 
 precedence left(ADD, SUB);
 precedence left(DIV, MUL);
+precedence right(POW);
 precedence right(UMINUS);
 
 start production;
@@ -31,12 +35,14 @@ selection production
   rule expression;
   rule assignment;
   rule expr_for;
+  rule funcdef;
 };
 
 selection expression
 {
   rule binary_expression;
   rule unary_expression;
+  rule call;
   rule NUMBER;
   rule NAME;
   rule -LPAREN expression -RPAREN;
@@ -52,6 +58,7 @@ node binary_expression
   rule expression SUB expression;
   rule expression MUL expression;
   rule expression DIV expression;
+  rule expression POW expression;
 };
 
 node unary_expression
@@ -60,6 +67,23 @@ node unary_expression
   required operand;
 
   rule SUB expression %prec UMINUS;
+};
+
+node call
+{
+  required func;
+  required args;
+
+  rule NAME -LPAREN exprlist -RPAREN;
+};
+
+node exprlist
+{
+  optional entry;
+  optional next;
+
+  rule expression;
+  rule expression -COMMA exprlist;
 };
 
 node assignment
@@ -80,4 +104,22 @@ node expr_for
   
   rule -FOR bound=NAME -EQ begin=expression -TO end=expression -DO assignment=assignment;
   rule -FOR bound=NAME -EQ begin=expression -TO end=expression -STEP step=expression -DO assignment=assignment;
+};
+
+node funcdef
+{
+  required name;
+  required args;
+  required expression;
+
+  rule -DEF NAME -LPAREN id_list -RPAREN -EQ expression;
+};
+
+node id_list
+{
+  optional entry;
+  optional next;
+
+  rule NAME;
+  rule NAME -COMMA id_list;
 };
