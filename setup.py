@@ -7,6 +7,9 @@ try:
 except ImportError:
     from distutils.core import setup
 
+if os.system('./cgx make -c codega/alp/codega.xml'):
+    exit(1)
+
 setup(name = "codega",
         description = "Codega code generator framework",
         long_description = """File generator toolkit written in Python
