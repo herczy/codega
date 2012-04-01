@@ -8,72 +8,69 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from codega.logger import prepare
 prepare()
 
-from codega.alp import enable_loader
-enable_loader()
-
-import calc #@PydevCodeAnalysisIgnore
+import calcparser
 
 from codega.alp.script import ParserError
 from codega.visitor import ClassVisitor, visitor
 
 class PrettyPrint(ClassVisitor):
-    @visitor(calc.binary_expression)
+    @visitor(calcparser.binary_expression)
     def v_binary_expr(self, o):
-        return '(%s %s %s)' % (self.visit(o.operand0), o.operator, self.visit(o.operand1))
+        return '(%s %s %s)' % (self.visit(o.properties.operand0), o.properties.operator, self.visit(o.properties.operand1))
 
-    @visitor(calc.unary_expression)
+    @visitor(calcparser.unary_expression)
     def v_unary_expr(self, o):
-        return '(%s %s)' % (o.operator, self.visit(o.operand))
+        return '(%s %s)' % (o.properties.operator, self.visit(o.properties.operand))
 
-    @visitor(calc.assignment)
+    @visitor(calcparser.assignment)
     def v_assign(self, o):
-        return '%s = %s' % (o.rvalue, self.visit(o.lvalue))
+        return '%s = %s' % (o.properties.rvalue, self.visit(o.properties.lvalue))
 
-    @visitor(calc.expr_for)
+    @visitor(calcparser.expr_for)
     def v_for(self, o):
-        if o.step is None:
+        if o.properties.step is None:
             step = 1.0
 
         else:
-            step = self.visit(o.step)
+            step = self.visit(o.properties.step)
 
-        return '(for %s in %s to %s step %s do %s)' % (o.bound, self.visit(o.begin), self.visit(o.end), step, self.visit(o.assignment))
+        return '(for %s in %s to %s step %s do %s)' % (o.properties.bound, self.visit(o.properties.begin), self.visit(o.properties.end), step, self.visit(o.properties.assignment))
 
     def visit_fallback(self, o):
         return str(o)
 
 vals = {}
 class Evaluate(ClassVisitor):
-    @visitor(calc.binary_expression)
+    @visitor(calcparser.binary_expression)
     def v_binary_expr(self, o):
         operators = {'+' : operator.add, '-' : operator.sub, '*' : operator.mul, '/' : operator.div}
-        return operators[o.operator](self.visit(o.operand0), self.visit(o.operand1))
+        return operators[o.properties.operator](self.visit(o.properties.operand0), self.visit(o.properties.operand1))
 
-    @visitor(calc.unary_expression)
+    @visitor(calcparser.unary_expression)
     def v_unary_expr(self, o):
         operators = {'-' : operator.neg}
-        return operators[o.operator](self.visit(o.operand))
+        return operators[o.properties.operator](self.visit(o.properties.operand))
 
-    @visitor(calc.assignment)
+    @visitor(calcparser.assignment)
     def v_assign(self, o):
-        vals[o.rvalue] = self.visit(o.lvalue)
-        return vals[o.rvalue]
+        vals[o.properties.rvalue] = self.visit(o.properties.lvalue)
+        return vals[o.properties.rvalue]
 
-    @visitor(calc.expr_for)
+    @visitor(calcparser.expr_for)
     def v_for(self, o):
-        if o.step is None:
+        if o.properties.step is None:
             step = 1.0
 
         else:
-            step = self.visit(o.step)
+            step = self.visit(o.properties.step)
 
-        current = self.visit(o.begin)
-        end = self.visit(o.end)
+        current = self.visit(o.properties.begin)
+        end = self.visit(o.properties.end)
 
         res = 0.0
         while current < end:
-            vals[o.bound] = current
-            res = self.visit(o.assignment)
+            vals[o.properties.bound] = current
+            res = self.visit(o.properties.assignment)
 
             current += step
 
@@ -110,9 +107,9 @@ while True:
         break
 
     try:
-        ast = calc.parse(str(index), l)
+        ast = calcparser.parse(str(index), l)
 
-    except ParserError, e:
+    except calcparser.ParserError, e:
         print 'ERROR: %s' % e
         index += 1
         continue
