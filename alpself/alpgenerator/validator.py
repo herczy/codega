@@ -1,7 +1,6 @@
 from codega.visitor import ClassVisitor, visitor
 
 from alplang import module
-from flatten import flatten
 
 class ValidationError(Exception):
     '''Validator-related error'''
@@ -32,7 +31,7 @@ class Validator(ClassVisitor):
     @classmethod
     def run(cls, ast):
         self = cls()
-        self.visit(flatten(ast))
+        self.visit(ast)
 
         # Check if there is a starting symbol
         if self._start_symbol is None:

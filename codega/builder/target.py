@@ -3,6 +3,7 @@ Build tasks handle the building of a target.
 '''
 
 import os.path
+from lxml import etree
 
 from codega.generator.base import GeneratorBase
 from codega.context import Context
@@ -38,7 +39,9 @@ class TargetTask(TaskBase):
         if not issubclass(parser, SourceBase):
             raise StateError("Parser reference %s could not be loaded" % parser)
 
-        res = parser().load(self._source.resource, self._locator).getroot()
+        res = parser().load(self._source.resource, self._locator)
+        if isinstance(res, etree._ElementTree):
+            res = res.getroot()
 
         for transform in source.transform:
             modtrans = transform.load(self._locator)
@@ -54,7 +57,7 @@ class TargetTask(TaskBase):
 
         return self._cache[key]
 
-    @phase('build', depends = ('parse',))
+    @phase('build', depends=('parse',))
     def phase_build(self, phase_id, force):
         # Check if we need to rebuild the target
         if not force and os.path.exists(self._destination):
