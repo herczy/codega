@@ -96,7 +96,7 @@ class KeywordGenerator(ScriptBaseGenerator):
     template = 'AlpKeyword'
 
     def get_bindings(self, source, context):
-        return dict(key=source.value)
+        return dict(key=source.properties.value)
 
 class AstNodeGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
@@ -122,6 +122,14 @@ class AstPropertyGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(klass=Property.get_class_value(source.properties.klass), name=source.properties.name)
+
+class PrecedenceGenerator(ScriptBaseGenerator):
+    __matcher__ = matcher.cls(script.AlpPrecedence)
+    template = 'AlpPrecedence'
+
+    def get_bindings(self, source, context):
+        p = source.properties
+        return dict(dir=p.direction, items=p.list)
 
 class NodeGeneratorBase(ScriptBaseGenerator):
     __base__ = True

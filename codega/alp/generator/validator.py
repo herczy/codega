@@ -99,6 +99,8 @@ class Validator(ClassVisitor):
     @visitor(script.AlpRule)
     def visit_alp_rule(self, ast):
         self.visit(ast.properties.entries)
+        if ast.properties.precsymbol is not None:
+            self._symbols.add(ast.properties.precsymbol)
 
     @visitor(script.AlpRuleEntry)
     def visit_alp_rule_entry(self, ast):

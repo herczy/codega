@@ -10,11 +10,11 @@
 <%def name='AlpScript()'>\
 ${disclaimer(ctx)}
 
-__version__ = '${version}'
-__language__ = '${language}'
+__version__ = '${version or "Unknown"}'
+__language__ = '${language or "Unknown"}'
 
-__author__ = ${author}
-__email__ = ${email}
+__author__ = ${author or "'Unknown'"}
+__email__ = ${email or "'Unknown'"}
 
 from codega.alp.lexer import LexerFactory
 from codega.alp.parser import ParserBase
@@ -94,6 +94,15 @@ lexer_factory.add_ignore_token('${key}', '${name}');\
 
 <%def name='AlpKeyword()'>\
 lexer_factory.add_keyword('${key}');\
+</%def>
+
+<%def name='AlpPrecedence()'>\
+<%
+
+    args = (repr(dir),) + tuple(repr(i) for i in items)
+
+%>\
+(${', '.join(args)}),\
 </%def>
 
 <%def name='AlpNode_ast()'>\
