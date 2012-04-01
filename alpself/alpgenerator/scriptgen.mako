@@ -1,6 +1,6 @@
 <%!
 
-    from cgextra.indent import indent as _indent
+    from cgextra.indent import indent as _indent, disclaimer
 
     def indent(source, level=1):
         return _indent(source, level=level, indent_string='    ')
@@ -8,26 +8,31 @@
 %>
 
 <%def name='AlpScript()'>\
+${disclaimer(ctx)}
+
 __version__ = '${version}'
 __language__ = '${language}'
 
 __author__ = ${author}
 __email__ = ${email}
 
-import types
-
 from codega.alp.lexer import LexerFactory
-
 from codega.alp.parser import ParserBase
-from codega.ordereddict import OrderedDict
-from codega.alp import ast, rule
-from codega.alp.lexer import LexerFactory
-from codega.decorators import set_attributes, define, bind
 from codega.alp.errorcontext import ErrorContext
-from codega.alp.rule import *
+from codega.alp import rule
+from codega.alp import ast
 
-from codega.alp.ast import *
-from codega.alp.errorcontext import ErrorContext
+class ParserError(Exception):
+    '''Parse-related errors'''
+
+    def __init__(self, ctx):
+        super(ParserError, self).__init__('Parsing input failed')
+
+        self.context = ctx
+
+        def __str__(self):
+            orig = super(ParserError, self).__str__()
+            return '%s\n%s' % (orig, self.context.summary)
 
 # Lexer
 lexer_factory = LexerFactory()
@@ -37,7 +42,7 @@ ${lexentry}
 Lexer = lexer_factory.create_class()
 
 # AST nodes
-AstBaseClass = create_base_node('AstBaseClass')
+AstBaseClass = ast.create_base_node('AstBaseClass')
 % for node in ast:
 ${node}
 % endfor
@@ -107,7 +112,7 @@ def ${name}(arg):
 </%def>
 
 <%def name='AlpProperty_ast()'>\
-Property('${name}', klass=${klass})\
+ast.Property('${name}', klass=${klass})\
 </%def>
 
 <%def name='AlpNode()'>\
@@ -124,7 +129,7 @@ ${rule}
     args.extend(entries)
 
 %>\
-rule_${name}_${index} = Rule(${', '.join(args)})
+rule_${name}_${index} = rule.Rule(${', '.join(args)})
 % if precsym is not None:
 rule_${name}_${index}.precedence = '${precsym}'
 % endif
@@ -134,7 +139,7 @@ p_${name}_${index}.__doc__ = rule_${name}_${index}.to_yacc_rule()
 </%def>
 
 <%def name='AlpRuleEntry()'>\
-RuleEntry('${entry.name}', key=${repr(entry.key)}, ignore=${repr(entry.ignored)})\
+rule.RuleEntry('${entry.name}', key=${repr(entry.key)}, ignore=${repr(entry.ignored)})\
 </%def>
 
 <%def name='fallback()'>\

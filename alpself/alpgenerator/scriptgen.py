@@ -70,6 +70,7 @@ class AlpScriptGenerator(ScriptBaseGenerator):
         assert start is not None
 
         result.update(lexer=lexer, parser=parser, precedence=precedence, start=start, ast=ast)
+        result.update(ctx=context)
         return result
 
 class TokenGeneratorBase(ScriptBaseGenerator):

@@ -1,13 +1,22 @@
-import types
+# THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT MAY
+# BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)
+#
+# Source file         alplang.alp
+# Parser class        alpgenerator.scriptsource:ScriptParser
+# Target file         script.py
+# Generator class     alpgenerator.scriptgen:main_generator
 
-from lexer import Lexer
+__version__ = '2'
+__language__ = 'alp'
 
-from parser import ParserBase
-from codega.ordereddict import OrderedDict
-from codega.alp import ast, rule
+__author__ = 'Hercinger Viktor'
+__email__ = 'hercinger.viktor@gmail.com'
+
 from codega.alp.lexer import LexerFactory
-from codega.decorators import set_attributes, define, bind
+from codega.alp.parser import ParserBase
 from codega.alp.errorcontext import ErrorContext
+from codega.alp import rule
+from codega.alp import ast
 
 class ParserError(Exception):
     '''Parse-related errors'''
@@ -17,374 +26,520 @@ class ParserError(Exception):
 
         self.context = ctx
 
-    def __str__(self):
-        orig = super(ParserError, self).__str__()
-        return '%s\n%s' % (orig, self.context.summary)
+        def __str__(self):
+            orig = super(ParserError, self).__str__()
+            return '%s\n%s' % (orig, self.context.summary)
 
-class ScriptLexer(Lexer):
-    t_ignore = ' \r\n\t'
+# Lexer
+lexer_factory = LexerFactory()
+lexer_factory.add_ignore_token('SPACES', '\\s+');
+lexer_factory.add_ignore_token('COMMENTS', '\\#.*?\\n');
+lexer_factory.add_literal('FROM', 'from');
+lexer_factory.add_literal('IMPORT', 'import');
+lexer_factory.add_literal('AS', 'as');
+lexer_factory.add_literal('TOKEN', 'token');
+lexer_factory.add_literal('KEYWORD', 'keyword');
+lexer_factory.add_literal('LITERAL', 'literal');
+lexer_factory.add_literal('IGNORE', 'ignore');
+lexer_factory.add_literal('NODE', 'node');
+lexer_factory.add_literal('SELECTION', 'selection');
+lexer_factory.add_literal('OPTIONAL', 'optional');
+lexer_factory.add_literal('REQUIRED', 'required');
+lexer_factory.add_literal('RULE', 'rule');
+lexer_factory.add_literal('START', 'start');
+lexer_factory.add_literal('PRECEDENCE', 'precedence');
+lexer_factory.add_literal('LEFT', 'left');
+lexer_factory.add_literal('RIGHT', 'right');
+lexer_factory.add_literal('LANGUAGE', 'language');
+lexer_factory.add_literal('AUTHOR', 'author');
+lexer_factory.add_literal('VERSION', 'version');
+lexer_factory.add_literal('EMAIL', 'email');
+lexer_factory.add_literal('SEMICOLON', ';');
+lexer_factory.add_literal('ARROW', '=>');
+lexer_factory.add_literal('MINUS', '-');
+lexer_factory.add_literal('EQ', '=');
+lexer_factory.add_literal('PERIOD', '.');
+lexer_factory.add_literal('COMMA', ':');
+lexer_factory.add_literal('LCURLY', '{');
+lexer_factory.add_literal('RCURLY', '}');
+lexer_factory.add_literal('LPAREN', '(');
+lexer_factory.add_literal('RPAREN', ')');
+lexer_factory.add_literal('PRECSYM', '%prec');
+lexer_factory.add_token('ID', '[a-zA-Z_][a-zA-Z0-9_]*');
+lexer_factory.add_token('STRING', '\'([^\'\\\\]+|\\\\.)*\'');
+lexer_factory.add_token('INTEGER', '[+-]?(0|[1-9][0-9]*)');
+Lexer = lexer_factory.create_class()
 
-    keywords = (
-        # Python-style import statements
-        'from', 'import', 'as',
-
-        # Tokenizer part
-        'token', 'keyword', 'literal', 'ignore',
-
-        # Node types
-        'node', 'selection',
-
-        # Properties
-        'optional', 'required',
-
-        # Rule definition
-        'rule', 'start',
-
-        # Precedence
-        'precedence',
-        ('PRECDIR', 'left', 'right'),
-
-        # Script information keywords
-        ('INFOKEYWORD', 'language', 'author', 'version', 'email'),
+# AST nodes
+AstBaseClass = ast.create_base_node('AstBaseClass')
+class AlpScript(AstBaseClass):
+    property_definitions = (
+        ast.Property('head', klass=0),
+        ast.Property('body', klass=0),
     )
 
-    kwmap = {}
-
-    for keyword in keywords:
-        if isinstance(keyword, basestring):
-            kwmap[keyword] = keyword.upper()
-
-        else:
-            _token, keyword_collection = keyword[0], keyword[1:]
-
-            for keyword in keyword_collection:
-                kwmap[keyword] = _token
-
-    tokens = (
-        'ID', 'STRING', 'INTEGER',
-        'SEMICOLON', 'ARROW', 'MINUS', 'EQ', 'PERIOD', 'COMMA',
-        'PRECSYM',
-        'LCURLY', 'RCURLY',
-        'LPAREN', 'RPAREN',
-    ) + tuple(kwmap.values())
-
-    t_SEMICOLON = r';'
-    t_ARROW = r'=>'
-    t_MINUS = r'-'
-    t_EQ = r'='
-    t_PERIOD = r'\.'
-    t_COMMA = r','
-    t_LCURLY = r'{'
-    t_RCURLY = r'}'
-    t_LPAREN = r'\('
-    t_RPAREN = r'\)'
-
-    t_PRECSYM = r'%prec'
-
-    def t_ID(self, t):
-        r'[a-zA-Z_][a-zA-Z0-9_]*'
-
-        if t.value in self.kwmap:
-            t.type = self.kwmap[t.value]
-
-        return t
-
-    def t_STRING(self, t):
-        r'\'([^\'\\]+|\\.)*\''
-
-        t.value = t.value[1:-1].decode('string_escape')
-        return t
-
-    def t_INTEGER(self, t):
-        r'[+-]?(0|[1-9][0-9]*)'
-
-        t.value = int(t.value)
-        return t
-
-    def t_COMMENT(self, t):
-        r'\#.*?\n'
-
-class ScriptParser(ParserBase):
-    start = 'start'
-
-    def __init__(self, *args, **kwargs):
-        super(ScriptParser, self).__init__(*args, **kwargs)
-
-        self._info = OrderedDict()
-        self._modules = OrderedDict()
-        self._lexerfactory = LexerFactory()
-        self._baseclass = ast.create_base_node('ScriptBase')
-        self._selections = []
-
-        self._precedence = []
-        self._start = 'start'
-
-    def create_module(self, name):
-        mod = types.ModuleType(name)
-
-        for name, cls in self._baseclass.metainfo.classes:
-            setattr(mod, name, cls)
-
-        mod.__info__ = self._info
-        mod.__modules__ = self._modules
-        mod.__metainfo__ = self._baseclass.metainfo
-
-        mod.__lexer__ = self._lexerfactory.create_class()
-        mod.__parser__ = self.create_parser()
-
-        mod.baseclass = self._baseclass
-
-        @define(mod)
-        @bind(mod, pos=0)
-        def parse(mod, sourcename, data):
-            errctx = ErrorContext()
-            lexer = mod.__lexer__(sourcename, errctx)
-            parser = mod.__parser__(lexer)
-
-            parser.input(data)
-            res = parser.parse()
-
-            if not errctx.result:
-                raise ParserError(errctx)
-
-            return res
-
-        @define(mod)
-        @bind(mod, pos=0)
-        def parse_file(mod, filename):
-            return mod.parse(sourcename=filename, data=open(filename).read())
-
-        return mod
-
-    def create_class_handler_function(self, name, cls, rule, index):
-        @set_attributes('p_%s_%d' % (name, index), rule.to_yacc_rule())
-        def rule_handler(self, prod):
-            prod[0] = rule(cls, prod[1:])
-
-        return rule_handler
-
-    def create_selection_handler_function(self, name, rule, index):
-        @set_attributes('p_%s_%d' % (name, index), rule.to_yacc_rule())
-        def rule_handler(self, prod):
-            args, kwargs = rule.create_argument_list(prod[1:])
-            if kwargs:
-                raise ValueError("Selection cannot have keyword argument")
-
-            if len(args) != 1:
-                raise ValueError("Invalid number of values")
-
-            prod[0] = args[0]
-
-        return rule_handler
-
-    def create_parser(self, name='Parser'):
-        meta = self._baseclass.metainfo
-
-        bind_members = {}
-        prec = dict()
-        for name, cls in meta.classes:
-            for index, rule in enumerate(cls.rules):
-                func = self.create_class_handler_function(name, cls, rule, index)
-                define(bind_members)(func)
-
-        for name, ruleset in self._selections:
-            for index, rule in enumerate(ruleset):
-                func = self.create_selection_handler_function(name, rule, index)
-                bind_members[func.__name__] = func
-
-        if self._precedence:
-            prec = []
-
-            for dir, values in self._precedence:
-                prec.append((dir,) + tuple(values))
-
-            bind_members['precedence'] = tuple(prec)
-
-        bind_members['start'] = self._start
-        return ParserBase.subclass(name, bind_members)
-
-    def p_start(self, p):
-        '''start : header body'''
-
-    def p_header_0(self, p):
-        '''header : '''
-
-    def p_header_1(self, p):
-        '''header : header_entry SEMICOLON header'''
-
-    def p_header_entry(self, p):
-        '''header_entry : INFOKEYWORD ID
-                        | INFOKEYWORD STRING
-                        | INFOKEYWORD INTEGER'''
-
-        self._info.insert(0, p[1], p[2])
-
-    def p_body_0(self, p):
-        '''body : '''
-
-    def p_body_1(self, p):
-        '''body : main_entry SEMICOLON body'''
-
-    def p_main_entry_import_0(self, p):
-        '''main_entry : IMPORT module'''
-
-        self._modules[p[2]] = __import__(p[2])
-
-    def p_main_entry_import_1(self, p):
-        '''main_entry : FROM module IMPORT ID'''
-
-        self._modules[p[4]] = __import__(p[4], fromlist=[p[2]])
-
-    def p_main_entry_import_2(self, p):
-        '''main_entry : FROM module IMPORT ID AS ID'''
-
-        self._modules[p[6]] = __import__(p[4], fromlist=[p[2]])
-
-    def p_main_entry_start(self, p):
-        '''main_entry : START ID'''
-
-        self._start = p[2]
-
-    def p_main_entry_token(self, p):
-        '''main_entry : TOKEN ID STRING'''
-
-        self._lexerfactory.add_token(p[2], p[3])
-
-    def p_main_entry_literal(self, p):
-        '''main_entry : LITERAL ID STRING'''
-
-        self._lexerfactory.add_literal(p[2], p[3])
-
-    def p_main_entry_keyword(self, p):
-        '''main_entry : KEYWORD ID'''
-
-        self._lexerfactory.add_keyword(p[2])
-
-    def p_main_entry_ignore(self, p):
-        '''main_entry : IGNORE ID STRING'''
-
-        self._lexerfactory.add_ignore_token(p[2], p[3])
-
-    def p_main_entry_precedence(self, p):
-        '''main_entry : PRECEDENCE PRECDIR LPAREN idlist RPAREN'''
-
-        self._precedence.append((p[2], p[4]))
-
-    def make_rules(self, name, *ruleset):
-        res = []
-
-        for entries, prec in ruleset:
-            r = rule.Rule(name, *entries)
-            if prec is not None:
-                r.precedence = prec
-
-            res.append(r)
-
-        return res
-
-    def p_main_entry_node(self, p):
-        '''main_entry : NODE ID LCURLY node_body RCURLY'''
-
-        props, rule_entries = p[4]
-        self._baseclass.subclass(p[2], rules=self.make_rules(p[2], *rule_entries), property_definitions=props)
-
-    def p_main_entry_selection(self, p):
-        '''main_entry : SELECTION ID LCURLY rule_list RCURLY'''
-
-        self._selections.append((p[2], self.make_rules(p[2], *p[4])))
-
-    def p_main_node_body(self, p):
-        '''node_body : property_list rule_list'''
-
-        p[0] = (p[1], p[2])
-
-    def p_property_list_0(self, p):
-        '''property_list : '''
-
-        p[0] = ()
-
-    def p_property_list_1(self, p):
-        '''property_list : OPTIONAL ID SEMICOLON property_list
-                         | REQUIRED ID SEMICOLON property_list'''
-
-        prop = ast.Property(p[2], klass=ast.Property.get_class_value(p[1]))
-        p[0] = (prop,) + p[4]
-
-    def p_rule_list_0(self, p):
-        '''rule_list : '''
-
-        p[0] = ()
-
-    def p_rule_list_1(self, p):
-        '''rule_list : RULE rule_entries SEMICOLON rule_list'''
-
-        p[0] = ((p[2], None),) + p[4]
-
-    def p_rule_list_2(self, p):
-        '''rule_list : RULE rule_entries PRECSYM ID SEMICOLON rule_list'''
-
-        p[0] = ((p[2], p[4]),) + p[6]
-
-    def p_rule_entries_0(self, p):
-        '''rule_entries : '''
-
-        p[0] = ()
-
-    def p_rule_entries_1(self, p):
-        '''rule_entries : rule_entry rule_entries'''
-
-        p[0] = (p[1],) + p[2]
-
-    def p_rule_entry_nokey(self, p):
-        '''rule_entry : ID'''
-
-        p[0] = rule.RuleEntry(p[1])
-
-    def p_rule_entry_ignored(self, p):
-        '''rule_entry : MINUS ID'''
-
-        p[0] = rule.RuleEntry(p[2], ignore=True)
-
-    def p_rule_entry_withkey(self, p):
-        '''rule_entry : ID EQ ID'''
-
-        p[0] = rule.RuleEntry(p[3], key=p[1])
-
-    def p_module_0(self, p):
-        '''module : ID'''
-
-        p[0] = p[1]
-
-    def p_module_1(self, p):
-        '''module : ID PERIOD module'''
-
-        p[0] = ''.join(p[1:])
-
-    def p_idlist_0(self, p):
-        '''idlist : ID'''
-
-        p[0] = (p[1],)
-
-    def p_idlist_1(self, p):
-        '''idlist : ID COMMA idlist'''
-
-        p[0] = (p[1],) + p[3]
-
-def parse(sourcename, data, name=None):
+class AlpHead(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=1),
+        ast.Property('next', klass=1),
+    )
+
+class AlpHeaderEntry(AstBaseClass):
+    property_definitions = (
+        ast.Property('key', klass=0),
+        ast.Property('value', klass=0),
+    )
+
+class AlpBody(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=1),
+        ast.Property('next', klass=1),
+    )
+
+# Helper class for selectors!
+def SelMainEntry(arg):
+    return arg
+
+class AlpImport(AstBaseClass):
+    property_definitions = (
+        ast.Property('import_from', klass=1),
+        ast.Property('import_name', klass=0),
+        ast.Property('import_as', klass=1),
+    )
+
+class AlpStart(AstBaseClass):
+    property_definitions = (
+        ast.Property('symbol', klass=0),
+    )
+
+# Helper class for selectors!
+def SelToken(arg):
+    return arg
+
+class AlpToken(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('value', klass=0),
+    )
+
+class AlpLiteral(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('value', klass=0),
+    )
+
+class AlpKeyword(AstBaseClass):
+    property_definitions = (
+        ast.Property('value', klass=0),
+    )
+
+class AlpIgnore(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('value', klass=0),
+    )
+
+# Helper class for selectors!
+def SelParser(arg):
+    return arg
+
+class AlpPrecedence(AstBaseClass):
+    property_definitions = (
+        ast.Property('direction', klass=0),
+        ast.Property('list', klass=0),
+    )
+
+class AlpNode(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('body', klass=0),
+    )
+
+class AlpSelection(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('body', klass=0),
+    )
+
+class AlpNodeBody(AstBaseClass):
+    property_definitions = (
+        ast.Property('properties', klass=0),
+        ast.Property('rules', klass=0),
+    )
+
+class AlpPropertyList(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=1),
+        ast.Property('next', klass=1),
+    )
+
+class AlpProperty(AstBaseClass):
+    property_definitions = (
+        ast.Property('klass', klass=0),
+        ast.Property('name', klass=0),
+    )
+
+class AlpRuleList(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=0),
+        ast.Property('next', klass=1),
+    )
+
+class AlpRule(AstBaseClass):
+    property_definitions = (
+        ast.Property('entries', klass=0),
+        ast.Property('precsymbol', klass=1),
+    )
+
+class AlpRuleEntryList(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=1),
+        ast.Property('next', klass=1),
+    )
+
+class AlpRuleEntry(AstBaseClass):
+    property_definitions = (
+        ast.Property('ignored', klass=1),
+        ast.Property('key', klass=1),
+        ast.Property('name', klass=0),
+    )
+
+class AlpModuleName(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=0),
+        ast.Property('next', klass=1),
+    )
+
+class AlpIdList(AstBaseClass):
+    property_definitions = (
+        ast.Property('entry', klass=0),
+        ast.Property('next', klass=1),
+    )
+
+
+# Parser
+class Parser(ParserBase):
+    start = 'AlpScript'
+
+    
+    # Rules for node AlpScript
+    rule_AlpScript_0 = rule.Rule('AlpScript', rule.RuleEntry('AlpHead', key='head', ignore=None), rule.RuleEntry('AlpBody', key='body', ignore=None))
+    def p_AlpScript_0(self, p):
+        p[0] = self.rule_AlpScript_0(AlpScript, p[1:])
+    p_AlpScript_0.__doc__ = rule_AlpScript_0.to_yacc_rule()
+
+
+    # Rules for node AlpHead
+    rule_AlpHead_0 = rule.Rule('AlpHead')
+    def p_AlpHead_0(self, p):
+        p[0] = self.rule_AlpHead_0(AlpHead, p[1:])
+    p_AlpHead_0.__doc__ = rule_AlpHead_0.to_yacc_rule()
+
+    rule_AlpHead_1 = rule.Rule('AlpHead', rule.RuleEntry('AlpHeaderEntry', key='entry', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpHead', key='next', ignore=None))
+    def p_AlpHead_1(self, p):
+        p[0] = self.rule_AlpHead_1(AlpHead, p[1:])
+    p_AlpHead_1.__doc__ = rule_AlpHead_1.to_yacc_rule()
+
+
+    # Rules for node AlpHeaderEntry
+    rule_AlpHeaderEntry_0 = rule.Rule('AlpHeaderEntry', rule.RuleEntry('LANGUAGE', key=None, ignore=None), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpHeaderEntry_0(self, p):
+        p[0] = self.rule_AlpHeaderEntry_0(AlpHeaderEntry, p[1:])
+    p_AlpHeaderEntry_0.__doc__ = rule_AlpHeaderEntry_0.to_yacc_rule()
+
+    rule_AlpHeaderEntry_1 = rule.Rule('AlpHeaderEntry', rule.RuleEntry('AUTHOR', key=None, ignore=None), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpHeaderEntry_1(self, p):
+        p[0] = self.rule_AlpHeaderEntry_1(AlpHeaderEntry, p[1:])
+    p_AlpHeaderEntry_1.__doc__ = rule_AlpHeaderEntry_1.to_yacc_rule()
+
+    rule_AlpHeaderEntry_2 = rule.Rule('AlpHeaderEntry', rule.RuleEntry('EMAIL', key=None, ignore=None), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpHeaderEntry_2(self, p):
+        p[0] = self.rule_AlpHeaderEntry_2(AlpHeaderEntry, p[1:])
+    p_AlpHeaderEntry_2.__doc__ = rule_AlpHeaderEntry_2.to_yacc_rule()
+
+    rule_AlpHeaderEntry_3 = rule.Rule('AlpHeaderEntry', rule.RuleEntry('VERSION', key=None, ignore=None), rule.RuleEntry('INTEGER', key=None, ignore=None))
+    def p_AlpHeaderEntry_3(self, p):
+        p[0] = self.rule_AlpHeaderEntry_3(AlpHeaderEntry, p[1:])
+    p_AlpHeaderEntry_3.__doc__ = rule_AlpHeaderEntry_3.to_yacc_rule()
+
+
+    # Rules for node AlpBody
+    rule_AlpBody_0 = rule.Rule('AlpBody')
+    def p_AlpBody_0(self, p):
+        p[0] = self.rule_AlpBody_0(AlpBody, p[1:])
+    p_AlpBody_0.__doc__ = rule_AlpBody_0.to_yacc_rule()
+
+    rule_AlpBody_1 = rule.Rule('AlpBody', rule.RuleEntry('SelMainEntry', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpBody', key=None, ignore=None))
+    def p_AlpBody_1(self, p):
+        p[0] = self.rule_AlpBody_1(AlpBody, p[1:])
+    p_AlpBody_1.__doc__ = rule_AlpBody_1.to_yacc_rule()
+
+
+    # Rules for node SelMainEntry
+    rule_SelMainEntry_0 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpImport', key=None, ignore=None))
+    def p_SelMainEntry_0(self, p):
+        p[0] = self.rule_SelMainEntry_0(SelMainEntry, p[1:])
+    p_SelMainEntry_0.__doc__ = rule_SelMainEntry_0.to_yacc_rule()
+
+    rule_SelMainEntry_1 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpStart', key=None, ignore=None))
+    def p_SelMainEntry_1(self, p):
+        p[0] = self.rule_SelMainEntry_1(SelMainEntry, p[1:])
+    p_SelMainEntry_1.__doc__ = rule_SelMainEntry_1.to_yacc_rule()
+
+    rule_SelMainEntry_2 = rule.Rule('SelMainEntry', rule.RuleEntry('SelToken', key=None, ignore=None))
+    def p_SelMainEntry_2(self, p):
+        p[0] = self.rule_SelMainEntry_2(SelMainEntry, p[1:])
+    p_SelMainEntry_2.__doc__ = rule_SelMainEntry_2.to_yacc_rule()
+
+    rule_SelMainEntry_3 = rule.Rule('SelMainEntry', rule.RuleEntry('SelParser', key=None, ignore=None))
+    def p_SelMainEntry_3(self, p):
+        p[0] = self.rule_SelMainEntry_3(SelMainEntry, p[1:])
+    p_SelMainEntry_3.__doc__ = rule_SelMainEntry_3.to_yacc_rule()
+
+
+    # Rules for node AlpImport
+    rule_AlpImport_0 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None))
+    def p_AlpImport_0(self, p):
+        p[0] = self.rule_AlpImport_0(AlpImport, p[1:])
+    p_AlpImport_0.__doc__ = rule_AlpImport_0.to_yacc_rule()
+
+    rule_AlpImport_1 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
+    def p_AlpImport_1(self, p):
+        p[0] = self.rule_AlpImport_1(AlpImport, p[1:])
+    p_AlpImport_1.__doc__ = rule_AlpImport_1.to_yacc_rule()
+
+    rule_AlpImport_2 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None))
+    def p_AlpImport_2(self, p):
+        p[0] = self.rule_AlpImport_2(AlpImport, p[1:])
+    p_AlpImport_2.__doc__ = rule_AlpImport_2.to_yacc_rule()
+
+    rule_AlpImport_3 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
+    def p_AlpImport_3(self, p):
+        p[0] = self.rule_AlpImport_3(AlpImport, p[1:])
+    p_AlpImport_3.__doc__ = rule_AlpImport_3.to_yacc_rule()
+
+
+    # Rules for node AlpStart
+    rule_AlpStart_0 = rule.Rule('AlpStart', rule.RuleEntry('START', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpStart_0(self, p):
+        p[0] = self.rule_AlpStart_0(AlpStart, p[1:])
+    p_AlpStart_0.__doc__ = rule_AlpStart_0.to_yacc_rule()
+
+
+    # Rules for node SelToken
+    rule_SelToken_0 = rule.Rule('SelToken', rule.RuleEntry('AlpToken', key=None, ignore=None))
+    def p_SelToken_0(self, p):
+        p[0] = self.rule_SelToken_0(SelToken, p[1:])
+    p_SelToken_0.__doc__ = rule_SelToken_0.to_yacc_rule()
+
+    rule_SelToken_1 = rule.Rule('SelToken', rule.RuleEntry('AlpLiteral', key=None, ignore=None))
+    def p_SelToken_1(self, p):
+        p[0] = self.rule_SelToken_1(SelToken, p[1:])
+    p_SelToken_1.__doc__ = rule_SelToken_1.to_yacc_rule()
+
+    rule_SelToken_2 = rule.Rule('SelToken', rule.RuleEntry('AlpKeyword', key=None, ignore=None))
+    def p_SelToken_2(self, p):
+        p[0] = self.rule_SelToken_2(SelToken, p[1:])
+    p_SelToken_2.__doc__ = rule_SelToken_2.to_yacc_rule()
+
+    rule_SelToken_3 = rule.Rule('SelToken', rule.RuleEntry('AlpIgnore', key=None, ignore=None))
+    def p_SelToken_3(self, p):
+        p[0] = self.rule_SelToken_3(SelToken, p[1:])
+    p_SelToken_3.__doc__ = rule_SelToken_3.to_yacc_rule()
+
+
+    # Rules for node AlpToken
+    rule_AlpToken_0 = rule.Rule('AlpToken', rule.RuleEntry('TOKEN', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpToken_0(self, p):
+        p[0] = self.rule_AlpToken_0(AlpToken, p[1:])
+    p_AlpToken_0.__doc__ = rule_AlpToken_0.to_yacc_rule()
+
+
+    # Rules for node AlpLiteral
+    rule_AlpLiteral_0 = rule.Rule('AlpLiteral', rule.RuleEntry('LITERAL', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpLiteral_0(self, p):
+        p[0] = self.rule_AlpLiteral_0(AlpLiteral, p[1:])
+    p_AlpLiteral_0.__doc__ = rule_AlpLiteral_0.to_yacc_rule()
+
+
+    # Rules for node AlpKeyword
+    rule_AlpKeyword_0 = rule.Rule('AlpKeyword', rule.RuleEntry('KEYWORD', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpKeyword_0(self, p):
+        p[0] = self.rule_AlpKeyword_0(AlpKeyword, p[1:])
+    p_AlpKeyword_0.__doc__ = rule_AlpKeyword_0.to_yacc_rule()
+
+
+    # Rules for node AlpIgnore
+    rule_AlpIgnore_0 = rule.Rule('AlpIgnore', rule.RuleEntry('IGNORE', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpIgnore_0(self, p):
+        p[0] = self.rule_AlpIgnore_0(AlpIgnore, p[1:])
+    p_AlpIgnore_0.__doc__ = rule_AlpIgnore_0.to_yacc_rule()
+
+
+    # Rules for node SelParser
+    rule_SelParser_0 = rule.Rule('SelParser', rule.RuleEntry('AlpPrecedence', key=None, ignore=None))
+    def p_SelParser_0(self, p):
+        p[0] = self.rule_SelParser_0(SelParser, p[1:])
+    p_SelParser_0.__doc__ = rule_SelParser_0.to_yacc_rule()
+
+    rule_SelParser_1 = rule.Rule('SelParser', rule.RuleEntry('AlpNode', key=None, ignore=None))
+    def p_SelParser_1(self, p):
+        p[0] = self.rule_SelParser_1(SelParser, p[1:])
+    p_SelParser_1.__doc__ = rule_SelParser_1.to_yacc_rule()
+
+    rule_SelParser_2 = rule.Rule('SelParser', rule.RuleEntry('AlpSelection', key=None, ignore=None))
+    def p_SelParser_2(self, p):
+        p[0] = self.rule_SelParser_2(SelParser, p[1:])
+    p_SelParser_2.__doc__ = rule_SelParser_2.to_yacc_rule()
+
+
+    # Rules for node AlpPrecedence
+    rule_AlpPrecedence_0 = rule.Rule('AlpPrecedence', rule.RuleEntry('PRECEDENCE', key=None, ignore='-'), rule.RuleEntry('LEFT', key=None, ignore=None), rule.RuleEntry('LPAREN', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None), rule.RuleEntry('RPAREN', key=None, ignore='-'))
+    def p_AlpPrecedence_0(self, p):
+        p[0] = self.rule_AlpPrecedence_0(AlpPrecedence, p[1:])
+    p_AlpPrecedence_0.__doc__ = rule_AlpPrecedence_0.to_yacc_rule()
+
+    rule_AlpPrecedence_1 = rule.Rule('AlpPrecedence', rule.RuleEntry('PRECEDENCE', key=None, ignore='-'), rule.RuleEntry('RIGHT', key=None, ignore=None), rule.RuleEntry('LPAREN', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None), rule.RuleEntry('RPAREN', key=None, ignore='-'))
+    def p_AlpPrecedence_1(self, p):
+        p[0] = self.rule_AlpPrecedence_1(AlpPrecedence, p[1:])
+    p_AlpPrecedence_1.__doc__ = rule_AlpPrecedence_1.to_yacc_rule()
+
+
+    # Rules for node AlpNode
+    rule_AlpNode_0 = rule.Rule('AlpNode', rule.RuleEntry('NODE', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('LCURLY', key=None, ignore='-'), rule.RuleEntry('AlpNodeBody', key=None, ignore=None), rule.RuleEntry('RCURLY', key=None, ignore='-'))
+    def p_AlpNode_0(self, p):
+        p[0] = self.rule_AlpNode_0(AlpNode, p[1:])
+    p_AlpNode_0.__doc__ = rule_AlpNode_0.to_yacc_rule()
+
+
+    # Rules for node AlpSelection
+    rule_AlpSelection_0 = rule.Rule('AlpSelection', rule.RuleEntry('SELECTION', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('LCURLY', key=None, ignore='-'), rule.RuleEntry('AlpRuleList', key=None, ignore=None), rule.RuleEntry('RCURLY', key=None, ignore='-'))
+    def p_AlpSelection_0(self, p):
+        p[0] = self.rule_AlpSelection_0(AlpSelection, p[1:])
+    p_AlpSelection_0.__doc__ = rule_AlpSelection_0.to_yacc_rule()
+
+
+    # Rules for node AlpNodeBody
+    rule_AlpNodeBody_0 = rule.Rule('AlpNodeBody', rule.RuleEntry('AlpPropertyList', key=None, ignore=None), rule.RuleEntry('AlpRuleList', key=None, ignore=None))
+    def p_AlpNodeBody_0(self, p):
+        p[0] = self.rule_AlpNodeBody_0(AlpNodeBody, p[1:])
+    p_AlpNodeBody_0.__doc__ = rule_AlpNodeBody_0.to_yacc_rule()
+
+
+    # Rules for node AlpPropertyList
+    rule_AlpPropertyList_0 = rule.Rule('AlpPropertyList')
+    def p_AlpPropertyList_0(self, p):
+        p[0] = self.rule_AlpPropertyList_0(AlpPropertyList, p[1:])
+    p_AlpPropertyList_0.__doc__ = rule_AlpPropertyList_0.to_yacc_rule()
+
+    rule_AlpPropertyList_1 = rule.Rule('AlpPropertyList', rule.RuleEntry('AlpProperty', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpPropertyList', key=None, ignore=None))
+    def p_AlpPropertyList_1(self, p):
+        p[0] = self.rule_AlpPropertyList_1(AlpPropertyList, p[1:])
+    p_AlpPropertyList_1.__doc__ = rule_AlpPropertyList_1.to_yacc_rule()
+
+
+    # Rules for node AlpProperty
+    rule_AlpProperty_0 = rule.Rule('AlpProperty', rule.RuleEntry('REQUIRED', key=None, ignore=None), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpProperty_0(self, p):
+        p[0] = self.rule_AlpProperty_0(AlpProperty, p[1:])
+    p_AlpProperty_0.__doc__ = rule_AlpProperty_0.to_yacc_rule()
+
+    rule_AlpProperty_1 = rule.Rule('AlpProperty', rule.RuleEntry('OPTIONAL', key=None, ignore=None), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpProperty_1(self, p):
+        p[0] = self.rule_AlpProperty_1(AlpProperty, p[1:])
+    p_AlpProperty_1.__doc__ = rule_AlpProperty_1.to_yacc_rule()
+
+
+    # Rules for node AlpRuleList
+    rule_AlpRuleList_0 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'))
+    def p_AlpRuleList_0(self, p):
+        p[0] = self.rule_AlpRuleList_0(AlpRuleList, p[1:])
+    p_AlpRuleList_0.__doc__ = rule_AlpRuleList_0.to_yacc_rule()
+
+    rule_AlpRuleList_1 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpRuleList', key=None, ignore=None))
+    def p_AlpRuleList_1(self, p):
+        p[0] = self.rule_AlpRuleList_1(AlpRuleList, p[1:])
+    p_AlpRuleList_1.__doc__ = rule_AlpRuleList_1.to_yacc_rule()
+
+
+    # Rules for node AlpRule
+    rule_AlpRule_0 = rule.Rule('AlpRule', rule.RuleEntry('RULE', key=None, ignore='-'), rule.RuleEntry('AlpRuleEntryList', key=None, ignore=None))
+    def p_AlpRule_0(self, p):
+        p[0] = self.rule_AlpRule_0(AlpRule, p[1:])
+    p_AlpRule_0.__doc__ = rule_AlpRule_0.to_yacc_rule()
+
+    rule_AlpRule_1 = rule.Rule('AlpRule', rule.RuleEntry('RULE', key=None, ignore='-'), rule.RuleEntry('AlpRuleEntryList', key=None, ignore=None), rule.RuleEntry('PRECSYM', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpRule_1(self, p):
+        p[0] = self.rule_AlpRule_1(AlpRule, p[1:])
+    p_AlpRule_1.__doc__ = rule_AlpRule_1.to_yacc_rule()
+
+
+    # Rules for node AlpRuleEntryList
+    rule_AlpRuleEntryList_0 = rule.Rule('AlpRuleEntryList')
+    def p_AlpRuleEntryList_0(self, p):
+        p[0] = self.rule_AlpRuleEntryList_0(AlpRuleEntryList, p[1:])
+    p_AlpRuleEntryList_0.__doc__ = rule_AlpRuleEntryList_0.to_yacc_rule()
+
+    rule_AlpRuleEntryList_1 = rule.Rule('AlpRuleEntryList', rule.RuleEntry('AlpRuleEntry', key=None, ignore=None), rule.RuleEntry('AlpRuleEntryList', key=None, ignore=None))
+    def p_AlpRuleEntryList_1(self, p):
+        p[0] = self.rule_AlpRuleEntryList_1(AlpRuleEntryList, p[1:])
+    p_AlpRuleEntryList_1.__doc__ = rule_AlpRuleEntryList_1.to_yacc_rule()
+
+
+    # Rules for node AlpRuleEntry
+    rule_AlpRuleEntry_0 = rule.Rule('AlpRuleEntry', rule.RuleEntry('ID', key='name', ignore=None))
+    def p_AlpRuleEntry_0(self, p):
+        p[0] = self.rule_AlpRuleEntry_0(AlpRuleEntry, p[1:])
+    p_AlpRuleEntry_0.__doc__ = rule_AlpRuleEntry_0.to_yacc_rule()
+
+    rule_AlpRuleEntry_1 = rule.Rule('AlpRuleEntry', rule.RuleEntry('ID', key='key', ignore=None), rule.RuleEntry('EQ', key=None, ignore='-'), rule.RuleEntry('ID', key='name', ignore=None))
+    def p_AlpRuleEntry_1(self, p):
+        p[0] = self.rule_AlpRuleEntry_1(AlpRuleEntry, p[1:])
+    p_AlpRuleEntry_1.__doc__ = rule_AlpRuleEntry_1.to_yacc_rule()
+
+    rule_AlpRuleEntry_2 = rule.Rule('AlpRuleEntry', rule.RuleEntry('MINUS', key='ignored', ignore=None), rule.RuleEntry('ID', key='name', ignore=None))
+    def p_AlpRuleEntry_2(self, p):
+        p[0] = self.rule_AlpRuleEntry_2(AlpRuleEntry, p[1:])
+    p_AlpRuleEntry_2.__doc__ = rule_AlpRuleEntry_2.to_yacc_rule()
+
+
+    # Rules for node AlpModuleName
+    rule_AlpModuleName_0 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpModuleName_0(self, p):
+        p[0] = self.rule_AlpModuleName_0(AlpModuleName, p[1:])
+    p_AlpModuleName_0.__doc__ = rule_AlpModuleName_0.to_yacc_rule()
+
+    rule_AlpModuleName_1 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('PERIOD', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key=None, ignore=None))
+    def p_AlpModuleName_1(self, p):
+        p[0] = self.rule_AlpModuleName_1(AlpModuleName, p[1:])
+    p_AlpModuleName_1.__doc__ = rule_AlpModuleName_1.to_yacc_rule()
+
+
+    # Rules for node AlpIdList
+    rule_AlpIdList_0 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None))
+    def p_AlpIdList_0(self, p):
+        p[0] = self.rule_AlpIdList_0(AlpIdList, p[1:])
+    p_AlpIdList_0.__doc__ = rule_AlpIdList_0.to_yacc_rule()
+
+    rule_AlpIdList_1 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None))
+    def p_AlpIdList_1(self, p):
+        p[0] = self.rule_AlpIdList_1(AlpIdList, p[1:])
+    p_AlpIdList_1.__doc__ = rule_AlpIdList_1.to_yacc_rule()
+
+
+
+def parse(sourcename, data):
     errctx = ErrorContext()
-    lexer = ScriptLexer(sourcename, errctx)
-    parser = ScriptParser(lexer)
+    lexer = Lexer(sourcename, errctx)
+    parser = Parser(lexer)
 
     parser.input(data)
-    parser.parse()
+    res = parser.parse()
 
     if not errctx.result:
         raise ParserError(errctx)
 
-    if name is None:
-        name = sourcename
+    return res
 
-    return parser.create_module(name)
-
-def parse_file(filename, name=None):
-    return parse(filename, open(filename).read(), name=name)
+def parse_file(filename):
+    return parse(sourcename=filename, data=open(filename).read())

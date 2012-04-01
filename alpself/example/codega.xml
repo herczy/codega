@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<config version="1.1">
+    <paths>
+        <target>./</target>
+        <path>./</path>
+        <path>../</path>
+        <path>../../</path>
+    </paths>
+    <source>
+        <name>alplang</name>
+        <resource>alplang.alp</resource>
+        <parser>alpgenerator.scriptsource:ScriptParser</parser>
+    </source>
+    <target>
+        <source>alplang</source>
+        <generator>alpgenerator.scriptgen:main_generator</generator>
+        <target>script.py</target>
+    </target>
+</config>
