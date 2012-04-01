@@ -39,7 +39,6 @@ class Validator(ClassVisitor):
         # Check referenced symbols
         for sym in self._referenced_symbols:
             if sym not in self._symbols:
-                print sym, self._symbols
                 raise MissingSymbolError("Symbol %r missing" % sym)
 
     def check_duplicate_symbol(self, name):
