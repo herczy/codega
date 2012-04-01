@@ -1,3 +1,6 @@
+from codega.visitor import VisitorBase
+from codega.ordereddict import OrderedDict
+
 REQUIRED = 0
 OPTIONAL = 1
 
@@ -15,6 +18,34 @@ class Property(object):
             return OPTIONAL
 
         raise ValueError("Invalid property class")
+
+class PropertySet(OrderedDict):
+    def __init__(self, entries, args, kwargs):
+        super(PropertySet, self).__init__()
+
+        self._enties = entries
+
+        args = list(args)
+        kwargs = dict(kwargs)
+        for prop in entries:
+            if kwargs and prop.name in kwargs:
+                self[prop.name] = kwargs.pop(prop.name)
+
+            elif args:
+                self[prop.name] = args[0]
+                del args[0]
+
+            elif prop.klass == OPTIONAL:
+                self[prop.name] = None
+
+            else:
+                raise ValueError("Cannot handle required argument %s" % prop.name)
+
+    def __getattr__(self, key):
+        if key[0] == '_':
+            return super(PropertySet, self).__getattribute__(key)
+
+        return self[key]
 
 class Metainfo(object):
     def __init__(self):
@@ -61,10 +92,10 @@ def create_meta_class(metainfo=None, base=type):
             members['metainfo'] = cls.metainfo
 
             # Create class and register to the metainfo object if it's not a base class
-            base = members.pop('base', False)
+            members.setdefault('base', False)
             res = type.__new__(cls, name, bases, members)
 
-            if not base:
+            if not members['base']:
                 cls.metainfo.register(res)
 
             return res
@@ -84,57 +115,17 @@ def create_base_node(name, base=object, metainfo=None, metatype=type):
         properties = None
 
         def __init__(self, *args, **kwargs):
-            self.properties = {}
-
-            args = list(args)
-
-            index = 0
-            for prop in self.property_definitions:
-                if not args and not kwargs:
-                    break
-
-                if prop.name in kwargs:
-                    self.properties[prop.name] = kwargs.pop(prop.name)
-
-                elif args:
-                    self.properties[prop.name] = args[0]
-                    del args[0]
-
-                else:
-                    if prop.klass == REQUIRED:
-                        raise ValueError("Cannot handle required argument")
-
-                    self.properties[prop.name] = None
-
-                index += 1
-
-            remain = self.property_definitions[index:]
-            missing = set()
-            for prop in remain:
-                if prop.klass == REQUIRED:
-                    missing.add(prop.name)
-
-                else:
-                    self.properties[prop.name] = None
-
-            if missing:
-                raise ValueError("Missing argument(s): %s" % ', '.join(missing))
+            self.properties = PropertySet(self.property_definitions, args, kwargs)
 
             super(NodeBase, self).__init__()
 
-        def __getattr__(self, key):
-            if key in self.properties:
-                return self.properties[key]
-
-            return super(NodeBase, self).__getattribute__(key)
+        def map(self, func):
+            for key, value in self.properties.items():
+                yield key, func(key, value)
 
         @classmethod
         def subclass(cls, name, **kwargs):
             return cls.__metaclass__(name, (cls,), kwargs)
-
-        @classmethod
-        def handle_rule(cls, rule, prod):
-            pass
 
         def __str__(self):
             return '%s(%s)' % (self.name, '; '.join('%s=%r' % p for p in self.properties.items()))
@@ -143,3 +134,25 @@ def create_base_node(name, base=object, metainfo=None, metatype=type):
             return '%s(%s)' % (self.__class__.__name__, '; '.join('%s=%r' % p for p in self.properties.items()))
 
     return NodeBase
+
+class AstMetaVisitor(object):
+    def __init__(self, visitor):
+        self._subvisitor = visitor
+
+    def visit(self, ast):
+        if hasattr(ast, 'metainfo'):
+            properties = {}
+            for key in ast.keys:
+                properties[key] = self.visit(ast[key])
+
+            ast = ast.__class__(**properties)
+
+        return self._subvisitor.visit(ast)
+
+class AstVisitor(VisitorBase):
+    def aspects(self, node):
+        if hasattr(node, 'metainfo'):
+            return [ node.name ]
+
+        else:
+            return node.__class__.__mro__
