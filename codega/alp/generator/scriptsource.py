@@ -1,14 +1,17 @@
-from codega.source import FileSourceBase
+from codega.source import SourceBase
+from codega.alp import script
 
-from alplang import module
 from flatten import flatten
 from validator import Validator
 
-class ScriptParser(FileSourceBase):
-    def load_fileobj(self, fileobj):
-        '''Load a CSV file and convert it into an XML structure'''
+class ScriptParser(SourceBase):
+    def load(self, resource, resource_locator=None):
+        '''Load and validate ALP script'''
 
-        ast = flatten(module.parse('input', fileobj.read()))
+        if resource_locator is not None:
+            resource = resource_locator.find(resource)
+
+        ast = flatten(script.parse(resource, open(resource).read()))
         Validator.run(ast)
 
         return ast

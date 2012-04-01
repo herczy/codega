@@ -1,6 +1,5 @@
 from codega.visitor import ClassVisitor, visitor
-
-from alplang import module
+from codega.alp import script
 
 class ValidationError(Exception):
     '''Validator-related error'''
@@ -9,7 +8,7 @@ class MissingSymbolError(ValidationError):
     '''Symbol missing'''
 
 class DoubleDefinitionError(ValidationError):
-    '''A symbol, module, etc. has been defined multiple times'''
+    '''A symbol, script, etc. has been defined multiple times'''
 
 class Validator(ClassVisitor):
     def __init__(self):
@@ -47,19 +46,19 @@ class Validator(ClassVisitor):
         if name in self._symbols:
             raise DoubleDefinitionError("Symbol %r has been defined twice" % name)
 
-    @visitor(module.AlpScript)
+    @visitor(script.AlpScript)
     def visit_alp_script(self, ast):
         self.visit(ast.properties.head)
         self.visit(ast.properties.body)
 
-    @visitor(module.AlpHeaderEntry)
+    @visitor(script.AlpHeaderEntry)
     def visit_alp_header_entry(self, ast):
         if ast.properties.key in self._info:
             raise DoubleDefinitionError("Header information %r has been defined twice" % ast.key)
 
         self._info.add(ast.properties.key)
 
-    @visitor(module.AlpStart)
+    @visitor(script.AlpStart)
     def visit_alp_start(self, ast):
         if self._start_symbol is not None:
             raise DoubleDefinitionError("The start symbol has been defined twice")
@@ -67,18 +66,18 @@ class Validator(ClassVisitor):
         self._start_symbol = ast.properties.symbol
         self._referenced_symbols.add(ast.properties.symbol)
 
-    @visitor(module.AlpToken, module.AlpLiteral, module.AlpIgnore)
+    @visitor(script.AlpToken, script.AlpLiteral, script.AlpIgnore)
     def visit_alp_named_token(self, ast):
         self.check_duplicate_symbol(ast.properties.name)
         self._symbols.add(ast.properties.name)
 
-    @visitor(module.AlpKeyword)
+    @visitor(script.AlpKeyword)
     def visit_alp_unnamed_token(self, ast):
         name = ast.properties.value.upper()
         self.check_duplicate_symbol(name)
         self._symbols.add(name)
 
-    @visitor(module.AlpPrecedence)
+    @visitor(script.AlpPrecedence)
     def visit_alp_precedence(self, ast):
         for entry in ast.properties.list:
             if entry in self._referenced_symbols:
@@ -86,23 +85,23 @@ class Validator(ClassVisitor):
 
             self._referenced_symbols.add(entry)
 
-    @visitor(module.AlpNode, module.AlpSelection)
+    @visitor(script.AlpNode, script.AlpSelection)
     def visit_alp_node(self, ast):
         self.check_duplicate_symbol(ast.properties.name)
         self._symbols.add(ast.properties.name)
 
         self.visit(ast.properties.body)
 
-    @visitor(module.AlpNodeBody)
+    @visitor(script.AlpNodeBody)
     def visit_alp_node_body(self, ast):
         for _, value in ast.properties.items():
             self.visit(value)
 
-    @visitor(module.AlpRule)
+    @visitor(script.AlpRule)
     def visit_alp_rule(self, ast):
         self.visit(ast.properties.entries)
 
-    @visitor(module.AlpRuleEntry)
+    @visitor(script.AlpRuleEntry)
     def visit_alp_rule_entry(self, ast):
         self._referenced_symbols.add(ast.properties.name)
 

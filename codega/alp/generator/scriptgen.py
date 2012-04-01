@@ -2,16 +2,12 @@ import os.path
 
 from codega.generator.declarative import * #@UnusedWildImports
 from codega.generator.priority import PRI_FALLBACK, PRI_HIGH
+from codega.alp.ast import Property
+from codega.alp import script
 
 from cgextra.makowrapper import MakoTemplatesetFile
 from cgextra import matcher
-
-from alplang import module
-import sys
-from codega.decorators import abstract
 from cgextra.variant import use_variant, variant
-from codega.alp.ast import Property
-from codega.alp.rule import RuleEntry
 
 token_types = ('AlpToken', 'AlpLiteral', 'AlpIgnore', 'AlpKeyword')
 parser_types = ('AlpNode', 'AlpSelection')
@@ -36,7 +32,7 @@ class ScriptBaseGenerator(Generator):
         return templates.render(self.template, self.get_bindings(source, context))
 
 class AlpScriptGenerator(ScriptBaseGenerator):
-    __matcher__ = matcher.cls(module.AlpScript)
+    __matcher__ = matcher.cls(script.AlpScript)
 
     template = 'AlpScript'
 
@@ -84,19 +80,19 @@ class TokenGeneratorBase(ScriptBaseGenerator):
         return dict(key=key, name=name)
 
 class TokenGenerator(TokenGeneratorBase):
-    __matcher__ = matcher.cls(module.AlpToken)
+    __matcher__ = matcher.cls(script.AlpToken)
     template = 'AlpToken'
 
 class LiteralGenerator(TokenGeneratorBase):
-    __matcher__ = matcher.cls(module.AlpLiteral)
+    __matcher__ = matcher.cls(script.AlpLiteral)
     template = 'AlpLiteral'
 
 class IgnoreGenerator(TokenGeneratorBase):
-    __matcher__ = matcher.cls(module.AlpIgnore)
+    __matcher__ = matcher.cls(script.AlpIgnore)
     template = 'AlpIgnore'
 
 class KeywordGenerator(ScriptBaseGenerator):
-    __matcher__ = matcher.cls(module.AlpKeyword)
+    __matcher__ = matcher.cls(script.AlpKeyword)
     template = 'AlpKeyword'
 
     def get_bindings(self, source, context):
@@ -104,7 +100,7 @@ class KeywordGenerator(ScriptBaseGenerator):
 
 class AstNodeGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
-    __matcher__ = matcher.all(variant('ast'), matcher.cls(module.AlpNode))
+    __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpNode))
     template = 'AlpNode_ast'
 
     def get_bindings(self, source, context):
@@ -113,7 +109,7 @@ class AstNodeGenerator(ScriptBaseGenerator):
 
 class AstSelectionGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
-    __matcher__ = matcher.all(variant('ast'), matcher.cls(module.AlpSelection))
+    __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpSelection))
     template = 'AlpSelection_ast'
 
     def get_bindings(self, source, context):
@@ -121,7 +117,7 @@ class AstSelectionGenerator(ScriptBaseGenerator):
 
 class AstPropertyGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
-    __matcher__ = matcher.all(variant('ast'), matcher.cls(module.AlpProperty))
+    __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpProperty))
     template = 'AlpProperty_ast'
 
     def get_bindings(self, source, context):
@@ -148,7 +144,7 @@ class NodeGeneratorBase(ScriptBaseGenerator):
         return rules
 
 class NodeGenerator(NodeGeneratorBase):
-    __matcher__ = matcher.cls(module.AlpNode)
+    __matcher__ = matcher.cls(script.AlpNode)
     template = 'AlpNode'
 
     def get_bindings(self, source, context):
@@ -158,7 +154,7 @@ class NodeGenerator(NodeGeneratorBase):
         return dict(name=name, rules=self.get_rules(name, context, body.properties.rules))
 
 class SelectionGenerator(NodeGeneratorBase):
-    __matcher__ = matcher.cls(module.AlpSelection)
+    __matcher__ = matcher.cls(script.AlpSelection)
     template = 'AlpNode'
 
     def get_bindings(self, source, context):
@@ -167,14 +163,14 @@ class SelectionGenerator(NodeGeneratorBase):
         return dict(name=name, rules=self.get_rules(name, context, source.properties.body))
 
 class RuleGenerator(ScriptBaseGenerator):
-    __matcher__ = matcher.cls(module.AlpRule)
+    __matcher__ = matcher.cls(script.AlpRule)
     template = 'AlpRule'
 
     def get_bindings(self, source, context):
         return dict(index=context.index, name=context.name, entries=context.map(self.parent, source.properties.entries), precsym=source.properties.precsymbol)
 
 class RuleEntryGenerator(ScriptBaseGenerator):
-    __matcher__ = matcher.cls(module.AlpRuleEntry)
+    __matcher__ = matcher.cls(script.AlpRuleEntry)
     template = 'AlpRuleEntry'
 
     def get_bindings(self, source, context):

@@ -1,7 +1,8 @@
-from alplang import module
+from codega.alp import script
 
+## THIS IS ONLY TEMPORARILY HERE UNTIL THE LIST FEATURE IS ADDED
 def flatten(ast):
-    if not isinstance(ast, module.baseclass):
+    if not isinstance(ast, script.AstBaseClass):
         return ast
 
     if set(ast.properties.keys()) == set(('entry', 'next')):
