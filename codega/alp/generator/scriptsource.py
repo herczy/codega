@@ -11,7 +11,7 @@ class ScriptParser(SourceBase):
         if resource_locator is not None:
             resource = resource_locator.find(resource)
 
-        ast = flatten(script.parse(resource, open(resource).read()))
+        ast = flatten(script.parse(resource, open(resource).read()), script.AstBaseClass)
         Validator.run(ast)
 
         return ast
