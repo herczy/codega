@@ -45,7 +45,7 @@ class ScriptLexer(Lexer):
         ('PRECDIR', 'left', 'right'),
 
         # Script information keywords
-        ('INFOKEYWORD', 'language', 'author', 'version', 'email', 'name'),
+        ('INFOKEYWORD', 'language', 'author', 'version', 'email'),
     )
 
     kwmap = {}
@@ -132,6 +132,8 @@ class ScriptParser(ParserBase):
         mod.__lexer__ = self._lexerfactory.create_class()
         mod.__parser__ = self.create_parser()
 
+        mod.baseclass = self._baseclass
+
         @define(mod)
         @bind(mod, pos=0)
         def parse(mod, sourcename, data):
@@ -211,7 +213,9 @@ class ScriptParser(ParserBase):
         '''header : header_entry SEMICOLON header'''
 
     def p_header_entry(self, p):
-        '''header_entry : INFOKEYWORD ID'''
+        '''header_entry : INFOKEYWORD ID
+                        | INFOKEYWORD STRING
+                        | INFOKEYWORD INTEGER'''
 
         self._info.insert(0, p[1], p[2])
 
