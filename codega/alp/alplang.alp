@@ -42,6 +42,7 @@ literal EMAIL 'email';
 
 # Symbols
 literal SEMICOLON ';';
+literal COLON ',';
 literal ARROW '=>';
 literal MINUS '-';
 literal EQ '=';
@@ -286,5 +287,5 @@ node AlpIdList
   optional next;
 
   rule ID;
-  rule ID -COMMA AlpIdList;
+  rule ID -COLON AlpIdList;
 };

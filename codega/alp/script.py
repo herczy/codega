@@ -55,6 +55,7 @@ lexer_factory.add_literal('AUTHOR', 'author');
 lexer_factory.add_literal('VERSION', 'version');
 lexer_factory.add_literal('EMAIL', 'email');
 lexer_factory.add_literal('SEMICOLON', ';');
+lexer_factory.add_literal('COLON', ',');
 lexer_factory.add_literal('ARROW', '=>');
 lexer_factory.add_literal('MINUS', '-');
 lexer_factory.add_literal('EQ', '=');
@@ -521,7 +522,7 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpIdList_0(AlpIdList, p[1:])
     p_AlpIdList_0.__doc__ = rule_AlpIdList_0.to_yacc_rule()
 
-    rule_AlpIdList_1 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None))
+    rule_AlpIdList_1 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('COLON', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None))
     def p_AlpIdList_1(self, p):
         p[0] = self.rule_AlpIdList_1(AlpIdList, p[1:])
     p_AlpIdList_1.__doc__ = rule_AlpIdList_1.to_yacc_rule()
