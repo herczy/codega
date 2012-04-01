@@ -29,7 +29,7 @@ class TargetTask(TaskBase):
         self._locator = locator
         self._source = source
         self._target = target
-        self._destination = os.path.join(self._locator.find(self._config.paths.destination), self._target.filename)
+        self._destination = os.path.join(self._locator.find(self._config.paths.destination, check_exists=False), self._target.filename)
         self._cache = cache
 
         super(TargetTask, self).__init__(builder)
