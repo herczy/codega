@@ -22,6 +22,10 @@ from codega.alp.errorcontext import ErrorContext
 from codega.alp import rule
 from codega.alp import ast
 
+% for imp in imports:
+${imp}
+% endfor
+
 class ParserError(Exception):
     '''Parse-related errors'''
 
@@ -78,6 +82,17 @@ def parse(sourcename, data):
 
 def parse_file(filename):
     return parse(sourcename=filename, data=open(filename).read())
+</%def>
+
+<%def name='AlpImport()'>\
+<%
+
+    asexpr = ''
+    if import_as is not None:
+        asexpr = ' as %s' % import_as
+
+%>\
+from ${'.'.join(import_from)} import ${import_name}${asexpr}\
 </%def>
 
 <%def name='AlpToken()'>\

@@ -47,6 +47,7 @@ class AlpScriptGenerator(ScriptBaseGenerator):
         parser = []
         ast = []
         precedence = []
+        imports = []
         start = None
         for entry in source.properties.body:
             if entry.name in token_types:
@@ -63,11 +64,22 @@ class AlpScriptGenerator(ScriptBaseGenerator):
             elif entry.name == 'AlpStart':
                 start = entry.properties.symbol
 
+            elif entry.name == 'AlpImport':
+                imports.append(self.parent(entry, context))
+
         assert start is not None
 
-        result.update(lexer=lexer, parser=parser, precedence=precedence, start=start, ast=ast)
+        result.update(imports=imports, lexer=lexer, parser=parser, precedence=precedence, start=start, ast=ast)
         result.update(ctx=context)
         return result
+
+class AlpImportGenerator(ScriptBaseGenerator):
+    __matcher__ = matcher.cls(script.AlpImport)
+
+    template = 'AlpImport'
+
+    def get_bindings(self, source, context):
+        return dict(source.properties)
 
 class TokenGeneratorBase(ScriptBaseGenerator):
     __base__ = True

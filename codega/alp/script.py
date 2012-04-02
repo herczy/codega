@@ -18,6 +18,7 @@ from codega.alp.errorcontext import ErrorContext
 from codega.alp import rule
 from codega.alp import ast
 
+
 class ParserError(Exception):
     '''Parse-related errors'''
 
@@ -118,7 +119,7 @@ def SelMainEntry(arg):
 
 class AlpImport(AstBaseClass):
     property_definitions = (
-        ast.Property('import_from', klass=1),
+        ast.Property('import_from', klass=0),
         ast.Property('import_name', klass=0),
         ast.Property('import_as', klass=1),
     )
@@ -355,25 +356,15 @@ class Parser(ParserBase):
 
 
     # Rules for node AlpImport
-    rule_AlpImport_0 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None))
+    rule_AlpImport_0 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key=None, ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None))
     def p_AlpImport_0(self, p):
         p[0] = self.rule_AlpImport_0(AlpImport, p[1:])
     p_AlpImport_0.__doc__ = rule_AlpImport_0.to_yacc_rule()
 
-    rule_AlpImport_1 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
+    rule_AlpImport_1 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key=None, ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None))
     def p_AlpImport_1(self, p):
         p[0] = self.rule_AlpImport_1(AlpImport, p[1:])
     p_AlpImport_1.__doc__ = rule_AlpImport_1.to_yacc_rule()
-
-    rule_AlpImport_2 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None))
-    def p_AlpImport_2(self, p):
-        p[0] = self.rule_AlpImport_2(AlpImport, p[1:])
-    p_AlpImport_2.__doc__ = rule_AlpImport_2.to_yacc_rule()
-
-    rule_AlpImport_3 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
-    def p_AlpImport_3(self, p):
-        p[0] = self.rule_AlpImport_3(AlpImport, p[1:])
-    p_AlpImport_3.__doc__ = rule_AlpImport_3.to_yacc_rule()
 
 
     # Rules for node AlpStart
