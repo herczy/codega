@@ -18,6 +18,7 @@ from codega.alp.errorcontext import ErrorContext
 from codega.alp import rule
 from codega.alp import ast
 
+
 class ParserError(Exception):
     '''Parse-related errors'''
 
@@ -26,9 +27,9 @@ class ParserError(Exception):
 
         self.context = ctx
 
-        def __str__(self):
-            orig = super(ParserError, self).__str__()
-            return '%s\n%s' % (orig, self.context.summary)
+    def __str__(self):
+        orig = super(ParserError, self).__str__()
+        return '%s\n%s' % (orig, self.context.summary)
 
 # Lexer
 lexer_factory = LexerFactory()
