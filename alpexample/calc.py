@@ -121,16 +121,15 @@ class Evaluate(ClassVisitor):
         if isinstance(o, tuple):
             return (self.visit(e) for e in o)
 
-        else:
+        elif isinstance(o, basestring):
             try:
-                return float(o)
+                return vals[o]
 
-            except ValueError:
-                try:
-                    return vals[o]
+            except KeyError:
+                return 0.0
 
-                except KeyError:
-                    return 0.0
+        else:
+            return o
 
 histfile = os.path.join(os.path.dirname(__file__), ".history")
 try:

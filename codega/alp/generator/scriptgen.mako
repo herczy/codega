@@ -90,13 +90,25 @@ def parse_file(filename):
     asexpr = ''
     if import_as is not None:
         asexpr = ' as %s' % import_as
+        
+    if import_from is None:
+        _import_name = '.'.join(import_name)
+    else:
+        _import_name = import_name
 
 %>\
-from ${'.'.join(import_from)} import ${import_name}${asexpr}\
+% if import_from is not None:
+from ${'.'.join(import_from)} \
+% endif
+import ${_import_name}${asexpr}\
 </%def>
 
 <%def name='AlpToken()'>\
 lexer_factory.add_token('${key}', '${name}');\
+% for conv in conversions:
+
+lexer_factory.add_conversion('${key}', ${conv});\
+% endfor
 </%def>
 
 <%def name='AlpLiteral()'>\
@@ -109,6 +121,13 @@ lexer_factory.add_ignore_token('${key}', '${name}');\
 
 <%def name='AlpKeyword()'>\
 lexer_factory.add_keyword('${key}');\
+</%def>
+
+<%def name='AlpConversion()'>\
+${'.'.join(conversion)}\
+% if arguments is not None:
+(${', '.join(arguments)})\
+% endif
 </%def>
 
 <%def name='AlpPrecedence()'>\

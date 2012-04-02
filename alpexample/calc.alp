@@ -5,7 +5,7 @@
 ignore SPACES '\s+';
 
 token NAME '[a-zA-Z_][a-zA-Z0-9]*';
-token NUMBER '(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?';
+token NUMBER '(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?' => float;
 
 literal EQ '=';
 literal ADD '+';
@@ -79,8 +79,14 @@ node call
 
 list exprlist
 {
+  rule;
+  rule body=exprlist_tail;
+};
+
+list exprlist_tail
+{
   rule head=expression;
-  rule head=expression -COMMA body=exprlist;
+  rule head=expression -COMMA body=exprlist_tail;
 };
 
 node assignment
@@ -114,6 +120,12 @@ node funcdef
 
 list id_list
 {
+  rule;
+  rule body=id_list_tail;
+};
+
+list id_list_tail
+{
   rule head=NAME;
-  rule head=NAME -COMMA body=id_list;
+  rule head=NAME -COMMA body=id_list_tail;
 };

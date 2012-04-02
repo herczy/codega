@@ -95,6 +95,16 @@ class TokenGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpToken)
     template = 'AlpToken'
 
+    def get_bindings(self, source, context):
+        bindings = super(TokenGenerator, self).get_bindings(source, context)
+        if source.properties.conversions is not None:
+            conversions = context.map(self.parent, source.properties.conversions)
+
+        else:
+            conversions = ()
+        bindings['conversions'] = conversions
+        return bindings
+
 class LiteralGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpLiteral)
     template = 'AlpLiteral'
@@ -109,6 +119,13 @@ class KeywordGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(key=source.properties.value)
+
+class ConversionGenerator(ScriptBaseGenerator):
+    __matcher__ = matcher.cls(script.AlpConversion)
+    template = 'AlpConversion'
+
+    def get_bindings(self, source, context):
+        return dict(source.properties)
 
 class AstNodeGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH

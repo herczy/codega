@@ -36,6 +36,7 @@ lexer_factory = LexerFactory()
 lexer_factory.add_ignore_token('SPACES', '\s+');
 lexer_factory.add_token('NAME', '[a-zA-Z_][a-zA-Z0-9]*');
 lexer_factory.add_token('NUMBER', '(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?');
+lexer_factory.add_conversion('NUMBER', float);
 lexer_factory.add_literal('EQ', '=');
 lexer_factory.add_literal('ADD', '+');
 lexer_factory.add_literal('SUB', '-');
@@ -94,6 +95,19 @@ def exprlist(**kwargs):
 
     return body
 
+def exprlist_tail(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
+
 class assignment(AstBaseClass):
     property_definitions = (
         ast.Property('rvalue', klass=0),
@@ -117,6 +131,19 @@ class funcdef(AstBaseClass):
     )
 
 def id_list(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
+
+def id_list_tail(**kwargs):
     body = kwargs.pop('body', ())
 
     if 'head' in kwargs:
@@ -238,15 +265,27 @@ class Parser(ParserBase):
 
 
     # Rules for node exprlist
-    rule_exprlist_0 = rule.Rule('exprlist', rule.RuleEntry('expression', key='head', ignore=None))
+    rule_exprlist_0 = rule.Rule('exprlist')
     def p_exprlist_0(self, p):
         p[0] = self.rule_exprlist_0(exprlist, p[1:])
     p_exprlist_0.__doc__ = rule_exprlist_0.to_yacc_rule()
 
-    rule_exprlist_1 = rule.Rule('exprlist', rule.RuleEntry('expression', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('exprlist', key='body', ignore=None))
+    rule_exprlist_1 = rule.Rule('exprlist', rule.RuleEntry('exprlist_tail', key='body', ignore=None))
     def p_exprlist_1(self, p):
         p[0] = self.rule_exprlist_1(exprlist, p[1:])
     p_exprlist_1.__doc__ = rule_exprlist_1.to_yacc_rule()
+
+
+    # Rules for node exprlist_tail
+    rule_exprlist_tail_0 = rule.Rule('exprlist_tail', rule.RuleEntry('expression', key='head', ignore=None))
+    def p_exprlist_tail_0(self, p):
+        p[0] = self.rule_exprlist_tail_0(exprlist_tail, p[1:])
+    p_exprlist_tail_0.__doc__ = rule_exprlist_tail_0.to_yacc_rule()
+
+    rule_exprlist_tail_1 = rule.Rule('exprlist_tail', rule.RuleEntry('expression', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('exprlist_tail', key='body', ignore=None))
+    def p_exprlist_tail_1(self, p):
+        p[0] = self.rule_exprlist_tail_1(exprlist_tail, p[1:])
+    p_exprlist_tail_1.__doc__ = rule_exprlist_tail_1.to_yacc_rule()
 
 
     # Rules for node assignment
@@ -276,15 +315,27 @@ class Parser(ParserBase):
 
 
     # Rules for node id_list
-    rule_id_list_0 = rule.Rule('id_list', rule.RuleEntry('NAME', key='head', ignore=None))
+    rule_id_list_0 = rule.Rule('id_list')
     def p_id_list_0(self, p):
         p[0] = self.rule_id_list_0(id_list, p[1:])
     p_id_list_0.__doc__ = rule_id_list_0.to_yacc_rule()
 
-    rule_id_list_1 = rule.Rule('id_list', rule.RuleEntry('NAME', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('id_list', key='body', ignore=None))
+    rule_id_list_1 = rule.Rule('id_list', rule.RuleEntry('id_list_tail', key='body', ignore=None))
     def p_id_list_1(self, p):
         p[0] = self.rule_id_list_1(id_list, p[1:])
     p_id_list_1.__doc__ = rule_id_list_1.to_yacc_rule()
+
+
+    # Rules for node id_list_tail
+    rule_id_list_tail_0 = rule.Rule('id_list_tail', rule.RuleEntry('NAME', key='head', ignore=None))
+    def p_id_list_tail_0(self, p):
+        p[0] = self.rule_id_list_tail_0(id_list_tail, p[1:])
+    p_id_list_tail_0.__doc__ = rule_id_list_tail_0.to_yacc_rule()
+
+    rule_id_list_tail_1 = rule.Rule('id_list_tail', rule.RuleEntry('NAME', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('id_list_tail', key='body', ignore=None))
+    def p_id_list_tail_1(self, p):
+        p[0] = self.rule_id_list_tail_1(id_list_tail, p[1:])
+    p_id_list_tail_1.__doc__ = rule_id_list_tail_1.to_yacc_rule()
 
 
 
