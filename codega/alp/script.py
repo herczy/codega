@@ -27,9 +27,9 @@ class ParserError(Exception):
 
         self.context = ctx
 
-        def __str__(self):
-            orig = super(ParserError, self).__str__()
-            return '%s\n%s' % (orig, self.context.summary)
+    def __str__(self):
+        orig = super(ParserError, self).__str__()
+        return '%s\n%s' % (orig, self.context.summary)
 
 # Lexer
 lexer_factory = LexerFactory()
