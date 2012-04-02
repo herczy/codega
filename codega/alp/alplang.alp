@@ -19,6 +19,7 @@ literal IGNORE 'ignore';
 
 # Node tokens
 literal NODE 'node';
+literal LIST 'list';
 literal SELECTION 'selection';
 
 # Property tokens
@@ -177,13 +178,14 @@ selection SelParser
 {
   rule AlpPrecedence;
   rule AlpNode;
+  rule AlpList;
   rule AlpSelection;
 };
 
 node AlpPrecedence
 {
   required direction;
-  required list;
+  required tokens;
 
   rule -PRECEDENCE LEFT -LPAREN AlpIdList -RPAREN;
   rule -PRECEDENCE RIGHT -LPAREN AlpIdList -RPAREN;
@@ -195,6 +197,14 @@ node AlpNode
   required body;
 
   rule -NODE ID -LCURLY AlpNodeBody -RCURLY;
+};
+
+node AlpList
+{
+  required name;
+  required body;
+  
+  rule -LIST ID -LCURLY AlpRuleList -RCURLY;
 };
 
 node AlpSelection

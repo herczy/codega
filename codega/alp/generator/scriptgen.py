@@ -10,7 +10,7 @@ from cgextra import matcher
 from cgextra.variant import use_variant, variant
 
 token_types = ('AlpToken', 'AlpLiteral', 'AlpIgnore', 'AlpKeyword')
-parser_types = ('AlpNode', 'AlpSelection')
+parser_types = ('AlpNode', 'AlpSelection', 'AlpList')
 
 def name_matcher(names):
     @matcher
@@ -107,6 +107,14 @@ class AstNodeGenerator(ScriptBaseGenerator):
         body = source.properties.body
         return dict(name=source.properties.name, properties=context.map(self.parent, body.properties.properties))
 
+class AstListGenerator(ScriptBaseGenerator):
+    __priority__ = PRI_HIGH
+    __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpList))
+    template = 'AlpList_ast'
+
+    def get_bindings(self, source, context):
+        return dict(name=source.properties.name)
+
 class AstSelectionGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
     __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpSelection))
@@ -129,7 +137,7 @@ class PrecedenceGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         p = source.properties
-        return dict(dir=p.direction, items=p.list)
+        return dict(dir=p.direction, items=p.tokens)
 
 class NodeGeneratorBase(ScriptBaseGenerator):
     __base__ = True
@@ -162,7 +170,7 @@ class NodeGenerator(NodeGeneratorBase):
         return dict(name=name, rules=self.get_rules(name, context, body.properties.rules))
 
 class SelectionGenerator(NodeGeneratorBase):
-    __matcher__ = matcher.cls(script.AlpSelection)
+    __matcher__ = matcher.any(matcher.cls(script.AlpSelection), matcher.cls(script.AlpList))
     template = 'AlpNode'
 
     def get_bindings(self, source, context):

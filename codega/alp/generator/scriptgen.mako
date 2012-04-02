@@ -114,6 +114,21 @@ ${indent(prop, level=2)},
     )
 </%def>
 
+<%def name='AlpList_ast()'>\
+def ${name}(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
+</%def>
+
 <%def name='AlpSelection_ast()'>\
 # Helper class for selectors!
 def ${name}(arg):

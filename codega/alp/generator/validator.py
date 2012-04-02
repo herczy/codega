@@ -10,6 +10,9 @@ class MissingSymbolError(ValidationError):
 class DoubleDefinitionError(ValidationError):
     '''A symbol, script, etc. has been defined multiple times'''
 
+class RuleError(ValidationError):
+    '''An error has been detected in a rule'''
+
 class Validator(ClassVisitor):
     def __init__(self):
         super(Validator, self).__init__()
@@ -78,7 +81,7 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpPrecedence)
     def visit_alp_precedence(self, ast):
-        for entry in ast.properties.list:
+        for entry in ast.properties.tokens:
             if entry in self._referenced_symbols:
                 raise DoubleDefinitionError("Precedence symbol %r defined twice" % entry)
 
@@ -90,6 +93,25 @@ class Validator(ClassVisitor):
         self._symbols.add(ast.properties.name)
 
         self.visit(ast.properties.body)
+
+    @visitor(script.AlpList)
+    def visit_alp_list(self, ast):
+        self.check_duplicate_symbol(ast.properties.name)
+        self._symbols.add(ast.properties.name)
+        self.visit(ast.properties.body)
+
+        allowed_symbols = set(('tail', 'head', 'body'))
+
+        for rule in ast.properties.body:
+            for entry in rule.properties.entries:
+                if entry.properties.ignored:
+                    continue
+
+                if entry.properties.key is None:
+                    raise RuleError("List rule entry has no key")
+
+                if entry.properties.key not in allowed_symbols:
+                    raise RuleError("Invalid rule entry key %r found in a list node" % entry.properties.key)
 
     @visitor(script.AlpNodeBody)
     def visit_alp_node_body(self, ast):

@@ -42,6 +42,7 @@ lexer_factory.add_literal('KEYWORD', 'keyword');
 lexer_factory.add_literal('LITERAL', 'literal');
 lexer_factory.add_literal('IGNORE', 'ignore');
 lexer_factory.add_literal('NODE', 'node');
+lexer_factory.add_literal('LIST', 'list');
 lexer_factory.add_literal('SELECTION', 'selection');
 lexer_factory.add_literal('OPTIONAL', 'optional');
 lexer_factory.add_literal('REQUIRED', 'required');
@@ -147,10 +148,16 @@ def SelParser(arg):
 class AlpPrecedence(AstBaseClass):
     property_definitions = (
         ast.Property('direction', klass=0),
-        ast.Property('list', klass=0),
+        ast.Property('tokens', klass=0),
     )
 
 class AlpNode(AstBaseClass):
+    property_definitions = (
+        ast.Property('name', klass=0),
+        ast.Property('body', klass=0),
+    )
+
+class AlpList(AstBaseClass):
     property_definitions = (
         ast.Property('name', klass=0),
         ast.Property('body', klass=0),
@@ -388,10 +395,15 @@ class Parser(ParserBase):
         p[0] = self.rule_SelParser_1(SelParser, p[1:])
     p_SelParser_1.__doc__ = rule_SelParser_1.to_yacc_rule()
 
-    rule_SelParser_2 = rule.Rule('SelParser', rule.RuleEntry('AlpSelection', key=None, ignore=None))
+    rule_SelParser_2 = rule.Rule('SelParser', rule.RuleEntry('AlpList', key=None, ignore=None))
     def p_SelParser_2(self, p):
         p[0] = self.rule_SelParser_2(SelParser, p[1:])
     p_SelParser_2.__doc__ = rule_SelParser_2.to_yacc_rule()
+
+    rule_SelParser_3 = rule.Rule('SelParser', rule.RuleEntry('AlpSelection', key=None, ignore=None))
+    def p_SelParser_3(self, p):
+        p[0] = self.rule_SelParser_3(SelParser, p[1:])
+    p_SelParser_3.__doc__ = rule_SelParser_3.to_yacc_rule()
 
 
     # Rules for node AlpPrecedence
@@ -411,6 +423,13 @@ class Parser(ParserBase):
     def p_AlpNode_0(self, p):
         p[0] = self.rule_AlpNode_0(AlpNode, p[1:])
     p_AlpNode_0.__doc__ = rule_AlpNode_0.to_yacc_rule()
+
+
+    # Rules for node AlpList
+    rule_AlpList_0 = rule.Rule('AlpList', rule.RuleEntry('LIST', key=None, ignore='-'), rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('LCURLY', key=None, ignore='-'), rule.RuleEntry('AlpRuleList', key=None, ignore=None), rule.RuleEntry('RCURLY', key=None, ignore='-'))
+    def p_AlpList_0(self, p):
+        p[0] = self.rule_AlpList_0(AlpList, p[1:])
+    p_AlpList_0.__doc__ = rule_AlpList_0.to_yacc_rule()
 
 
     # Rules for node AlpSelection
