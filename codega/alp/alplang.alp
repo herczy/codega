@@ -75,13 +75,10 @@ node AlpScript
 };
 
 # Header of the ALP script
-node AlpHead
+list AlpHead
 {
-  optional entry;
-  optional next;
-
   rule;
-  rule entry=AlpHeaderEntry -SEMICOLON next=AlpHead;
+  rule head=AlpHeaderEntry -SEMICOLON body=AlpHead;
 };
 
 node AlpHeaderEntry
@@ -96,13 +93,10 @@ node AlpHeaderEntry
 };
 
 # Script body
-node AlpBody
+list AlpBody
 {
-  optional entry;
-  optional next;
-
   rule;
-  rule SelMainEntry -SEMICOLON AlpBody;
+  rule head=SelMainEntry -SEMICOLON body=AlpBody;
 };
 
 # Main entry types
@@ -224,13 +218,10 @@ node AlpNodeBody
 };
 
 # Property definitions
-node AlpPropertyList
+list AlpPropertyList
 {
-  optional entry;
-  optional next;
-
   rule;
-  rule AlpProperty -SEMICOLON AlpPropertyList;
+  rule head=AlpProperty -SEMICOLON body=AlpPropertyList;
 };
 
 node AlpProperty
@@ -243,13 +234,10 @@ node AlpProperty
 };
 
 # Rule definitions
-node AlpRuleList
+list AlpRuleList
 {
-  required entry;
-  optional next;
-
-  rule AlpRule -SEMICOLON;
-  rule AlpRule -SEMICOLON AlpRuleList;
+  rule head=AlpRule -SEMICOLON;
+  rule head=AlpRule -SEMICOLON body=AlpRuleList;
 };
 
 node AlpRule
@@ -261,13 +249,10 @@ node AlpRule
   rule -RULE AlpRuleEntryList -PRECSYM ID;
 };
 
-node AlpRuleEntryList
+list AlpRuleEntryList
 {
-  optional entry;
-  optional next;
-
   rule;
-  rule AlpRuleEntry AlpRuleEntryList;
+  rule head=AlpRuleEntry body=AlpRuleEntryList;
 };
 
 node AlpRuleEntry
@@ -282,20 +267,14 @@ node AlpRuleEntry
 };
 
 # Generic constructs
-node AlpModuleName
+list AlpModuleName
 {
-  required entry;
-  optional next;
-
-  rule ID;
-  rule ID -PERIOD AlpModuleName;
+  rule head=ID;
+  rule head=ID -PERIOD body=AlpModuleName;
 };
 
-node AlpIdList
+list AlpIdList
 {
-  required entry;
-  optional next;
-
-  rule ID;
-  rule ID -COLON AlpIdList;
+  rule head=ID;
+  rule head=ID -COLON body=AlpIdList;
 };

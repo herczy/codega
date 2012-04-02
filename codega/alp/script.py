@@ -80,11 +80,18 @@ class AlpScript(AstBaseClass):
         ast.Property('body', klass=0),
     )
 
-class AlpHead(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def AlpHead(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 class AlpHeaderEntry(AstBaseClass):
     property_definitions = (
@@ -92,11 +99,18 @@ class AlpHeaderEntry(AstBaseClass):
         ast.Property('value', klass=0),
     )
 
-class AlpBody(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def AlpBody(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 # Helper class for selectors!
 def SelMainEntry(arg):
@@ -175,11 +189,18 @@ class AlpNodeBody(AstBaseClass):
         ast.Property('rules', klass=0),
     )
 
-class AlpPropertyList(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def AlpPropertyList(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 class AlpProperty(AstBaseClass):
     property_definitions = (
@@ -187,11 +208,18 @@ class AlpProperty(AstBaseClass):
         ast.Property('name', klass=0),
     )
 
-class AlpRuleList(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=0),
-        ast.Property('next', klass=1),
-    )
+def AlpRuleList(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 class AlpRule(AstBaseClass):
     property_definitions = (
@@ -199,11 +227,18 @@ class AlpRule(AstBaseClass):
         ast.Property('precsymbol', klass=1),
     )
 
-class AlpRuleEntryList(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def AlpRuleEntryList(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 class AlpRuleEntry(AstBaseClass):
     property_definitions = (
@@ -212,17 +247,31 @@ class AlpRuleEntry(AstBaseClass):
         ast.Property('name', klass=0),
     )
 
-class AlpModuleName(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=0),
-        ast.Property('next', klass=1),
-    )
+def AlpModuleName(**kwargs):
+    body = kwargs.pop('body', ())
 
-class AlpIdList(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=0),
-        ast.Property('next', klass=1),
-    )
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
+
+def AlpIdList(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 
 # Parser
@@ -243,7 +292,7 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpHead_0(AlpHead, p[1:])
     p_AlpHead_0.__doc__ = rule_AlpHead_0.to_yacc_rule()
 
-    rule_AlpHead_1 = rule.Rule('AlpHead', rule.RuleEntry('AlpHeaderEntry', key='entry', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpHead', key='next', ignore=None))
+    rule_AlpHead_1 = rule.Rule('AlpHead', rule.RuleEntry('AlpHeaderEntry', key='head', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpHead', key='body', ignore=None))
     def p_AlpHead_1(self, p):
         p[0] = self.rule_AlpHead_1(AlpHead, p[1:])
     p_AlpHead_1.__doc__ = rule_AlpHead_1.to_yacc_rule()
@@ -277,7 +326,7 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpBody_0(AlpBody, p[1:])
     p_AlpBody_0.__doc__ = rule_AlpBody_0.to_yacc_rule()
 
-    rule_AlpBody_1 = rule.Rule('AlpBody', rule.RuleEntry('SelMainEntry', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpBody', key=None, ignore=None))
+    rule_AlpBody_1 = rule.Rule('AlpBody', rule.RuleEntry('SelMainEntry', key='head', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpBody', key='body', ignore=None))
     def p_AlpBody_1(self, p):
         p[0] = self.rule_AlpBody_1(AlpBody, p[1:])
     p_AlpBody_1.__doc__ = rule_AlpBody_1.to_yacc_rule()
@@ -452,7 +501,7 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpPropertyList_0(AlpPropertyList, p[1:])
     p_AlpPropertyList_0.__doc__ = rule_AlpPropertyList_0.to_yacc_rule()
 
-    rule_AlpPropertyList_1 = rule.Rule('AlpPropertyList', rule.RuleEntry('AlpProperty', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpPropertyList', key=None, ignore=None))
+    rule_AlpPropertyList_1 = rule.Rule('AlpPropertyList', rule.RuleEntry('AlpProperty', key='head', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpPropertyList', key='body', ignore=None))
     def p_AlpPropertyList_1(self, p):
         p[0] = self.rule_AlpPropertyList_1(AlpPropertyList, p[1:])
     p_AlpPropertyList_1.__doc__ = rule_AlpPropertyList_1.to_yacc_rule()
@@ -471,12 +520,12 @@ class Parser(ParserBase):
 
 
     # Rules for node AlpRuleList
-    rule_AlpRuleList_0 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'))
+    rule_AlpRuleList_0 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key='head', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'))
     def p_AlpRuleList_0(self, p):
         p[0] = self.rule_AlpRuleList_0(AlpRuleList, p[1:])
     p_AlpRuleList_0.__doc__ = rule_AlpRuleList_0.to_yacc_rule()
 
-    rule_AlpRuleList_1 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key=None, ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpRuleList', key=None, ignore=None))
+    rule_AlpRuleList_1 = rule.Rule('AlpRuleList', rule.RuleEntry('AlpRule', key='head', ignore=None), rule.RuleEntry('SEMICOLON', key=None, ignore='-'), rule.RuleEntry('AlpRuleList', key='body', ignore=None))
     def p_AlpRuleList_1(self, p):
         p[0] = self.rule_AlpRuleList_1(AlpRuleList, p[1:])
     p_AlpRuleList_1.__doc__ = rule_AlpRuleList_1.to_yacc_rule()
@@ -500,7 +549,7 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpRuleEntryList_0(AlpRuleEntryList, p[1:])
     p_AlpRuleEntryList_0.__doc__ = rule_AlpRuleEntryList_0.to_yacc_rule()
 
-    rule_AlpRuleEntryList_1 = rule.Rule('AlpRuleEntryList', rule.RuleEntry('AlpRuleEntry', key=None, ignore=None), rule.RuleEntry('AlpRuleEntryList', key=None, ignore=None))
+    rule_AlpRuleEntryList_1 = rule.Rule('AlpRuleEntryList', rule.RuleEntry('AlpRuleEntry', key='head', ignore=None), rule.RuleEntry('AlpRuleEntryList', key='body', ignore=None))
     def p_AlpRuleEntryList_1(self, p):
         p[0] = self.rule_AlpRuleEntryList_1(AlpRuleEntryList, p[1:])
     p_AlpRuleEntryList_1.__doc__ = rule_AlpRuleEntryList_1.to_yacc_rule()
@@ -524,24 +573,24 @@ class Parser(ParserBase):
 
 
     # Rules for node AlpModuleName
-    rule_AlpModuleName_0 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key=None, ignore=None))
+    rule_AlpModuleName_0 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key='head', ignore=None))
     def p_AlpModuleName_0(self, p):
         p[0] = self.rule_AlpModuleName_0(AlpModuleName, p[1:])
     p_AlpModuleName_0.__doc__ = rule_AlpModuleName_0.to_yacc_rule()
 
-    rule_AlpModuleName_1 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('PERIOD', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key=None, ignore=None))
+    rule_AlpModuleName_1 = rule.Rule('AlpModuleName', rule.RuleEntry('ID', key='head', ignore=None), rule.RuleEntry('PERIOD', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='body', ignore=None))
     def p_AlpModuleName_1(self, p):
         p[0] = self.rule_AlpModuleName_1(AlpModuleName, p[1:])
     p_AlpModuleName_1.__doc__ = rule_AlpModuleName_1.to_yacc_rule()
 
 
     # Rules for node AlpIdList
-    rule_AlpIdList_0 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None))
+    rule_AlpIdList_0 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key='head', ignore=None))
     def p_AlpIdList_0(self, p):
         p[0] = self.rule_AlpIdList_0(AlpIdList, p[1:])
     p_AlpIdList_0.__doc__ = rule_AlpIdList_0.to_yacc_rule()
 
-    rule_AlpIdList_1 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key=None, ignore=None), rule.RuleEntry('COLON', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key=None, ignore=None))
+    rule_AlpIdList_1 = rule.Rule('AlpIdList', rule.RuleEntry('ID', key='head', ignore=None), rule.RuleEntry('COLON', key=None, ignore='-'), rule.RuleEntry('AlpIdList', key='body', ignore=None))
     def p_AlpIdList_1(self, p):
         p[0] = self.rule_AlpIdList_1(AlpIdList, p[1:])
     p_AlpIdList_1.__doc__ = rule_AlpIdList_1.to_yacc_rule()
