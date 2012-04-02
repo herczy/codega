@@ -80,11 +80,18 @@ class call(AstBaseClass):
         ast.Property('args', klass=0),
     )
 
-class exprlist(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def exprlist(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 class assignment(AstBaseClass):
     property_definitions = (
@@ -108,11 +115,18 @@ class funcdef(AstBaseClass):
         ast.Property('expression', klass=0),
     )
 
-class id_list(AstBaseClass):
-    property_definitions = (
-        ast.Property('entry', klass=1),
-        ast.Property('next', klass=1),
-    )
+def id_list(**kwargs):
+    body = kwargs.pop('body', ())
+
+    if 'head' in kwargs:
+        head = kwargs.pop('head')
+        body = (head,) + body
+
+    if 'tail' in kwargs:
+        tail = kwargs.pop('tail')
+        body = body + (tail,)
+
+    return body
 
 
 # Parser
@@ -223,12 +237,12 @@ class Parser(ParserBase):
 
 
     # Rules for node exprlist
-    rule_exprlist_0 = rule.Rule('exprlist', rule.RuleEntry('expression', key=None, ignore=None))
+    rule_exprlist_0 = rule.Rule('exprlist', rule.RuleEntry('expression', key='head', ignore=None))
     def p_exprlist_0(self, p):
         p[0] = self.rule_exprlist_0(exprlist, p[1:])
     p_exprlist_0.__doc__ = rule_exprlist_0.to_yacc_rule()
 
-    rule_exprlist_1 = rule.Rule('exprlist', rule.RuleEntry('expression', key=None, ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('exprlist', key=None, ignore=None))
+    rule_exprlist_1 = rule.Rule('exprlist', rule.RuleEntry('expression', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('exprlist', key='body', ignore=None))
     def p_exprlist_1(self, p):
         p[0] = self.rule_exprlist_1(exprlist, p[1:])
     p_exprlist_1.__doc__ = rule_exprlist_1.to_yacc_rule()
@@ -261,12 +275,12 @@ class Parser(ParserBase):
 
 
     # Rules for node id_list
-    rule_id_list_0 = rule.Rule('id_list', rule.RuleEntry('NAME', key=None, ignore=None))
+    rule_id_list_0 = rule.Rule('id_list', rule.RuleEntry('NAME', key='head', ignore=None))
     def p_id_list_0(self, p):
         p[0] = self.rule_id_list_0(id_list, p[1:])
     p_id_list_0.__doc__ = rule_id_list_0.to_yacc_rule()
 
-    rule_id_list_1 = rule.Rule('id_list', rule.RuleEntry('NAME', key=None, ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('id_list', key=None, ignore=None))
+    rule_id_list_1 = rule.Rule('id_list', rule.RuleEntry('NAME', key='head', ignore=None), rule.RuleEntry('COMMA', key=None, ignore='-'), rule.RuleEntry('id_list', key='body', ignore=None))
     def p_id_list_1(self, p):
         p[0] = self.rule_id_list_1(id_list, p[1:])
     p_id_list_1.__doc__ = rule_id_list_1.to_yacc_rule()

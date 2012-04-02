@@ -77,13 +77,10 @@ node call
   rule NAME -LPAREN exprlist -RPAREN;
 };
 
-node exprlist
+list exprlist
 {
-  optional entry;
-  optional next;
-
-  rule expression;
-  rule expression -COMMA exprlist;
+  rule head=expression;
+  rule head=expression -COMMA body=exprlist;
 };
 
 node assignment
@@ -115,11 +112,8 @@ node funcdef
   rule -DEF NAME -LPAREN id_list -RPAREN -EQ expression;
 };
 
-node id_list
+list id_list
 {
-  optional entry;
-  optional next;
-
-  rule NAME;
-  rule NAME -COMMA id_list;
+  rule head=NAME;
+  rule head=NAME -COMMA body=id_list;
 };
