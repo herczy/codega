@@ -10,8 +10,6 @@ from codega.visitor import ClassVisitor, visitor
 from codega.logger import prepare
 prepare()
 
-from codega.alp.generator.flatten import flatten
-
 import calcparser
 
 class PrettyPrint(ClassVisitor):
@@ -155,7 +153,6 @@ while True:
 
     try:
         ast = calcparser.parse(str(index), l)
-        ast = flatten(ast, calcparser.AstBaseClass)
 
     except calcparser.ParserError, e:
         print 'ERROR: %s' % e
