@@ -47,7 +47,7 @@ class MatchBase(Immutable):
         super(MatchBase, self).__init__()
 
     def tokens(self):
-        return (self.type,)
+        return set((self.type,))
 
     @abstract
     def match(self, data):
@@ -133,12 +133,12 @@ class GroupMatch(MatchBase):
         super(GroupMatch, self).__init__(None)
 
     def tokens(self):
-        res = ()
+        res = set()
         if self.master is not None:
-            res = res + self.master.tokens()
+            res.update(self.master.tokens())
 
         for matcher in self.entries:
-            res = res + matcher.tokens()
+            res.update(matcher.tokens())
 
         return res
 
@@ -204,7 +204,7 @@ class Lexer(object):
 
     @property
     def tokens(self):
-        return self._matcher.tokens()
+        return tuple(self._matcher.tokens())
 
     def input(self, data):
         self._buffer = data
