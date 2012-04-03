@@ -3,6 +3,10 @@ import re
 from ply import lex
 from ply.lex import TOKEN
 
+from codega.immutable import Immutable
+from codega.ordereddict import OrderedDict
+from codega.decorators import abstract
+
 from location import Location
 from errorcontext import ErrorContext
 from tools import replace
@@ -10,92 +14,256 @@ import logger
 
 keyword_regex = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*$')
 
-class Lexer(object):
-    '''
-    Custom, ply-based lexer. Takes the tokens the same way the ply
-    lexer takes but makes some extra additional comfort features.
-    '''
+class NoMatchError(Exception):
+    '''No match was found'''
 
-    source_name = None
-    error_context = None
-    lexer_object = None
-    current_location = None
-    conversions = None
+class Token(Immutable):
+    def __init__(self, lexer, type, value, location):
+        self.lexer = lexer
+        self.type = type
+        self.value = value
+        self.location = location.clone()
+
+        super(Token, self).__init__()
+
+    @property
+    def lineno(self):
+        return self._location.lineno
+
+    @property
+    def lexpos(self):
+        return self._location.lineno
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return '%s(%r, type=%s, location=%s)' % (self.__class__.__name__, self.value, self.type, self.location)
+
+class MatchBase(Immutable):
+    def __init__(self, type):
+        self.type = type
+
+        super(MatchBase, self).__init__()
+
+    def tokens(self):
+        return (self.type,)
+
+    @abstract
+    def match(self, data):
+        pass
+
+    def __str__(self):
+        return 'match.%s' % self.type
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self)
+
+class LiteralMatch(MatchBase):
+    def __init__(self, type, values):
+        for value in values:
+            if not isinstance(value, basestring) or value == '':
+                raise ValueError('Literal matcher only accepts non-empty strings')
+
+        self.values = values
+
+        super(LiteralMatch, self).__init__(type)
+
+    def match(self, data):
+        for val in self.values:
+            if data.startswith(val):
+                return self, val
+
+        raise NoMatchError('Literal not matched')
+
+    def __str__(self):
+        return 'literal.%s(%s)' % (self.type, ', '.join(repr(s) for s in self.values))
+
+class RegexMatch(MatchBase):
+    def __init__(self, type, regex):
+        self.regex = regex
+        self.matcher = re.compile(regex)
+
+        if self.matcher.match(''):
+            raise ValueError('Regex matcher cannot match empty strings')
+
+        super(RegexMatch, self).__init__(type)
+
+    def match(self, data):
+        match = self.matcher.match(data)
+        if not match:
+            raise NoMatchError('No match found')
+
+        begin, end = match.span()
+        assert begin == 0
+
+        return self, data[begin:end]
+
+    def __str__(self):
+        return 'regex.%s(%r)' % (self.type, self.regex)
+
+class ProxyMatch(MatchBase):
+    def __init__(self, matcher):
+        self.matcher = matcher
+
+        super(ProxyMatch, self).__init__(self.matcher.type)
+
+    def tokens(self):
+        return self.matcher.tokens()
+
+    def match(self, data):
+        _, value = self.matcher.match(data)
+        return self, value
+
+    def __str__(self):
+        return 'proxy(%s)' % (self.matcher)
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self.matcher)
+
+class IgnoreMatch(ProxyMatch):
+    def __str__(self):
+        return 'ignore(%s)' % (self.matcher)
+
+class GroupMatch(MatchBase):
+    def __init__(self, entries, master=None):
+        self.master = master
+        self.entries = entries
+
+        super(GroupMatch, self).__init__(None)
+
+    def tokens(self):
+        res = ()
+        if self.master is not None:
+            res = res + self.master.tokens()
+
+        for matcher in self.entries:
+            res = res + matcher.tokens()
+
+        return res
+
+    def submatch(self, data):
+        for matcher in self.entries:
+            try:
+                return matcher.match(data)
+
+            except NoMatchError:
+                pass
+
+        raise NoMatchError('No match found in subgroups')
+
+    def match(self, data):
+        if self.master is None:
+            return self.submatch(data)
+
+        matcher, value = self.master.match(data)
+
+        try:
+            submatcher, subvalue = self.submatch(value)
+
+            if subvalue == value:
+                return submatcher, subvalue
+
+        except NoMatchError:
+            pass
+
+        return matcher, value
+
+    def __str__(self):
+        if self.master is None:
+            return 'group(%s)' % (', '.join(str(s) for s in self.entries))
+
+        else:
+            return 'group(master=%s, %s)' % (self.master, ', '.join(str(s) for s in self.entries))
+
+    def __repr__(self):
+        if self.master is None:
+            return '%s(%s)' % (self.__class__.__name__, ', '.join(repr(s) for s in self.entries))
+
+        else:
+            return '%s(master=%r, %s)' % (self.__class__.__name__, ', '.join(repr(s) for s in self.entries))
+
+class Lexer(object):
+    _matcher = None
+    _conversions = None
+    _buffer = None
+    _location = None
 
     error_message = 'Invalid token: @token@'
-
-    token_list = None
 
     def __init__(self, source_name, error_context):
         self.source_name = source_name
         self.error_context = error_context
-        self.current_location = Location(self.source_name, 0, 0, 0)
 
-        # Create logger for lexer
         self.log = logger.getLogger('lexer-%d' % logger.sysid(self))
-
-        # Create ply lexer object
-        log_wrapper = logger.PlyLoggerWrapping(self.log)
-        self.lexer_object = lex.lex(module=self, debuglog=log_wrapper, errorlog=log_wrapper, debug=1)
-
         self.log.info('Created lexer; class ID=lexer-class-%d' % logger.sysid(self.__class__))
 
-    def input(self, data):
-        self.lexer_object.input(data)
-        self.log.debug('Lexer got input; length=%d' % len(data))
-
-    def token(self):
-        prev_pos = self.lexer_object.lexpos
-
-        token = self.lexer_object.token()
-        if token is not None:
-            token.location = self.current_location.clone()
-            for conv in self.conversions.get(token.type, ()):
-                token.value = conv(token.value)
-
-            self.log.debug('Got next token; value=%r, type=%s, location=%s' % (token.value, token.type, token.location))
-
-        else:
-            self.log.debug('End of file reached; location=%s' % self.current_location)
-
-        data = self.lexer_object.lexdata[prev_pos:self.lexer_object.lexpos]
-        self.current_location.update(data)
-        return token
-
-    def ignore_token(self, token):
-        self.log.debug('Ignoring token; value=%r, type=%s, location=%s' % (token.value, token.type, self.current_location))
-        self.current_location.update(token.value)
+    @property
+    def buffer(self):
+        return self._buffer
 
     @property
     def tokens(self):
-        return self.token_list
+        return self._matcher.tokens()
 
-    def t_error(self, t):
-        token = t.value[0]
+    def input(self, data):
+        self._buffer = data
+        self._location = Location(self.source_name, 0, 0, 0)
+
+        self.log.debug('Got new input; length=%d' % len(data))
+
+    def reset(self):
+        self._buffer = None
+        self._location = None
+
+        self.log.debug('Object has been reseted')
+
+    def skip(self, length):
+        self._location.update(self._buffer[:length])
+        self._buffer = self._buffer[length:]
+
+    def token(self):
+        assert self._buffer is not None
+        assert self._location is not None
+
+        while True:
+            if self._buffer == '':
+                self.log.debug('End of file reached; location=%s' % self._location)
+                return None
+
+            buffer_size = len(self._buffer)
+            try:
+                matcher, value = self._matcher.match(self._buffer)
+
+            except NoMatchError:
+                self.on_lexer_error()
+
+                if buffer_size == len(self._buffer):
+                    raise
+
+                continue
+
+            location = self._location.clone()
+            self.skip(len(value))
+            if not isinstance(matcher, IgnoreMatch):
+                break
+
+            else:
+                self.log.debug('Ignoring token; matcher=%r, value=%r, location=%s' % (matcher, value, location))
+
+        for conv in self._conversions:
+            value = conv(value)
+
+        token = Token(self, matcher.type, value, location)
+        self.log.debug('Got next token: %r' % token)
+        return token
+
+    def on_lexer_error(self):
+        token = self.buffer[0]
         self.error_context.error(replace(self.error_message, token=token), self.current_location.clone())
-
-        self.current_location.update(token)
-        self.lexer_object.skip(len(token))
-
         self.log.error('Error parsing character %r' % token)
 
-    def get_location(self, position):
-        data = self.lexer_object.lexdata
-
-        # Note: I know at first it seems that the condition should be
-        # position >= len(data) but actually len(data) is a valid
-        # position since that points to the end of the input.
-        if position > len(data):
-            raise IndexError("Position invalid")
-
-        nlpos = data.rfind('\n', 0, position)
-
-        if nlpos == -1:
-            return Location(self.source_name, 0, position, position)
-
-        lineno = data.count('\n', 0, position)
-        column = position - nlpos - 1
-        return Location(self.source_name, lineno, column, position)
+        self.skip(1)
 
 class LexerFactory(object):
     '''
@@ -111,10 +279,10 @@ class LexerFactory(object):
     _error_message = None
 
     def __init__(self):
-        self._tokens = {}
-        self._literals = set()
-        self._ignored = set()
-        self._conversions = {}
+        self._tokens = OrderedDict()
+        self._literals = OrderedDict()
+        self._ignored = OrderedDict()
+        self._conversions = OrderedDict()
 
         self.log = logger.getLogger('lexer-factory-%d' % logger.sysid(self))
         self.log.info('Initialized lexer factory')
@@ -127,23 +295,21 @@ class LexerFactory(object):
         self._tokens[name] = regexp
         self.log.debug('Added token type %s; regex=%r' % (name, regexp))
 
-    def add_ignore_token(self, name, *args, **kwargs):
+    def add_ignore_token(self, name, regexp):
         '''
         Add a list of tokens to be ignored.
         '''
 
-        self._ignored.add(name)
-        self.add_token(name, *args, **kwargs)
-        self.log.debug('Added ignored token(s)')
+        self._ignored[name] = regexp
+        self.log.debug('Added ignored token type %s; regex=%r' % (name, regexp))
 
-    def add_literal(self, name, value, *args, **kwargs):
+    def add_literal(self, name, value):
         '''
         Add literal tokens. Literal tokens are escaped before being added.
         '''
 
-        self._literals.add(name)
-        self.add_token(name, re.escape(value), *args, **kwargs)
-        self.log.debug('Added literal(s)')
+        self._literals[name] = value
+        self.log.debug('Added literal type %s; literal=%r' % (name, value))
 
     def add_keyword(self, keyword):
         '''
@@ -225,40 +391,44 @@ class LexerFactory(object):
         Dynamically create a new lexer class.
         '''
 
-        cls_dict = {}
-        literal = set(self._literals)
+        matchers = []
+        literals = list(self._literals.keys())
+
         for key, value in self._tokens.items():
-            self.log.debug("Binding token %s(%r); remaining literals: %s" % (key, value, ', '.join(literal)))
+            self.log.debug("Binding token %s(%r); remaining literals: %s" % (key, value, ', '.join(literals)))
 
-            if key in literal:
-                # The fate of how literals are handled depends whether
-                # any other rule matches the given literal
-                continue
+            matcher = RegexMatch(key, value)
+            matched_literals = []
+            for key in literals:
+                try:
+                    matcher.match(self._literals[key])
 
-            if key in self._ignored:
-                name = 't_ignored_%s' % key
-                action = lex.TOKEN(value)(lambda self, token: self.ignore_token(token))
+                except NoMatchError:
+                    continue
 
-            else:
-                name = 't_%s' % key
-                action = None
+                matched_literals.append(key)
 
-            literal, action = self.__make_lex_member(value, literal, action=action)
-            cls_dict[name] = action
+            if matched_literals:
+                literal_matchers = []
+                for key in matched_literals:
+                    literal_matchers.append(LiteralMatch(key, (self._literals[key],)))
+                    literals.remove(key)
 
-        for key in literal:
+                matcher = GroupMatch(literal_matchers, master=matcher)
+
+            matchers.append(matcher)
+
+        for key in literals:
             self.log.debug("Binding remaining literal token %s" % key)
+            matchers.append(LiteralMatch(key, (self._literals[key],)))
 
-            cls_dict['t_%s' % key] = self._tokens[key]
+        matchers.append(IgnoreMatch(RegexMatch('ignored', '(%s)' % '|'.join('(%s)' % v for v in self._ignored.values()))))
 
-        if self._error_message is not None:
-            cls_dict['error_message'] = self._error_message
-
-        cls_dict['token_list'] = filter(lambda key: key not in self._ignored, self._tokens.keys())
-        cls_dict['conversions'] = dict(self._conversions)
+        cls_dict = {}
+        cls_dict['_matcher'] = GroupMatch(matchers)
+        cls_dict['_conversions'] = self._conversions
 
         lexer_class = type('AutoLexer', (Lexer,), cls_dict)
-
         self.log.debug('Created lexer class; class ID=lexer-class-%d' % logger.sysid(lexer_class))
         return lexer_class
 

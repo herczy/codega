@@ -34,7 +34,7 @@ class ParserBase(object):
     def p_error(self, token):
         if token is not None:
             self.lexer_object.error_context.error(replace(self.error_message, token=token.value, type=token.type), token.location)
-            self.log.error('Invalid token; value=%s, type=%s, location=%s' % (token.value, token.type, token.location))
+            self.log.error('Invalid token; token=%r' % token)
 
         else:
             self.lexer_object.error_context.error("Unexpected end of file", self.lexer_object.current_location)
