@@ -1,6 +1,6 @@
 from codega.generator.object import ObjectGenerator, generator, match
+from codega.generator.makowrapper import inline
 
-from codega.makowrapper import inline
 from codega.dicttools import exclude_internals
 from codega import matcher
 

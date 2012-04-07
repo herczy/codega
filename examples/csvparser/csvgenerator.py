@@ -2,8 +2,7 @@
 
 from codega.generator.object import ObjectGenerator, match, generator
 from codega.generator.filter import FilterGenerator, add_filter
-
-from codega.makowrapper import inline
+from codega.generator.makowrapper import inline
 from codega.indent import indent
 from codega import matcher
 

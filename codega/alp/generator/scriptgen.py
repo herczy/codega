@@ -2,10 +2,11 @@ import os.path
 
 from codega.generator.declarative import * #@UnusedWildImports
 from codega.generator.priority import PRI_FALLBACK, PRI_HIGH
+from codega.generator.makowrapper import MakoTemplatesetFile
+
 from codega.alp.ast import Property
 from codega.alp import script
 
-from codega.makowrapper import MakoTemplatesetFile
 from codega import matcher
 from codega.variant import use_variant, variant
 

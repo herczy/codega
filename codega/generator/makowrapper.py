@@ -13,7 +13,7 @@ from codega.generator.template import TemplateGenerator
 from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 
-from indent import deindent
+from codega.indent import deindent
 
 class MakoTemplate(TemplateBase):
     '''Wrapper for mako templates
@@ -104,7 +104,7 @@ class InlineMakoTemplate(MakoTemplate):
     '''
 
     def __init__(self, data):
-        super(InlineMakoTemplate, self).__init__(ExternalMakoTemplate(text = data))
+        super(InlineMakoTemplate, self).__init__(ExternalMakoTemplate(text=data))
 
 class DocstringMakoTemplate(InlineMakoTemplate):
     '''Read a function or class docstring and parse it as a template'''
