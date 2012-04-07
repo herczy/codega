@@ -2,20 +2,13 @@ Source: codega
 Section: python
 Priority: optional
 Maintainer: Viktor Hercinger <hercinger.viktor@gmail.com>
-Build-Depends: debhelper (>= 7.4.15), python-support (>= 1.0.4), python-dev (>= 2.6.5), python (>= 2.6.5)
+Build-Depends: debhelper (>= 7.4.15), python-support (>= 1.0.4), python-dev (>= 2.6.5), python (>= 2.6.5), python-ply (>= 3.3), python-mako (>= 0.2.5)
 XS-Python-Version: >= 2.6
 Standards-Version: 3.8.4
 
-Package: codega-core
+Package: codega
 Architecture: all
 Homepage: http://github.com/herczy/codega
 XB-Python-Version: ${python:Versions}
-Depends: ${misc:Depends}, ${python:Depends}, python-lxml (>= 2.2.4)
+Depends: ${misc:Depends}, ${python:Depends}, python-lxml (>= 2.2.4), python-ply (>= 3.3), python-mako (>= 0.2.5)
 Description: codega code generation framework
-
-Package: codega-extra
-Architecture: all
-Homepage: http://github.com/herczy/codega
-XB-Python-Version: ${python:Versions}
-Depends: ${misc:Depends}, ${python:Depends}, python-lxml (>= 2.2.4), python-ply (>= 3.3), python-mako (>= 0.2.5), codega-core
-Description: codega code generation framework - extra module

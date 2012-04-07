@@ -35,18 +35,3 @@ but mostly C/C++. However it can be easily used for other purposes
                          'codega.alp.generator' : [ 'scriptgen.mako' ] },
         scripts = [ 'cgx' ],
         requires = [ 'lxml' ])
-
-if os.getenv("CG_INSTALL_EXTRA", "1") == "1":
-    setup(name = "cgextra",
-            description = "Codega code generator extra utilities",
-            long_description = """cgextra is a package of usefull utilities
-    for writing codega generators and parsers. It is, strictly speaking an
-    optional utility.""",
-            license = "BSD",
-            version = open("VERSION").read(),
-            author = "Viktor Hercinger",
-            author_email = "hercinger.viktor@gmail.com",
-            maintainer = "Viktor Hercinger",
-            maintainer_email = "hercinger.viktor@gmail.com",
-            packages = [ 'cgextra' ],
-            requires = [ 'codega', 'lxml', 'mako' ])

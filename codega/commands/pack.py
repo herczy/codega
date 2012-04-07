@@ -12,11 +12,6 @@ except ImportError:
     from StringIO import StringIO
 
 import codega
-try:
-    import cgextra
-
-except ImportError:
-    cgextra = None
 
 from codega import logger
 
@@ -87,8 +82,6 @@ class CommandPack(CommandBase):
         output = StringIO()
         tar = TarFile.open(fileobj = output, mode = 'w:bz2')
         compress(tar, 'codega', os.path.dirname(codega.__file__))
-        if cgextra is not None:
-            compress(tar, 'cgextra', os.path.dirname(cgextra.__file__))
 
         tar.close()
         data = output.getvalue()

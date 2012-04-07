@@ -5,9 +5,9 @@ from codega.generator.priority import PRI_FALLBACK, PRI_HIGH
 from codega.alp.ast import Property
 from codega.alp import script
 
-from cgextra.makowrapper import MakoTemplatesetFile
-from cgextra import matcher
-from cgextra.variant import use_variant, variant
+from codega.makowrapper import MakoTemplatesetFile
+from codega import matcher
+from codega.variant import use_variant, variant
 
 token_types = ('AlpToken', 'AlpLiteral', 'AlpIgnore', 'AlpKeyword')
 parser_types = ('AlpNode', 'AlpSelection', 'AlpList')

@@ -3,9 +3,9 @@
 from codega.generator.object import ObjectGenerator, match, generator
 from codega.generator.filter import FilterGenerator, add_filter
 
-from cgextra.makowrapper import inline
-from cgextra.indent import indent
-from cgextra import matcher
+from codega.makowrapper import inline
+from codega.indent import indent
+from codega import matcher
 
 def bound_filter(indent_function, *args, **kwargs):
     return add_filter(lambda generator, text: indent_function(text, *args, **kwargs))

@@ -1,6 +1,6 @@
 <%!
 
-    from cgextra.indent import indent as _indent, disclaimer
+    from codega.indent import indent as _indent, disclaimer
 
     def indent(source, level=1):
         return _indent(source, level=level, indent_string='    ')
