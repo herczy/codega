@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<config version="1.1">
+    <paths>
+        <target>.</target>
+        <path>.</path>
+        <path>..</path>
+    </paths>
+    <source>
+        <name>calc</name>
+        <resource>calc.alp</resource>
+        <parser>codega.alp.generator:ScriptParser</parser>
+    </source>
+    <target>
+        <source>calc</source>
+        <generator>codega.alp.generator:main_generator</generator>
+        <target>calcparser.py</target>
+    </target>
+</config>

@@ -1,0 +1,131 @@
+#
+# Calculator ALP
+#
+
+ignore SPACES '\s+';
+
+token NAME '[a-zA-Z_][a-zA-Z0-9]*';
+token NUMBER '(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?' => float;
+
+literal EQ '=';
+literal ADD '+';
+literal SUB '-';
+literal MUL '*';
+literal DIV '/';
+literal POW '^';
+literal COMMA ',';
+literal LPAREN '(';
+literal RPAREN ')';
+
+keyword for;
+keyword do;
+keyword to;
+keyword step;
+keyword def;
+
+precedence left(ADD, SUB);
+precedence left(DIV, MUL);
+precedence right(POW);
+precedence right(UMINUS);
+
+start production;
+
+selection production
+{
+  rule expression;
+  rule assignment;
+  rule expr_for;
+  rule funcdef;
+};
+
+selection expression
+{
+  rule binary_expression;
+  rule unary_expression;
+  rule call;
+  rule NUMBER;
+  rule NAME;
+  rule -LPAREN expression -RPAREN;
+};
+
+node binary_expression
+{
+  required operand0;
+  required operator;
+  required operand1;
+
+  rule expression ADD expression;
+  rule expression SUB expression;
+  rule expression MUL expression;
+  rule expression DIV expression;
+  rule expression POW expression;
+};
+
+node unary_expression
+{
+  required operator;
+  required operand;
+
+  rule SUB expression %prec UMINUS;
+};
+
+node call
+{
+  required func;
+  required args;
+
+  rule NAME -LPAREN exprlist -RPAREN;
+};
+
+list exprlist
+{
+  rule;
+  rule body=exprlist_tail;
+};
+
+list exprlist_tail
+{
+  rule head=expression;
+  rule head=expression -COMMA body=exprlist_tail;
+};
+
+node assignment
+{
+  required rvalue;
+  required lvalue;
+
+  rule NAME -EQ expression;
+};
+
+node expr_for
+{
+  required bound;
+  required begin;
+  required end;
+  optional step;
+  required assignment;
+  
+  rule -FOR bound=NAME -EQ begin=expression -TO end=expression -DO assignment=assignment;
+  rule -FOR bound=NAME -EQ begin=expression -TO end=expression -STEP step=expression -DO assignment=assignment;
+};
+
+node funcdef
+{
+  required name;
+  required args;
+  required expression;
+
+  rule -DEF NAME -LPAREN id_list -RPAREN -EQ expression;
+};
+
+list id_list
+{
+  rule;
+  rule body=id_list_tail;
+};
+
+list id_list_tail
+{
+  rule head=NAME;
+  rule head=NAME -COMMA body=id_list_tail;
+};

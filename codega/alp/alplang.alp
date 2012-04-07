@@ -1,0 +1,323 @@
+author 'Hercinger Viktor';
+email 'hercinger.viktor@gmail.com';
+version 2;
+language alp;
+
+ignore SPACES '\\s+';
+ignore COMMENTS '\\#.*?\\n';
+
+# Python-style import tokens
+literal FROM 'from';
+literal IMPORT 'import';
+literal AS 'as';
+
+# Tokenizer tokens
+literal TOKEN 'token';
+literal KEYWORD 'keyword';
+literal LITERAL 'literal';
+literal IGNORE 'ignore';
+
+# Node tokens
+literal NODE 'node';
+literal LIST 'list';
+literal SELECTION 'selection';
+
+# Property tokens
+literal OPTIONAL 'optional';
+literal REQUIRED 'required';
+
+# Rule definition
+literal RULE 'rule';
+literal START 'start';
+
+# Precedence
+literal PRECEDENCE 'precedence';
+literal LEFT 'left';
+literal RIGHT 'right';
+
+# Header entries
+literal LANGUAGE 'language';
+literal AUTHOR 'author';
+literal VERSION 'version';
+literal EMAIL 'email';
+
+# Symbols
+literal SEMICOLON ';';
+literal COLON ',';
+literal ARROW '=>';
+literal MINUS '-';
+literal EQ '=';
+literal PERIOD '.';
+literal COMMA ':';
+
+literal LCURLY '{';
+literal RCURLY '}';
+
+literal LPAREN '(';
+literal RPAREN ')';
+
+literal PRECSYM '%prec';
+
+# Tokens
+token ID '[a-zA-Z_][a-zA-Z0-9_]*';
+token STRING '\'([^\'\\\\]+|\\\\.)*\'';
+token INTEGER '[+-]?(0|[1-9][0-9]*)';
+
+start AlpScript;
+
+# Root of the ALP script
+node AlpScript
+{
+  required head;
+  required body;
+
+  rule head=AlpHead body=AlpBody;
+};
+
+# Header of the ALP script
+list AlpHead
+{
+  rule;
+  rule head=AlpHeaderEntry -SEMICOLON body=AlpHead;
+};
+
+node AlpHeaderEntry
+{
+  required key;
+  required value;
+
+  rule LANGUAGE ID;
+  rule AUTHOR STRING;
+  rule EMAIL STRING;
+  rule VERSION INTEGER;
+};
+
+# Script body
+list AlpBody
+{
+  rule;
+  rule head=SelMainEntry -SEMICOLON body=AlpBody;
+};
+
+# Main entry types
+selection SelMainEntry
+{
+  rule AlpImport;
+  rule AlpStart;
+  rule SelToken;
+  rule SelParser;
+};
+
+node AlpImport
+{
+  optional import_from;
+  required import_name;
+  optional import_as;
+
+  rule -IMPORT import_name=AlpModuleName;
+  rule -IMPORT import_name=AlpModuleName -AS import_as=ID;
+  rule -FROM import_from=AlpModuleName -IMPORT import_name=ID;
+  rule -FROM import_from=AlpModuleName -IMPORT import_name=ID -AS import_as=ID;
+};
+
+node AlpStart
+{
+  required symbol;
+
+  rule -START ID;
+};
+
+# Tokenizer constructs
+selection SelToken
+{
+  rule AlpToken;
+  rule AlpLiteral;
+  rule AlpKeyword;
+  rule AlpIgnore;
+};
+
+node AlpToken
+{
+  required name;
+  required value;
+  optional conversions;
+
+  rule -TOKEN ID STRING;
+  rule -TOKEN ID STRING -ARROW AlpConversionList;
+};
+
+node AlpLiteral
+{
+  required name;
+  required value;
+
+  rule -LITERAL ID STRING;
+};
+
+node AlpKeyword
+{
+  required value;
+
+  rule -KEYWORD ID;
+};
+
+node AlpIgnore
+{
+  required name;
+  required value;
+
+  rule -IGNORE ID STRING;
+};
+
+# Token conversions
+list AlpConversionList
+{
+  rule;
+  rule body=AlpConversionListTail;
+};
+
+list AlpConversionListTail
+{
+  rule head=AlpConversion;
+  rule head=AlpConversion -ARROW body=AlpConversionListTail;
+};
+
+node AlpConversion
+{
+  required conversion;
+  optional arguments;
+  
+  rule AlpModuleName;
+  rule AlpModuleName -LPAREN AlpValueList -RPAREN;
+};
+
+# Parser constructs
+selection SelParser
+{
+  rule AlpPrecedence;
+  rule AlpNode;
+  rule AlpList;
+  rule AlpSelection;
+};
+
+node AlpPrecedence
+{
+  required direction;
+  required tokens;
+
+  rule -PRECEDENCE LEFT -LPAREN AlpIdList -RPAREN;
+  rule -PRECEDENCE RIGHT -LPAREN AlpIdList -RPAREN;
+};
+
+node AlpNode
+{
+  required name;
+  required body;
+
+  rule -NODE ID -LCURLY AlpNodeBody -RCURLY;
+};
+
+node AlpList
+{
+  required name;
+  required body;
+  
+  rule -LIST ID -LCURLY AlpRuleList -RCURLY;
+};
+
+node AlpSelection
+{
+  required name;
+  required body;
+
+  rule -SELECTION ID -LCURLY AlpRuleList -RCURLY;
+};
+
+node AlpNodeBody
+{
+  required properties;
+  required rules;
+
+  rule AlpPropertyList AlpRuleList;
+};
+
+# Property definitions
+list AlpPropertyList
+{
+  rule;
+  rule head=AlpProperty -SEMICOLON body=AlpPropertyList;
+};
+
+node AlpProperty
+{
+  required klass;
+  required name;
+
+  rule REQUIRED ID;
+  rule OPTIONAL ID;
+};
+
+# Rule definitions
+list AlpRuleList
+{
+  rule head=AlpRule -SEMICOLON;
+  rule head=AlpRule -SEMICOLON body=AlpRuleList;
+};
+
+node AlpRule
+{
+  required entries;
+  optional precsymbol;
+
+  rule -RULE AlpRuleEntryList;
+  rule -RULE AlpRuleEntryList -PRECSYM ID;
+};
+
+list AlpRuleEntryList
+{
+  rule;
+  rule head=AlpRuleEntry body=AlpRuleEntryList;
+};
+
+node AlpRuleEntry
+{
+  optional ignored;
+  optional key;
+  required name;
+
+  rule name=ID;
+  rule key=ID -EQ name=ID;
+  rule ignored=MINUS name=ID;
+};
+
+# Generic constructs
+list AlpModuleName
+{
+  rule head=ID;
+  rule head=ID -PERIOD body=AlpModuleName;
+};
+
+list AlpIdList
+{
+  rule head=ID;
+  rule head=ID -COLON body=AlpIdList;
+};
+
+selection AlpValue
+{
+  rule ID;
+  rule STRING;
+  rule INTEGER;
+};
+
+list AlpValueList
+{
+  rule;
+  rule body=AlpValueListTail;
+};
+
+list AlpValueListTail
+{
+  rule head=AlpValue;
+  rule head=AlpValue -COLON body=AlpValueListTail;
+};

@@ -19,7 +19,7 @@ class ResourceLocatorBase(object):
         pass
 
     @abstract
-    def find(self, resource):
+    def find(self, resource, check_exists=True):
         '''Abstract method for locating a resource'''
 
     @abstract
@@ -62,7 +62,7 @@ class FileResourceLocator(ResourceLocatorBase):
         finally:
             sys.path = oldpath
 
-    def find(self, resource):
+    def find(self, resource, check_exists=True):
         '''Find a resource in the given path.
 
         Arguments:
@@ -71,8 +71,8 @@ class FileResourceLocator(ResourceLocatorBase):
 
         dest = os.path.join(self._path, resource)
 
-        if not os.path.exists(dest):
-            raise ResourceError("Resource could not be located", resource = resource)
+        if check_exists and not os.path.exists(dest):
+            raise ResourceError("Resource could not be located", resource=resource)
 
         return dest
 
@@ -98,27 +98,27 @@ class FallbackLocator(ResourceLocatorBase):
 
     _locators = None
 
-    def __init__(self, locators = []):
+    def __init__(self, locators=[]):
         super(FallbackLocator, self).__init__()
 
         self._locators = list(locators)
 
-    def add_locator(self, locator, index = None):
+    def add_locator(self, locator, index=None):
         if index is None:
             self._locators.append(locator)
 
         else:
             self._locators.insert(index, locator)
 
-    def find(self, resource):
+    def find(self, resource, check_exists=True):
         for locator in self._locators:
             try:
-                return locator.find(resource)
+                return locator.find(resource, check_exists=check_exists)
 
             except ResourceError:
                 pass
 
-        raise ResourceError("Resource could not be located", resource = resource)
+        raise ResourceError("Resource could not be located", resource=resource)
 
     def list_resources(self):
         hasbeen = set()
