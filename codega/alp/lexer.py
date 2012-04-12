@@ -142,7 +142,7 @@ class LexerFactory(object):
         '''
 
         self._literals.add(name)
-        self.add_token(name, re.escape(value), *args, **kwargs)
+        self.add_token(name, value, *args, **kwargs)
         self.log.debug('Added literal(s)')
 
     def add_keyword(self, keyword):
@@ -249,7 +249,7 @@ class LexerFactory(object):
         for key in literal:
             self.log.debug("Binding remaining literal token %s" % key)
 
-            cls_dict['t_%s' % key] = self._tokens[key]
+            cls_dict['t_%s' % key] = re.escape(self._tokens[key])
 
         if self._error_message is not None:
             cls_dict['error_message'] = self._error_message
