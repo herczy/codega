@@ -135,20 +135,6 @@ def create_base_node(name, base=object, metainfo=None, metatype=type):
 
     return NodeBase
 
-class AstMetaVisitor(object):
-    def __init__(self, visitor):
-        self._subvisitor = visitor
-
-    def visit(self, ast):
-        if hasattr(ast, 'metainfo'):
-            properties = {}
-            for key in ast.keys:
-                properties[key] = self.visit(ast[key])
-
-            ast = ast.__class__(**properties)
-
-        return self._subvisitor.visit(ast)
-
 class AstVisitor(VisitorBase):
     def aspects(self, node):
         if hasattr(node, 'metainfo'):
