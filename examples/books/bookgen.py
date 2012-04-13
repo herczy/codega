@@ -1,5 +1,5 @@
 from codega.generator.object import ObjectGenerator, generator, match
-from codega.generator.makowrapper import inline
+from codega.makowrapper import inline
 
 from codega.dicttools import exclude_internals
 from codega import matcher
@@ -41,7 +41,7 @@ class CBookGenerator(ObjectGenerator):
         };
         '''
 
-        return dict(books = context.map(self, source))
+        return dict(books=context.map(self, source))
 
     @match(matcher.tag('book'))
     @generator(inline)
@@ -72,7 +72,7 @@ class HtmlBookGenerator(ObjectGenerator):
         </html>
         '''
 
-        return dict(books = context.map(self, source))
+        return dict(books=context.map(self, source))
 
     @match(matcher.tag('book'))
     @generator(inline)

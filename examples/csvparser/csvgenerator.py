@@ -2,7 +2,7 @@
 
 from codega.generator.object import ObjectGenerator, match, generator
 from codega.generator.filter import FilterGenerator, add_filter
-from codega.generator.makowrapper import inline
+from codega.makowrapper import inline
 from codega.indent import indent
 from codega import matcher
 
@@ -64,10 +64,10 @@ class PyGen(ObjectGenerator):
         ).dump()
         '''
 
-        return dict(rows = context.map(self, source))
+        return dict(rows=context.map(self, source))
 
     @match(matcher.tag('row'))
-    @bound_filter(indent, level = 2)
+    @bound_filter(indent, level=2)
     @generator(FilterGenerator.factory(inline))
     def generate_row(self, source, context):
         '''
@@ -77,10 +77,10 @@ class PyGen(ObjectGenerator):
         % endfor
         )'''
 
-        return dict(entries = context.map(self, source))
+        return dict(entries=context.map(self, source))
 
     @match(matcher.tag('entry'))
-    @bound_filter(indent, level = 2)
+    @bound_filter(indent, level=2)
     @generator(FilterGenerator.factory())
     def generate_entry(self, source, context):
         return 'DataEntry("""%s""")' % source.text
