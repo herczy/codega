@@ -124,6 +124,15 @@ class Validator(ClassVisitor):
         if ast.properties.precsymbol is not None:
             self._symbols.add(ast.properties.precsymbol)
 
+        keys = set()
+        for entry in ast.properties.entries:
+            key = entry.properties.key
+            if key is not None:
+                if key in keys:
+                    raise RuleError("Rule entry key %r defined twice" % key)
+
+            keys.add(key)
+
     @visitor(script.AlpRuleEntry)
     def visit_alp_rule_entry(self, ast):
         self._referenced_symbols.add(ast.properties.name)
