@@ -103,7 +103,7 @@ class Validator(ClassVisitor):
                     continue
 
                 if entry.properties.key is not None and entry.properties.key not in members:
-                    raise RuleError("List rule entry key %r not in property list" % entry.properties.key)
+                    raise RuleError("Node rule entry key %r not in property list" % entry.properties.key)
 
     @visitor(script.AlpSelection)
     def visit_alp_selection(self, ast):
@@ -111,6 +111,23 @@ class Validator(ClassVisitor):
         self._symbols.add(ast.properties.name)
 
         self.visit(ast.properties.body)
+
+        for rule in ast.properties.body:
+            count = 0
+            for entry in rule.properties.entries:
+                if entry.properties.ignored:
+                    continue
+
+                if entry.properties.key is not None:
+                    raise RuleError("Selection rule entry can not have a key")
+
+                count += 1
+
+            if count == 0:
+                raise RuleError("Selection rule has no non-ignored entry")
+
+            if count > 1:
+                raise RuleError("Selection rule has too many non-ignored entries")
 
     @visitor(script.AlpList)
     def visit_alp_list(self, ast):
