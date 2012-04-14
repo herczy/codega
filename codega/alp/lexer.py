@@ -11,10 +11,8 @@ import logger
 keyword_regex = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*$')
 
 class Lexer(object):
-    '''
-    Custom, ply-based lexer. Takes the tokens the same way the ply
-    lexer takes but makes some extra additional comfort features.
-    '''
+    '''Custom, ply-based lexer. Takes the tokens the same way the ply
+    lexer takes but makes some extra additional comfort features.'''
 
     source_name = None
     error_context = None
@@ -98,9 +96,7 @@ class Lexer(object):
         return Location(self.source_name, lineno, column, position)
 
 class LexerFactory(object):
-    '''
-    Create a Lexer object with the given settings.
-    '''
+    '''Create a Lexer object with the given settings.'''
 
     _tokens = None
     _literals = None
@@ -120,36 +116,28 @@ class LexerFactory(object):
         self.log.info('Initialized lexer factory')
 
     def add_token(self, name, regexp):
-        '''
-        Add a list of tokens to parse.
-        '''
+        '''Add a list of tokens to parse.'''
 
         self._tokens[name] = regexp
         self.log.debug('Added token type %s; regex=%r' % (name, regexp))
 
     def add_ignore_token(self, name, *args, **kwargs):
-        '''
-        Add a list of tokens to be ignored.
-        '''
+        '''Add a list of tokens to be ignored.'''
 
         self._ignored.add(name)
         self.add_token(name, *args, **kwargs)
         self.log.debug('Added ignored token(s)')
 
     def add_literal(self, name, value, *args, **kwargs):
-        '''
-        Add literal tokens. Literal tokens are escaped before being added.
-        '''
+        '''Add literal tokens. Literal tokens are escaped before being added.'''
 
         self._literals.add(name)
         self.add_token(name, value, *args, **kwargs)
         self.log.debug('Added literal(s)')
 
     def add_keyword(self, keyword):
-        '''
-        Add keywords. Keywords are tokens where the
-        type is the uppercase of the keyword
-        '''
+        '''Add keywords. Keywords are tokens where the
+        type is the uppercase of the keyword'''
 
         if not keyword_regex.match(keyword):
             raise ValueError("Keyword %r invalid", keyword)
@@ -158,26 +146,20 @@ class LexerFactory(object):
         self.log.debug("Added keyword token %s" % keyword)
 
     def add_conversion(self, name, conversion):
-        '''
-        Add a conversion function to the lexer.
-        '''
+        '''Add a conversion function to the lexer.'''
 
         self._conversions.setdefault(name, [])
         self._conversions[name].append(conversion)
 
     def set_error_context(self, context, message=None):
-        '''
-        Set error context with an error message template.
-        '''
+        '''Set error context with an error message template.'''
 
         self._error_context = context
         self._error_message = message
         self.log.debug("Set error context and message; context ID=%d, message=%r" % (logger.sysid(context), message))
 
     def __make_lex_member(self, expression, literal_state, action=None):
-        '''
-        Make a tokenizer function or string.
-        '''
+        '''Make a tokenizer function or string.'''
 
         matches = {}
 
@@ -221,9 +203,7 @@ class LexerFactory(object):
         return literal_state, tokenizer
 
     def create_class(self):
-        '''
-        Dynamically create a new lexer class.
-        '''
+        '''Dynamically create a new lexer class.'''
 
         cls_dict = {}
         literal = set(self._literals)
@@ -263,9 +243,7 @@ class LexerFactory(object):
         return lexer_class
 
     def create(self, source_name):
-        '''
-        Create the new Lexer object.
-        '''
+        '''Create the new Lexer object.'''
 
         error_context = self._error_context or ErrorContext()
         cls = self.create_class()

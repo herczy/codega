@@ -1,8 +1,6 @@
 class ErrorContext(object):
-    '''
-    Contains error(s) and warning(s) encountered during a
-    parsing and lexing task.
-    '''
+    '''Contains error(s) and warning(s) encountered during a
+    parsing and lexing task.'''
 
     _error_list = None
     _warning_list = None
@@ -12,48 +10,36 @@ class ErrorContext(object):
         self._warning_list = []
 
     def error(self, message, location):
-        '''
-        Emit an error message with a location information.
-        '''
+        '''Emit an error message with a location information.'''
 
         self._error_list.append((message, location))
 
     def warning(self, message, location):
-        '''
-        Emit a warning message with a location information.
-        '''
+        '''Emit a warning message with a location information.'''
 
         self._warning_list.append((message, location))
 
     @property
     def errors(self):
-        '''
-        Count of error messages
-        '''
+        '''Count of error messages.'''
 
         return len(self._error_list)
 
     @property
     def warnings(self):
-        '''
-        Count of warning messages
-        '''
+        '''Count of warning messages.'''
 
         return len(self._warning_list)
 
     @property
     def result(self):
-        '''
-        True if there were no errors
-        '''
+        '''True if there were no errors.'''
 
         return len(self._error_list) == 0
 
     @property
     def summary(self):
-        '''
-        Summarize the errors and warnings
-        '''
+        '''Summarize the errors and warnings.'''
 
         summary_line = '  %d error(s), %d warning(s)' % (self.errors, self.warnings)
         if not self._error_list and not self._warning_list:

@@ -4,6 +4,9 @@ from codega.alp import script
 from validator import Validator
 
 class ScriptParser(SourceBase):
+    '''ALP descriptor language parser. This is a thin wrapper
+    so codega config scripts can also define ALP sources.'''
+
     def load(self, resource, resource_locator=None):
         '''Load and validate ALP script'''
 

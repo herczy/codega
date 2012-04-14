@@ -1,7 +1,5 @@
 class Location(object):
-    '''
-    Stores location information.
-    '''
+    '''Stores location information.'''
 
     source = None
     lineno = None
@@ -15,16 +13,12 @@ class Location(object):
         self.position = position
 
     def clone(self):
-        '''
-        Clone the location object.
-        '''
+        '''Clone the location object.'''
 
         return Location(self.source, self.lineno, self.column, self.position)
 
     def update(self, text):
-        '''
-        Update the postion information using text.
-        '''
+        '''Update the postion information using text.'''
 
         self.position += len(text)
 
@@ -39,15 +33,7 @@ class Location(object):
             self.column = len(counttext) - pos - 1
 
     def __str__(self):
-        '''
-        Stringify location
-        '''
-
         return '%s (line %s, column %d)' % (self.source, self.lineno + 1, self.column + 1)
 
     def __repr__(self):
-        '''
-        Location object representation
-        '''
-
         return 'Location(\'%s\', line %d, column %d, position %d)' % (self.source, self.lineno + 1, self.column + 1, self.position)

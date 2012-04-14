@@ -5,6 +5,8 @@ REQUIRED = 0
 OPTIONAL = 1
 
 class Property(object):
+    '''AST element property.'''
+
     def __init__(self, name, klass=REQUIRED):
         self.name = name
         self.klass = klass
@@ -20,6 +22,9 @@ class Property(object):
         raise ValueError("Invalid property class")
 
 class PropertySet(OrderedDict):
+    '''Ordered dictionary of AST element properties. The
+    properties are referenced as attributes.'''
+
     def __init__(self, entries, args, kwargs):
         super(PropertySet, self).__init__()
 
@@ -48,6 +53,8 @@ class PropertySet(OrderedDict):
         return self[key]
 
 class Metainfo(object):
+    '''AST node-set meta information. Contains the AST node classes.'''
+
     def __init__(self):
         self._classes = {}
 
@@ -60,6 +67,8 @@ class Metainfo(object):
             yield name, cls
 
 def create_meta_class(metainfo=None, base=type):
+    '''Create a meta class for defining AST nodes.'''
+
     class NodeType(type):
         metainfo = None
 
@@ -106,6 +115,8 @@ def create_meta_class(metainfo=None, base=type):
     return NodeType
 
 def create_base_node(name, base=object, metainfo=None, metatype=type):
+    '''Create base class for AST node classes.'''
+
     metatype = create_meta_class(metainfo=metainfo, base=metatype)
 
     class NodeBase(base):
@@ -136,6 +147,10 @@ def create_base_node(name, base=object, metainfo=None, metatype=type):
     return NodeBase
 
 class AstVisitor(VisitorBase):
+    '''AST specific visitor class. For AST classes the
+    visitor will use the name of the class, for other
+    types the MRO will be used as in the ClassVisitor.'''
+
     def aspects(self, node):
         if hasattr(node, 'metainfo'):
             return [ node.name ]

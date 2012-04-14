@@ -7,6 +7,8 @@ from tools import replace, cleanup_file_list
 import logger
 
 class ParserBase(object):
+    '''Base class for yacc parsers.'''
+
     lexer_object = None
     parser_object = None
 

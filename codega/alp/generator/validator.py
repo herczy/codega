@@ -14,6 +14,11 @@ class RuleError(ValidationError):
     '''An error has been detected in a rule'''
 
 class Validator(ClassVisitor):
+    '''Validate the AST of an ALP language descriptor file.
+
+    For validation instead of constructing an object and using visit,
+    use the Validator.run class method.'''
+
     def __init__(self):
         super(Validator, self).__init__()
 
