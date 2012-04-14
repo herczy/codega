@@ -87,8 +87,26 @@ class Validator(ClassVisitor):
 
             self._referenced_symbols.add(entry)
 
-    @visitor(script.AlpNode, script.AlpSelection)
+
+    @visitor(script.AlpNode)
     def visit_alp_node(self, ast):
+        self.check_duplicate_symbol(ast.properties.name)
+        self._symbols.add(ast.properties.name)
+
+        self.visit(ast.properties.body)
+
+        members = set((property.properties.name for property in ast.properties.body.properties.properties))
+
+        for rule in ast.properties.body.properties.rules:
+            for entry in rule.properties.entries:
+                if entry.properties.ignored:
+                    continue
+
+                if entry.properties.key is not None and entry.properties.key not in members:
+                    raise RuleError("List rule entry key %r not in property list" % entry.properties.key)
+
+    @visitor(script.AlpSelection)
+    def visit_alp_selection(self, ast):
         self.check_duplicate_symbol(ast.properties.name)
         self._symbols.add(ast.properties.name)
 
