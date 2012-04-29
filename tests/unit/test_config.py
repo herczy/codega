@@ -15,7 +15,7 @@ from codega.config.loader import *
 from codega.config import *
 from codega.config.saver import *
 
-from common import make_tempfile
+from tests.common import make_tempfile
 
 def flatten(text):
     return ''.join(filter(lambda p: not p.isspace(), text))
@@ -33,7 +33,7 @@ def clean(text):
 
 class TestVisitors(TestCase):
     def test_visitor(self):
-        path = os.path.join(os.path.dirname(__file__), 'data')
+        path = os.path.join(os.path.dirname(__file__), '..', 'data')
         for item in os.listdir(path):
             fn, ext = os.path.splitext(item)
             if ext not in ('.xml', '.codega'):

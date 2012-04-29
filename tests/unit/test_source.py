@@ -4,7 +4,7 @@ import os.path
 from codega.source import XmlSource
 from codega.rsclocator import FileResourceLocator
 
-from common import make_tempfile
+from tests.common import make_tempfile
 
 xml_content = """<?xml version="1.0" ?>\n<entry>Hello</entry>\n"""
 
