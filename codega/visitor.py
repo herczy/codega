@@ -15,6 +15,9 @@ class VisitorType(type):
         visitors = {}
         for marks, func in collect_marked(mdict, 'visit'):
             for mark in marks:
+                if mark in visitors:
+                    raise AttributeError("Marking %s already specified" % mark)
+
                 visitors[mark] = func
 
         mdict['__visitors__'] = visitors
