@@ -2,7 +2,7 @@ from unittest import TestCase
 import os.path
 import sys
 
-from common import make_tempfile
+from tests.common import make_tempfile
 
 class TestExamples(TestCase):
     pass
@@ -30,7 +30,7 @@ def add_example_test(name, path):
     setattr(TestExamples, 'test_example_%s' % name, __run)
 
 mypath = os.path.abspath(os.path.dirname(__file__))
-exampledir = os.path.join(os.path.dirname(mypath), 'examples')
+exampledir = os.path.join(os.path.dirname(mypath), '..', 'examples')
 
 for f in os.listdir(exampledir):
     abspath = os.path.join(exampledir, f)

@@ -18,7 +18,7 @@ class FileLocatorTest(TestCase):
 
     def test_find(self):
         self.assertEqual(self.locator.find('test_rsclocator.py'), os.path.join(path0, 'test_rsclocator.py'))
-        self.assertEqual(self.locator.find('test_examples.py'), os.path.join(path0, 'test_examples.py'))
+        self.assertEqual(self.locator.find('functional/test_examples.py'), os.path.join(path0, 'functional', 'test_examples.py'))
 
         self.assertRaises(ResourceError, self.locator.find, 'aaaaaaa')
 
