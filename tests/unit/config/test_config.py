@@ -33,7 +33,7 @@ def clean(text):
 
 class TestVisitors(TestCase):
     def test_visitor(self):
-        path = os.path.join(os.path.dirname(__file__), '..', 'data')
+        path = os.path.join(os.path.dirname(__file__), 'data')
         for item in os.listdir(path):
             fn, ext = os.path.splitext(item)
             if ext not in ('.xml', '.codega'):
