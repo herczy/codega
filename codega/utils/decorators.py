@@ -98,7 +98,7 @@ def get_mark(func, mark_type):
 
     return func.__marks__[mark_type]
 
-def get_mark_default(func, mark_type, default = None):
+def get_mark_default(func, mark_type, default=None):
     '''Return the value of the given mark or default if mark is not found'''
 
     if not has_mark(func, mark_type):
@@ -106,7 +106,7 @@ def get_mark_default(func, mark_type, default = None):
 
     return func.__marks__[mark_type]
 
-def collect_marked(functions, mark_type, mark_value = None):
+def collect_marked(functions, mark_type, mark_value=None):
     '''Collect all functions marked in the dictionary.
 
     Arguments:
@@ -132,48 +132,3 @@ def collect_marked_bound(obj, *args, **kwargs):
     '''Collect all methods marked bound to the object'''
 
     return collect_marked(dict((k, getattr(obj, k)) for k in dir(obj)), *args, **kwargs)
-
-def define(obj):
-    '''
-    Define a function belonging to a dictionary, class or instance.
-    '''
-
-    def __decorator(func):
-        if isinstance(obj, type) or type(obj) == types.ModuleType:
-            setattr(obj, func.__name__, func)
-            return func
-
-        if isinstance(obj, dict):
-            obj[func.__name__] = func
-            return func
-
-        if isinstance(obj, object):
-            bound = types.MethodType(func, obj)
-            setattr(obj, func.__name__, bound)
-            return bound
-
-        raise TypeError("Invalid argument type")
-
-    return __decorator
-
-def bind(value, pos= -1):
-    '''Bind one of the arguments of a function'''
-
-    def __decorator(func):
-        @copy_attributes(func)
-        def __wrapped(*args, **kwargs):
-            if isinstance(pos, int) or isinstance(pos, long):
-                args = list(args)
-                if pos < 0:
-                    args.append(value)
-
-                else:
-                    args.insert(pos, value)
-
-            else:
-                kwargs[pos] = value
-
-            return func(*args, **kwargs)
-
-        return __wrapped
-    return __decorator
