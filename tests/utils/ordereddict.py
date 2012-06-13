@@ -4,6 +4,8 @@ from codega.utils.ordereddict import OrderedDict
 
 class TestOrderedDict(TestCase):
     def test_ordering(self):
+        '''The proper order is kept when adding items to an ordered dict.'''
+
         od = OrderedDict()
         keys = [ 'a', 'A', 'b', 'B', 'c', 'C' ] + range(100) + range(500, 400, -1)
         for i in keys:
@@ -22,7 +24,27 @@ class TestOrderedDict(TestCase):
         od['x'] = 1
         self.assertEqual(od._keyorder[pos], 'x')
 
+    def test_item_access(self):
+        '''The item access (get, set, delete) works as expected.'''
+
+        od = OrderedDict()
+        od[2] = 1
+        od[1] = 2
+        od['a'] = 3
+
+        self.assertEqual(od[1], 2)
+        self.assertEqual(od[2], 1)
+        self.assertEqual(od['a'], 3)
+        self.assertEqual(od.keys(), [2, 1, 'a'])
+
+        del od[1]
+        self.assertEqual(od[2], 1)
+        self.assertEqual(od['a'], 3)
+        self.assertEqual(od.keys(), [2, 'a'])
+
     def test_insert(self):
+        '''The insert operation on an ordered dict works properly.'''
+
         od = OrderedDict()
         for i in range(10):
             od[i] = 100 * i
@@ -44,6 +66,8 @@ class TestOrderedDict(TestCase):
         od._keyorder = range(10)
 
     def test_update(self):
+        '''The update operation works on an ordered dict properly.'''
+
         od1 = OrderedDict()
         for i in range(10):
             od1[i] = 100 * i
@@ -65,3 +89,15 @@ class TestOrderedDict(TestCase):
             self.assertEqual(index, check)
 
         self.assertRaises(TypeError, od1.update, 0, od1, 1)
+
+    def test_index(self):
+        '''The index of the key can be queried.'''
+
+        od = OrderedDict()
+        od['a'] = 2
+        od[None] = 2
+        od[1] = 2
+
+        self.assertEqual(od.index('a'), 0)
+        self.assertEqual(od.index(None), 1)
+        self.assertEqual(od.index(1), 2)
