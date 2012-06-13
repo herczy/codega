@@ -1,8 +1,7 @@
+import os
 from unittest import TestCase
-import os.path
 
 from codega.source import XmlSource
-from codega.rsclocator import FileResourceLocator
 
 from common import make_tempfile
 

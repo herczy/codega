@@ -7,7 +7,7 @@ This module also contains MakoTemplateset which loads mako templates. Further te
 supported if needed.
 '''
 
-from decorators import abstract
+from utils.decorators import abstract
 
 from generator.template import TemplateGenerator
 
@@ -53,7 +53,7 @@ class TemplatesetGeneratorFactory(object):
     _template_set = None
     _template_generator = None
 
-    def __init__(self, template_set, template_generator = TemplateGenerator):
+    def __init__(self, template_set, template_generator=TemplateGenerator):
         self._template_set = template_set
         self._template_generator = template_generator
 

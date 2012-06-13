@@ -3,12 +3,12 @@ Object generators collect specially marked methods and turn them into generators
 the factory specified with generator).
 '''
 
-from codega.decorators import mark, has_mark, set_mark, get_mark, get_mark_default, collect_marked_bound
+from codega.utils.decorators import mark, has_mark, set_mark, get_mark, get_mark_default, collect_marked_bound
 from codega import logger
 
 from priority import PriorityGenerator, PRI_BASE
 
-def generator(factory = None):
+def generator(factory=None):
     '''Mark the function as a generator. If factory is set, the
     generator function will be passed to the factory and the result
     is used.'''
@@ -66,4 +66,4 @@ class ObjectGenerator(PriorityGenerator):
                 logger.debug('Factory found for sub-generator %r: %r', generator, factory)
                 generator = factory(generator)
 
-            self.register(generator, priority = priority, matcher = ObjectGenerator.__get_internal_matcher(matchers))
+            self.register(generator, priority=priority, matcher=ObjectGenerator.__get_internal_matcher(matchers))

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codega.decorators import *
+from codega.utils.decorators import *
 
 @mark('mark0', 0)
 @mark('mark1', 1)
@@ -50,7 +50,7 @@ class TestDecorators(TestCase):
         self.assertEqual(get_mark(marked, 'mark1'), 1)
         self.assertEqual(get_mark(marked, 'mark2'), 2)
         self.assertRaises(AttributeError, get_mark, marked, 'mark3')
-        self.assertEqual(get_mark_default(marked, 'mark3', default = -1), -1)
+        self.assertEqual(get_mark_default(marked, 'mark3', default= -1), -1)
 
         self.assertTrue(has_mark(marked, 'mark0'))
         self.assertTrue(has_mark(marked, 'mark1'))

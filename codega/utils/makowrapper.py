@@ -13,7 +13,7 @@ from codega.generator.template import TemplateGenerator
 from codega.template import TemplateBase, TemplatesetBase
 from codega import logger
 
-from codega.indent import deindent
+from indent import deindent
 
 class MakoTemplate(TemplateBase):
     '''Wrapper for mako templates

@@ -3,7 +3,7 @@
 load() loads an XML eigther from a file or a string'''
 from lxml import etree
 
-from decorators import abstract
+from utils.decorators import abstract
 
 class SourceBase(object):
     '''A source should parse the supplied input and create an XML etree'''

@@ -1,8 +1,8 @@
 from codega.generator.object import ObjectGenerator, generator, match
-from codega.makowrapper import inline
+from codega.utils.makowrapper import inline
 
-from codega.dicttools import exclude_internals
-from codega import matcher
+from codega.utils.dicttools import exclude_internals
+from codega.utils import matcher
 
 class CBookGenerator(ObjectGenerator):
     @match(matcher.tag('bookshelf'))

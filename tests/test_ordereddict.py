@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codega.ordereddict import OrderedDict
+from codega.utils.ordereddict import OrderedDict
 
 class TestOrderedDict(TestCase):
     def test_ordering(self):

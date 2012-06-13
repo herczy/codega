@@ -4,7 +4,7 @@ import operator
 
 from lxml import etree
 
-from codega.decorators import abstract
+from decorators import abstract
 
 class MatcherBase(object):
     '''Matcher base class'''

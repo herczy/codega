@@ -1,6 +1,6 @@
 '''Base generator class. All other generators are derived from these generators'''
 
-from codega.decorators import abstract
+from codega.utils.decorators import abstract
 
 class GeneratorBase(object):
     '''Generator base class'''
