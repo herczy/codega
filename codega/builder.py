@@ -2,7 +2,7 @@ import os.path
 import sys
 
 from lxml import etree
-from codega.context import Context
+from codega.generator.context import Context
 
 def load_class(identifier, *args, **kwargs):
     if ':' not in identifier:
