@@ -1,6 +1,6 @@
 '''Dictionary tools to handle template arguments better'''
 
-def dict_from_element(element, base = None):
+def dict_from_element(element, base=None):
     '''Return a dictionary copy of element.attrib. Use base as
     the base dictionary'''
 
@@ -39,7 +39,7 @@ def exclude_internals(base):
         if key[:2] == '__':
             return False
 
-        if key in ('self', ):
+        if key in ('self',):
             return False
 
         return True
