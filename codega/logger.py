@@ -6,21 +6,22 @@ import sys
 from lxml.etree import use_global_python_log, PyErrorLog
 from logging import debug, info, warning, error, critical, log, DEBUG, INFO, WARNING, ERROR, CRITICAL #@UnusedImports
 
-def prepare(level=None):
-    import logging
+levels = {
+    'debug' : DEBUG,
+    'info' : INFO,
+    'warning' : WARNING,
+    'error' : ERROR,
+    'critical' : CRITICAL,
+    '4' : DEBUG,
+    '3' : INFO,
+    '2' : WARNING,
+    '1' : ERROR,
+    '0' : CRITICAL,
+}
 
-    levels = {
-        'debug' : DEBUG,
-        'info' : INFO,
-        'warning' : WARNING,
-        'error' : ERROR,
-        'critical' : CRITICAL,
-        '4' : DEBUG,
-        '3' : INFO,
-        '2' : WARNING,
-        '1' : ERROR,
-        '0' : CRITICAL,
-    }
+def prepare(level=None):
+    global levels
+    import logging
 
     logging.basicConfig(format='%(levelname) -10s %(message)s')
 
@@ -48,7 +49,6 @@ def prepare(level=None):
 
     logging.getLogger().setLevel(loglevel)
     use_global_python_log(PyErrorLog())
-
 
 def exception(preface=None, level=DEBUG, short_desc=None, long_desc=None, level_trace=None, line_prefix=None):
     exc_type, exc_value, trace = sys.exc_info() #@UnusedVariables

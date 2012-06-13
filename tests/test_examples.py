@@ -13,16 +13,16 @@ def add_example_test(name, path):
             cur = os.getcwd()
             try:
                 os.chdir(os.path.join(exampledir, name))
-                rc = os.system('../../cgx make -f -v debug 2>%s' % fn)
+                rc = os.system('make LOGLEVEL=debug clean all >%s 2>&1' % fn)
 
                 if rc == 0:
-                    rc = os.system('../../cgx clean -v debug 2>>%s' % fn)
+                    rc = os.system('make LOGLEVEL=debug clean >>%s 2>&1' % fn)
 
             finally:
                 os.chdir(cur)
 
             if rc != 0:
-                print >> sys.stderr, "stderr output from 'cgx build -f'"
+                print >> sys.stderr, "stderr output from 'make'"
                 sys.stderr.write(open(fn, 'r').read())
 
             self.assertEqual(rc, 0)
@@ -38,7 +38,7 @@ for f in os.listdir(exampledir):
     if not os.path.isdir(abspath):
         continue
 
-    if not os.path.isfile(os.path.join(abspath, 'codega.xml')) and not os.path.isfile(os.path.join(abspath, 'codega')):
+    if not os.path.isfile(os.path.join(abspath, 'Makefile')):
         continue
 
     add_example_test(f, abspath)

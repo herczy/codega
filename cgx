@@ -10,12 +10,50 @@ except ImportError:
 
 # MARK -- this comment is important, cgx pack will copy-paste the code below this
 import sys
-import codega.logger
-from codega.commands import CommandMain
+import optparse
 
-codega.logger.prepare()
+from codega.logger import prepare, levels
+from codega.builder import build
+
+parser = optparse.OptionParser(usage='%prog [options]')
+parser.add_option('-s', '--source', default=None,
+                  help='Specify the source (file, directory, etc., depending on the parser)'),
+parser.add_option('-p', '--parser', default='codega.source:XmlSource',
+                  help='Specify the parser in <module>:<source class> format (default: %default)'),
+parser.add_option('-o', '--output', default='codega.out',
+                  help='Specify the output file (default: %default)'),
+parser.add_option('-g', '--generator', default=None,
+                  help='Specify the generator in <module>:<source class> format'),
+parser.add_option('-S', '--set', default=[], action='append',
+                  help='Append custom settings in the form of key=value')
+parser.add_option('-l', '--log-level', default='error',
+                  help='Set log level (choices: %s)' % ', '.join(str(x) for x in levels.keys()))
+
+opts, args = parser.parse_args()
+
+prepare(level=opts.log_level)
+
+settings = {}
+for pair in opts.set:
+    if '=' in pair:
+        key, value = pair.split('=', 1)
+
+    else:
+        key, value = pair, True
+
+    settings[key] = value
+
+if opts.source is None:
+    print >> sys.stderr, "Missing --source: please specify the source of the generator"
+    exit(1)
+
+if opts.generator is None:
+    print >> sys.stderr, "Missing --generator: please specify the generator module/class"
+    exit(1)
+
 rc = 0
-if not CommandMain('cgx', helpstring = 'codega run-time script').run(sys.argv[1:]):
+if not build(opts.source, opts.parser, opts.output, opts.generator, settings):
+    print >> sys.stderr, "Failed to build destination"
     rc = 1
 
 exit(rc)

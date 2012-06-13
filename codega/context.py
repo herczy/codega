@@ -2,23 +2,24 @@ class Context(object):
     '''Generator context object
 
     Members:
-    _config -- The configuration used
     _source -- Source config entry used by generator
     _target -- Target config entry used by generator
     '''
 
-    _config = None
     _source = None
     _target = None
 
-    def __init__(self, config, source, target):
-        self._config = config
+    _generator = None
+    _parser = None
+
+    _settings = None
+
+    def __init__(self, source, target, generator, parser, settings):
         self._source = source
         self._target = target
-
-    @property
-    def config(self):
-        return self._config
+        self._generator = generator
+        self._parser = parser
+        self._settings = dict(settings)
 
     @property
     def source(self):
@@ -29,8 +30,16 @@ class Context(object):
         return self._target
 
     @property
-    def settings(self):
-        return self._target.settings
+    def generator(self):
+        return self._source
 
-    def map(self, generator, sources, filt_expr = lambda node: True):
+    @property
+    def parser(self):
+        return self._source
+
+    @property
+    def settings(self):
+        return self._settings
+
+    def map(self, generator, sources, filt_expr=lambda node: True):
         return map(lambda source: generator(source, self), filter(filt_expr, sources))

@@ -1,6 +1,0 @@
-<config version="1.2">
-  <external>basic/codega.xml</external>
-  <external>books/codega.xml</external>
-  <external>csvparser/codega.xml</external>
-  <external>parser/codega.xml</external>
-</config>

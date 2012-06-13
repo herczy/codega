@@ -17,13 +17,7 @@ class TestSource(TestCase):
         self.assertEqual(root.tag, 'entry')
         self.assertEqual(root.text, 'Hello')
 
-    def test_load_file_without_locator(self):
+    def test_load_file(self):
         with make_tempfile() as (fd, name):
             os.write(fd, xml_content)
-            self.check(self.source.load(resource = name))
-
-    def test_load_file_with_locator(self):
-        loc = FileResourceLocator('/tmp')
-        with make_tempfile() as (fd, name):
-            os.write(fd, xml_content)
-            self.check(self.source.load(resource = os.path.basename(name), resource_locator = loc))
+            self.check(self.source.load(resource=name))

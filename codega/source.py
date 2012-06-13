@@ -9,7 +9,7 @@ class SourceBase(object):
     '''A source should parse the supplied input and create an XML etree'''
 
     @abstract
-    def load(self, resource, resource_locator=None):
+    def load(self, resource):
         '''Load the given resource.
 
         This resource can be anything ranging from a filename, an XML etree, a
@@ -27,11 +27,8 @@ class FileSourceBase(SourceBase):
     def load_fileobj(self, fileobj):
         '''Load the file object.'''
 
-    def load(self, resource, resource_locator=None):
+    def load(self, resource):
         '''Load some file source.'''
-
-        if resource_locator is not None:
-            resource = resource_locator.find(resource)
 
         return self.load_fileobj(open(resource))
 
