@@ -55,11 +55,11 @@ class CombinedMatcher(MatcherBase):
 matcher = FunctionMatcher
 
 @matcher
-def true(source, context):
+def always(source, context):
     return True
 
 @matcher
-def false(source, context):
+def never(source, context):
     return False
 
 @matcher
@@ -69,6 +69,9 @@ def comment(source, context):
 def tag(tag):
     @matcher
     def __matcher(source, context):
+        if not isinstance(source, etree._Element):
+            return False
+
         return source.tag == tag
 
     return __matcher
@@ -76,6 +79,9 @@ def tag(tag):
 def parent(tag):
     @matcher
     def __matcher(source, context):
+        if not isinstance(source, etree._Element):
+            return False
+
         parent = source.getparent()
         if parent is None:
             return tag is None
@@ -90,6 +96,9 @@ def xpath(xpath):
 
     @matcher
     def __matcher(source, context):
+        if not isinstance(source, etree._Element):
+            return False
+
         return source in xpath(source)
 
     return __matcher
