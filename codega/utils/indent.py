@@ -3,7 +3,7 @@
 Dependencies: None
 '''
 
-def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', strip_result = True):
+def indent(text, level=1, indent_empty_lines=False, indent_string='  ', strip_result=True):
     '''General purpose indentation
 
     Arguments:
@@ -26,7 +26,7 @@ def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', st
 
     return '\n'.join(map(__indent_line, text.split('\n')))
 
-def deindent(text, level = None, ignore_wrong_indentation = False, lstrip = True, rstrip = False):
+def deindent(text, level=None, ignore_wrong_indentation=False, lstrip=True, rstrip=False):
     '''De-indent a text.
     
     Arguments:
@@ -72,11 +72,11 @@ def deindent(text, level = None, ignore_wrong_indentation = False, lstrip = True
         res.append(line)
 
     if lstrip:
-        while not res[0]:
+        while res and not res[0]:
             del res[0]
 
     if rstrip:
-        while not res[-1]:
+        while res and not res[-1]:
             del res[-1]
 
     return '\n'.join(res)
@@ -93,7 +93,7 @@ def c_multi_comment(text):
     text -- Text to indent
     '''
 
-    box = indent(text, indent_empty_lines = True, indent_string = ' * ')
+    box = indent(text, indent_empty_lines=True, indent_string=' * ')
     return '/*\n%s\n */' % box
 
 def hash_comment(text):
@@ -105,9 +105,9 @@ def hash_comment(text):
     #
     '''
 
-    return indent(text, indent_empty_lines = True, indent_string = '# ')
+    return indent(text, indent_empty_lines=True, indent_string='# ')
 
-def disclaimer(context, comment = hash_comment):
+def disclaimer(context, comment=hash_comment):
     '''Create a commented disclaimer.
 
     The disclaimer will look something like this:
@@ -116,10 +116,10 @@ def disclaimer(context, comment = hash_comment):
     #
     '''
 
-    targetfile = context.target.filename
-    srcfile = context.source.resource
-    prsref = str(context.source.parser)
-    genref = str(context.target.generator)
+    targetfile = context.target
+    srcfile = context.source
+    prsref = context.parser
+    genref = context.generator
 
     text = '''THIS IS AN AUTOMATICALLY GENERATED FILE. ALL MANUAL MODIFICATIONS TO IT MAY
 BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)
