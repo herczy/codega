@@ -27,6 +27,7 @@ def add_example_test(name, path):
 
             self.assertEqual(rc, 0)
 
+    __run.__doc__ = 'Running example %r in path %r' % (name, path)
     setattr(TestExamples, 'test_example_%s' % name, __run)
 
 mypath = os.path.abspath(os.path.dirname(__file__))
