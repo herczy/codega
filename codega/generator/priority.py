@@ -38,7 +38,7 @@ class PriorityGenerator(GeneratorBase):
 
         self._generators = []
 
-    def register(self, generator, priority = PRI_BASE, matcher = None):
+    def register(self, generator, priority=PRI_BASE, matcher=None):
         '''Register a generator
 
         Arguments:
@@ -67,4 +67,5 @@ class PriorityGenerator(GeneratorBase):
         raise ValueError("Source cannot be generated")
 
     def generate(self, source, context):
-        return self.get_handler(source, context)(source, context)
+        handler = self.get_handler(source, context)
+        return handler(source, context)
