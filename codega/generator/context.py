@@ -31,11 +31,11 @@ class Context(object):
 
     @property
     def generator(self):
-        return self._source
+        return self._generator
 
     @property
     def parser(self):
-        return self._source
+        return self._parser
 
     @property
     def settings(self):
