@@ -144,8 +144,10 @@ class TestMatcherFunctions(TestCase):
         '''If any of the matchers match, the aggregate will too.'''
 
         self.map_matcher(any(always, never), FF=True, FT=True, TF=True, xml=True)
+        self.map_matcher(any(cls(self.cls0), cls(self.cls1)), cls0=True, cls1=True, xml=False, FF=False)
 
     def test_all(self):
         '''If any of the matchers fail to match, the aggregate will too.'''
 
         self.map_matcher(all(always, never), FF=False, FT=False, TF=False, xml=False)
+        self.map_matcher(all(cls(self.cls0), cls(object)), cls0=True, cls1=False, xml=False, FF=False)

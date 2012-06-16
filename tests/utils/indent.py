@@ -31,6 +31,8 @@ class TestIndent(TestCase):
 
         self.assertEqual(deindent('   a\n   b', level=2), ' a\n b')
 
+        self.assertEqual(deindent('   a\n   b\n\n\n\n\n', rstrip=True), 'a\nb')
+
     def test_c_multi_comment(self):
         '''C multi-line commenting works.'''
 
