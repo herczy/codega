@@ -1,5 +1,5 @@
 from codega.visitor import VisitorBase
-from codega.ordereddict import OrderedDict
+from codega.utils.ordereddict import OrderedDict
 
 REQUIRED = 0
 OPTIONAL = 1

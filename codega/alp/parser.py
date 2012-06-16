@@ -1,7 +1,7 @@
 import tempfile
 from ply import yacc
 
-from codega.decorators import abstract
+from codega.utils.decorators import abstract
 
 from tools import replace, cleanup_file_list
 import logger
