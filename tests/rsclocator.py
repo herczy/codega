@@ -17,8 +17,8 @@ class FileLocatorTest(TestCase):
         self.locator = FileResourceLocator(path0)
 
     def test_find(self):
-        self.assertEqual(self.locator.find('test_rsclocator.py'), os.path.join(path0, 'test_rsclocator.py'))
-        self.assertEqual(self.locator.find('test_examples.py'), os.path.join(path0, 'test_examples.py'))
+        self.assertEqual(self.locator.find('rsclocator.py'), os.path.join(path0, 'rsclocator.py'))
+        self.assertEqual(self.locator.find('examples.py'), os.path.join(path0, 'examples.py'))
 
         self.assertRaises(ResourceError, self.locator.find, 'aaaaaaa')
 
@@ -42,8 +42,8 @@ class FallbackLocatorTest(TestCase):
         self.locator = FallbackLocator([ FileResourceLocator(path0), FileResourceLocator(path1), ModuleLocator(self.module) ])
 
     def test_find(self):
-        self.assertEqual(self.locator.find('test_rsclocator.py'), os.path.join(path0, 'test_rsclocator.py'))
-        self.assertEqual(self.locator.find('tests.py'), os.path.join(path1, 'tests.py'))
-        self.assertEqual(self.locator.find('rsclocator.py'), os.path.join(self.path, 'rsclocator.py'))
+        self.assertEqual(self.locator.find('rsclocator.py'), os.path.join(path0, 'rsclocator.py'))
+        self.assertEqual(self.locator.find('run_tests.py'), os.path.join(path1, 'run_tests.py'))
+        self.assertEqual(self.locator.find('alp'), os.path.join(self.path, 'alp'))
 
     test_list = test_list_base
