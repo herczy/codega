@@ -44,6 +44,5 @@ class FallbackLocatorTest(TestCase):
     def test_find(self):
         self.assertEqual(self.locator.find('rsclocator.py'), os.path.join(path0, 'rsclocator.py'))
         self.assertEqual(self.locator.find('run_tests.py'), os.path.join(path1, 'run_tests.py'))
-        self.assertEqual(self.locator.find('alp'), os.path.join(self.path, 'alp'))
 
     test_list = test_list_base
