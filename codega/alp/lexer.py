@@ -62,7 +62,6 @@ class Lexer(object):
 
     def ignore_token(self, token):
         self.log.debug('Ignoring token; value=%r, type=%s, location=%s' % (token.value, token.type, self.current_location))
-        self.current_location.update(token.value)
 
     @property
     def tokens(self):
@@ -72,9 +71,7 @@ class Lexer(object):
         token = t.value[0]
         self.error_context.error(replace(self.error_message, token=token), self.current_location.clone())
 
-        self.current_location.update(token)
         self.lexer_object.skip(len(token))
-
         self.log.error('Error parsing character %r' % token)
 
     def get_location(self, position):
