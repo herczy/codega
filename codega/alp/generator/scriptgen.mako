@@ -8,7 +8,9 @@
 %>
 
 <%def name='AlpScript()'>\
+% if ctx.config is not None:
 ${disclaimer(ctx)}
+% endif
 
 __version__ = '${version or "Unknown"}'
 __language__ = '${language or "Unknown"}'

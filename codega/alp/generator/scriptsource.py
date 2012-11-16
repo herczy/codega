@@ -3,6 +3,11 @@ from codega.alp import script
 
 from validator import Validator
 
+def parse(fileobj, name='<unknown>'):
+    ast = script.parse(name, fileobj.read())
+    Validator.run(ast)
+    return ast
+
 class ScriptParser(SourceBase):
     '''ALP descriptor language parser. This is a thin wrapper
     so codega config scripts can also define ALP sources.'''
@@ -13,7 +18,4 @@ class ScriptParser(SourceBase):
         if resource_locator is not None:
             resource = resource_locator.find(resource)
 
-        ast = script.parse(resource, open(resource).read())
-        Validator.run(ast)
-
-        return ast
+        return parse(open(resource), name=resource)
