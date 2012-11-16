@@ -46,7 +46,8 @@ ${lexentry}
 Lexer = lexer_factory.create_class()
 
 # AST nodes
-AstBaseClass = ast.create_base_node('AstBaseClass')
+metainfo = ast.Metainfo()
+
 % for node in ast:
 ${node}
 % endfor
@@ -140,12 +141,13 @@ ${'.'.join(conversion)}\
 </%def>
 
 <%def name='AlpNode_ast()'>\
-class ${name}(AstBaseClass):
-    property_definitions = (
+${name}_properties = (
 % for prop in properties:
-${indent(prop, level=2)},
+${indent(prop, level=1)},
 % endfor
-    )
+)
+${name}_info = ast.Info('${name}', ${name}_properties)
+${name} = ${name}_info.get_class(metainfo)
 </%def>
 
 <%def name='AlpList_ast()'>\
@@ -169,9 +171,7 @@ def ${name}(arg):
     return arg
 </%def>
 
-<%def name='AlpProperty_ast()'>\
-ast.Property('${name}', klass=${klass})\
-</%def>
+<%def name='AlpProperty_ast()'>('${name}', ast.${klass})</%def>
 
 <%def name='AlpNode()'>\
 # Rules for node ${name}
@@ -197,7 +197,7 @@ p_${name}_${index}.__doc__ = rule_${name}_${index}.to_yacc_rule()
 </%def>
 
 <%def name='AlpRuleEntry()'>\
-rule.RuleEntry('${entry.name}', key=${repr(entry.key)}, ignore=${repr(entry.ignored)})\
+rule.RuleEntry('${name}', key=${repr(key)}, ignore=${repr(ignored)})\
 </%def>
 
 <%def name='fallback()'>\

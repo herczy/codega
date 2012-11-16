@@ -54,7 +54,7 @@ lexer_factory.add_keyword('def');
 Lexer = lexer_factory.create_class()
 
 # AST nodes
-AstBaseClass = ast.create_base_node('AstBaseClass')
+metainfo = ast.Metainfo()
 # Helper class for selectors!
 def production(arg):
     return arg
@@ -63,24 +63,27 @@ def production(arg):
 def expression(arg):
     return arg
 
-class binary_expression(AstBaseClass):
-    property_definitions = (
-        ast.Property('operand0', klass=0),
-        ast.Property('operator', klass=0),
-        ast.Property('operand1', klass=0),
-    )
+binary_expression_properties = (
+    ('operand0', ast.REQUIRED),
+    ('operator', ast.REQUIRED),
+    ('operand1', ast.REQUIRED),
+)
+binary_expression_info = ast.Info('binary_expression', binary_expression_properties)
+binary_expression = binary_expression_info.get_class(metainfo)
 
-class unary_expression(AstBaseClass):
-    property_definitions = (
-        ast.Property('operator', klass=0),
-        ast.Property('operand', klass=0),
-    )
+unary_expression_properties = (
+    ('operator', ast.REQUIRED),
+    ('operand', ast.REQUIRED),
+)
+unary_expression_info = ast.Info('unary_expression', unary_expression_properties)
+unary_expression = unary_expression_info.get_class(metainfo)
 
-class call(AstBaseClass):
-    property_definitions = (
-        ast.Property('func', klass=0),
-        ast.Property('args', klass=0),
-    )
+call_properties = (
+    ('func', ast.REQUIRED),
+    ('args', ast.REQUIRED),
+)
+call_info = ast.Info('call', call_properties)
+call = call_info.get_class(metainfo)
 
 def exprlist(**kwargs):
     body = kwargs.pop('body', ())
@@ -108,27 +111,30 @@ def exprlist_tail(**kwargs):
 
     return body
 
-class assignment(AstBaseClass):
-    property_definitions = (
-        ast.Property('rvalue', klass=0),
-        ast.Property('lvalue', klass=0),
-    )
+assignment_properties = (
+    ('rvalue', ast.REQUIRED),
+    ('lvalue', ast.REQUIRED),
+)
+assignment_info = ast.Info('assignment', assignment_properties)
+assignment = assignment_info.get_class(metainfo)
 
-class expr_for(AstBaseClass):
-    property_definitions = (
-        ast.Property('bound', klass=0),
-        ast.Property('begin', klass=0),
-        ast.Property('end', klass=0),
-        ast.Property('step', klass=1),
-        ast.Property('assignment', klass=0),
-    )
+expr_for_properties = (
+    ('bound', ast.REQUIRED),
+    ('begin', ast.REQUIRED),
+    ('end', ast.REQUIRED),
+    ('step', ast.OPTIONAL),
+    ('assignment', ast.REQUIRED),
+)
+expr_for_info = ast.Info('expr_for', expr_for_properties)
+expr_for = expr_for_info.get_class(metainfo)
 
-class funcdef(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('args', klass=0),
-        ast.Property('expression', klass=0),
-    )
+funcdef_properties = (
+    ('name', ast.REQUIRED),
+    ('args', ast.REQUIRED),
+    ('expression', ast.REQUIRED),
+)
+funcdef_info = ast.Info('funcdef', funcdef_properties)
+funcdef = funcdef_info.get_class(metainfo)
 
 def id_list(**kwargs):
     body = kwargs.pop('body', ())

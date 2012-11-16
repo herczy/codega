@@ -74,12 +74,14 @@ lexer_factory.add_token('INTEGER', '[+-]?(0|[1-9][0-9]*)');
 Lexer = lexer_factory.create_class()
 
 # AST nodes
-AstBaseClass = ast.create_base_node('AstBaseClass')
-class AlpScript(AstBaseClass):
-    property_definitions = (
-        ast.Property('head', klass=0),
-        ast.Property('body', klass=0),
-    )
+metainfo = ast.Metainfo()
+
+AlpScript_properties = (
+    ('head', ast.REQUIRED),
+    ('body', ast.REQUIRED),
+)
+AlpScript_info = ast.Info('AlpScript', AlpScript_properties)
+AlpScript = AlpScript_info.get_class(metainfo)
 
 def AlpHead(**kwargs):
     body = kwargs.pop('body', ())
@@ -94,11 +96,12 @@ def AlpHead(**kwargs):
 
     return body
 
-class AlpHeaderEntry(AstBaseClass):
-    property_definitions = (
-        ast.Property('key', klass=0),
-        ast.Property('value', klass=0),
-    )
+AlpHeaderEntry_properties = (
+    ('key', ast.REQUIRED),
+    ('value', ast.REQUIRED),
+)
+AlpHeaderEntry_info = ast.Info('AlpHeaderEntry', AlpHeaderEntry_properties)
+AlpHeaderEntry = AlpHeaderEntry_info.get_class(metainfo)
 
 def AlpBody(**kwargs):
     body = kwargs.pop('body', ())
@@ -117,45 +120,51 @@ def AlpBody(**kwargs):
 def SelMainEntry(arg):
     return arg
 
-class AlpImport(AstBaseClass):
-    property_definitions = (
-        ast.Property('import_from', klass=1),
-        ast.Property('import_name', klass=0),
-        ast.Property('import_as', klass=1),
-    )
+AlpImport_properties = (
+    ('import_from', ast.OPTIONAL),
+    ('import_name', ast.REQUIRED),
+    ('import_as', ast.OPTIONAL),
+)
+AlpImport_info = ast.Info('AlpImport', AlpImport_properties)
+AlpImport = AlpImport_info.get_class(metainfo)
 
-class AlpStart(AstBaseClass):
-    property_definitions = (
-        ast.Property('symbol', klass=0),
-    )
+AlpStart_properties = (
+    ('symbol', ast.REQUIRED),
+)
+AlpStart_info = ast.Info('AlpStart', AlpStart_properties)
+AlpStart = AlpStart_info.get_class(metainfo)
 
 # Helper class for selectors!
 def SelToken(arg):
     return arg
 
-class AlpToken(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('value', klass=0),
-        ast.Property('conversions', klass=1),
-    )
+AlpToken_properties = (
+    ('name', ast.REQUIRED),
+    ('value', ast.REQUIRED),
+    ('conversions', ast.OPTIONAL),
+)
+AlpToken_info = ast.Info('AlpToken', AlpToken_properties)
+AlpToken = AlpToken_info.get_class(metainfo)
 
-class AlpLiteral(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('value', klass=0),
-    )
+AlpLiteral_properties = (
+    ('name', ast.REQUIRED),
+    ('value', ast.REQUIRED),
+)
+AlpLiteral_info = ast.Info('AlpLiteral', AlpLiteral_properties)
+AlpLiteral = AlpLiteral_info.get_class(metainfo)
 
-class AlpKeyword(AstBaseClass):
-    property_definitions = (
-        ast.Property('value', klass=0),
-    )
+AlpKeyword_properties = (
+    ('value', ast.REQUIRED),
+)
+AlpKeyword_info = ast.Info('AlpKeyword', AlpKeyword_properties)
+AlpKeyword = AlpKeyword_info.get_class(metainfo)
 
-class AlpIgnore(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('value', klass=0),
-    )
+AlpIgnore_properties = (
+    ('name', ast.REQUIRED),
+    ('value', ast.REQUIRED),
+)
+AlpIgnore_info = ast.Info('AlpIgnore', AlpIgnore_properties)
+AlpIgnore = AlpIgnore_info.get_class(metainfo)
 
 def AlpConversionList(**kwargs):
     body = kwargs.pop('body', ())
@@ -183,45 +192,51 @@ def AlpConversionListTail(**kwargs):
 
     return body
 
-class AlpConversion(AstBaseClass):
-    property_definitions = (
-        ast.Property('conversion', klass=0),
-        ast.Property('arguments', klass=1),
-    )
+AlpConversion_properties = (
+    ('conversion', ast.REQUIRED),
+    ('arguments', ast.OPTIONAL),
+)
+AlpConversion_info = ast.Info('AlpConversion', AlpConversion_properties)
+AlpConversion = AlpConversion_info.get_class(metainfo)
 
 # Helper class for selectors!
 def SelParser(arg):
     return arg
 
-class AlpPrecedence(AstBaseClass):
-    property_definitions = (
-        ast.Property('direction', klass=0),
-        ast.Property('tokens', klass=0),
-    )
+AlpPrecedence_properties = (
+    ('direction', ast.REQUIRED),
+    ('tokens', ast.REQUIRED),
+)
+AlpPrecedence_info = ast.Info('AlpPrecedence', AlpPrecedence_properties)
+AlpPrecedence = AlpPrecedence_info.get_class(metainfo)
 
-class AlpNode(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('body', klass=0),
-    )
+AlpNode_properties = (
+    ('name', ast.REQUIRED),
+    ('body', ast.REQUIRED),
+)
+AlpNode_info = ast.Info('AlpNode', AlpNode_properties)
+AlpNode = AlpNode_info.get_class(metainfo)
 
-class AlpList(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('body', klass=0),
-    )
+AlpList_properties = (
+    ('name', ast.REQUIRED),
+    ('body', ast.REQUIRED),
+)
+AlpList_info = ast.Info('AlpList', AlpList_properties)
+AlpList = AlpList_info.get_class(metainfo)
 
-class AlpSelection(AstBaseClass):
-    property_definitions = (
-        ast.Property('name', klass=0),
-        ast.Property('body', klass=0),
-    )
+AlpSelection_properties = (
+    ('name', ast.REQUIRED),
+    ('body', ast.REQUIRED),
+)
+AlpSelection_info = ast.Info('AlpSelection', AlpSelection_properties)
+AlpSelection = AlpSelection_info.get_class(metainfo)
 
-class AlpNodeBody(AstBaseClass):
-    property_definitions = (
-        ast.Property('properties', klass=0),
-        ast.Property('rules', klass=0),
-    )
+AlpNodeBody_properties = (
+    ('properties', ast.REQUIRED),
+    ('rules', ast.REQUIRED),
+)
+AlpNodeBody_info = ast.Info('AlpNodeBody', AlpNodeBody_properties)
+AlpNodeBody = AlpNodeBody_info.get_class(metainfo)
 
 def AlpPropertyList(**kwargs):
     body = kwargs.pop('body', ())
@@ -236,11 +251,12 @@ def AlpPropertyList(**kwargs):
 
     return body
 
-class AlpProperty(AstBaseClass):
-    property_definitions = (
-        ast.Property('klass', klass=0),
-        ast.Property('name', klass=0),
-    )
+AlpProperty_properties = (
+    ('klass', ast.REQUIRED),
+    ('name', ast.REQUIRED),
+)
+AlpProperty_info = ast.Info('AlpProperty', AlpProperty_properties)
+AlpProperty = AlpProperty_info.get_class(metainfo)
 
 def AlpRuleList(**kwargs):
     body = kwargs.pop('body', ())
@@ -255,11 +271,12 @@ def AlpRuleList(**kwargs):
 
     return body
 
-class AlpRule(AstBaseClass):
-    property_definitions = (
-        ast.Property('entries', klass=0),
-        ast.Property('precsymbol', klass=1),
-    )
+AlpRule_properties = (
+    ('entries', ast.REQUIRED),
+    ('precsymbol', ast.OPTIONAL),
+)
+AlpRule_info = ast.Info('AlpRule', AlpRule_properties)
+AlpRule = AlpRule_info.get_class(metainfo)
 
 def AlpRuleEntryList(**kwargs):
     body = kwargs.pop('body', ())
@@ -274,12 +291,13 @@ def AlpRuleEntryList(**kwargs):
 
     return body
 
-class AlpRuleEntry(AstBaseClass):
-    property_definitions = (
-        ast.Property('ignored', klass=1),
-        ast.Property('key', klass=1),
-        ast.Property('name', klass=0),
-    )
+AlpRuleEntry_properties = (
+    ('ignored', ast.OPTIONAL),
+    ('key', ast.OPTIONAL),
+    ('name', ast.REQUIRED),
+)
+AlpRuleEntry_info = ast.Info('AlpRuleEntry', AlpRuleEntry_properties)
+AlpRuleEntry = AlpRuleEntry_info.get_class(metainfo)
 
 def AlpModuleName(**kwargs):
     body = kwargs.pop('body', ())

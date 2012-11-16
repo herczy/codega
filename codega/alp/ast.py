@@ -4,147 +4,102 @@ from codega.ordereddict import OrderedDict
 REQUIRED = 0
 OPTIONAL = 1
 
-class Property(object):
-    '''AST element property.'''
+reserved_property_prefixes = set(('__', 'ast_'))
 
-    def __init__(self, name, klass=REQUIRED):
-        self.name = name
-        self.klass = klass
+def is_reserved(name):
+    for prefix in reserved_property_prefixes:
+        if name.startswith(prefix):
+            return True
 
-    @staticmethod
-    def get_class_value(value):
-        if value == 'required':
-            return REQUIRED
+    return False
 
-        elif value == 'optional':
-            return OPTIONAL
+class AstNodeBase(object):
+    def __init__(self, *args, **kwargs):
+        assert hasattr(self, 'ast_class_info')
+        self.ast_class_info.map_properties(self, args, kwargs)
 
-        raise ValueError("Invalid property class")
+    def __str__(self):
+        return "%s(%s)" % (self.ast_name, ', '.join('%s=%r' % (k, v) for k, v in self.ast_properties.items()))
 
-class PropertySet(OrderedDict):
-    '''Ordered dictionary of AST element properties. The
-    properties are referenced as attributes.'''
+    __repr__ = __str__
 
-    def __init__(self, entries, args, kwargs):
-        super(PropertySet, self).__init__()
+class Info(object):
+    '''Stores information about an AST class'''
 
-        self._enties = entries
+    def __init__(self, name, properties):
+        self.__name = name
+        self.__properties = OrderedDict(properties)
 
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def bases(self):
+        return self.__bases
+
+    @property
+    def properties(self):
+        return OrderedDict(self.__properties)
+
+    def map_properties(self, obj, args, kwargs):
+        res = OrderedDict()
         args = list(args)
         kwargs = dict(kwargs)
-        for prop in entries:
-            if kwargs and prop.name in kwargs:
-                self[prop.name] = kwargs.pop(prop.name)
+
+        for name, klass in self.__properties.iteritems():
+            if kwargs and name in kwargs:
+                res[name] = kwargs.pop(name)
 
             elif args:
-                self[prop.name] = args[0]
+                res[name] = args[0]
                 del args[0]
 
-            elif prop.klass == OPTIONAL:
-                self[prop.name] = None
+            elif klass == OPTIONAL:
+                res[name] = None
 
             else:
-                raise ValueError("Cannot handle required argument %s" % prop.name)
+                raise ValueError("Cannot handle required argument %s" % name)
 
-    def __getattr__(self, key):
-        if key[0] == '_':
-            return super(PropertySet, self).__getattribute__(key)
+        setattr(obj, 'ast_properties', res)
+        for key, value in res.iteritems():
+            assert not hasattr(obj, key)
+            setattr(obj, key, value)
 
-        return self[key]
+    def get_class(self, metainfo):
+        if not metainfo.has_class(self.__name):
+            self.__create_class(metainfo)
+
+        return metainfo.get_class(self.__name)
+
+    def __create_class(self, metainfo):
+        members = {}
+        members['ast_class_info'] = self
+        members['ast_name'] = self.__name
+
+        return metainfo.define_class(self.__name, (AstNodeBase,), members)
 
 class Metainfo(object):
     '''AST node-set meta information. Contains the AST node classes.'''
 
-    def __init__(self):
-        self._classes = {}
+    def __init__(self, metaclass=type):
+        self.__metaclass = metaclass
+        self.__classes = {}
 
-    def register(self, cls):
-        self._classes[cls.name] = cls
+    def register(self, name, cls):
+        self.__classes[name] = cls
 
-    @property
-    def classes(self):
-        for name, cls in self._classes.items():
-            yield name, cls
+    def get_class(self, name):
+        return self.__classes[name]
 
-def create_meta_class(metainfo=None, base=type):
-    '''Create a meta class for defining AST nodes.'''
+    def has_class(self, name):
+        return name in self.__classes
 
-    class NodeType(type):
-        metainfo = None
+    def define_class(self, name, bases, members):
+        cls = self.__metaclass(name, bases, members)
+        self.register(name, cls)
 
-        def __new__(cls, name, bases, members):
-            # Default name of the AST node is the class name
-            members.setdefault('name', name)
-
-            # Property parsing
-            properties = members.pop('property_definitions', ())
-            if isinstance(properties, basestring):
-                properties = (s.strip() for s in properties.split(';'))
-
-                prop_result = []
-                for prop in properties:
-                    if isinstance(prop, basestring):
-                        klass, name = filter(lambda s: len(s) > 0, (s.strip() for s in prop.split(' ')))
-                        klass = Property.get_class_value(klass)
-
-                        prop_result.append(Property(name, klass=klass))
-
-            else:
-                prop_result = properties
-
-            members['property_definitions'] = prop_result
-
-            # Rules are processed later, here we just ensure they exist
-            members.setdefault('rules', ())
-
-            # Set the metainfo class
-            members['metainfo'] = cls.metainfo
-
-            # Create class and register to the metainfo object if it's not a base class
-            members.setdefault('base', False)
-            res = type.__new__(cls, name, bases, members)
-
-            if not members['base']:
-                cls.metainfo.register(res)
-
-            return res
-
-    if not metainfo:
-        metainfo = Metainfo()
-    NodeType.metainfo = metainfo
-    return NodeType
-
-def create_base_node(name, base=object, metainfo=None, metatype=type):
-    '''Create base class for AST node classes.'''
-
-    metatype = create_meta_class(metainfo=metainfo, base=metatype)
-
-    class NodeBase(base):
-        __metaclass__ = metatype
-
-        base = True
-        properties = None
-
-        def __init__(self, *args, **kwargs):
-            self.properties = PropertySet(self.property_definitions, args, kwargs)
-
-            super(NodeBase, self).__init__()
-
-        def map(self, func):
-            for key, value in self.properties.items():
-                yield key, func(key, value)
-
-        @classmethod
-        def subclass(cls, name, **kwargs):
-            return cls.__metaclass__(name, (cls,), kwargs)
-
-        def __str__(self):
-            return '%s(%s)' % (self.name, '; '.join('%s=%r' % p for p in self.properties.items()))
-
-        def __repr__(self):
-            return '%s(%s)' % (self.__class__.__name__, '; '.join('%s=%r' % p for p in self.properties.items()))
-
-    return NodeBase
+        return cls
 
 class AstVisitor(VisitorBase):
     '''AST specific visitor class. For AST classes the
@@ -152,8 +107,4 @@ class AstVisitor(VisitorBase):
     types the MRO will be used as in the ClassVisitor.'''
 
     def aspects(self, node):
-        if hasattr(node, 'metainfo'):
-            return [ node.name ]
-
-        else:
-            return node.__class__.__mro__
+        return [node.ast_name]

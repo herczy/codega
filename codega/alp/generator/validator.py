@@ -1,5 +1,6 @@
 from codega.visitor import ClassVisitor, visitor
 from codega.alp import script
+from codega.alp.ast import is_reserved
 
 class ValidationError(Exception):
     '''Validator-related error'''
@@ -12,6 +13,9 @@ class DoubleDefinitionError(ValidationError):
 
 class RuleError(ValidationError):
     '''An error has been detected in a rule'''
+
+class PropertyError(ValidationError):
+    '''A property definition is invalid.'''
 
 class Validator(ClassVisitor):
     '''Validate the AST of an ALP language descriptor file.
@@ -55,38 +59,38 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpScript)
     def visit_alp_script(self, ast):
-        self.visit(ast.properties.head)
-        self.visit(ast.properties.body)
+        self.visit(ast.head)
+        self.visit(ast.body)
 
     @visitor(script.AlpHeaderEntry)
     def visit_alp_header_entry(self, ast):
-        if ast.properties.key in self._info:
+        if ast.key in self._info:
             raise DoubleDefinitionError("Header information %r has been defined twice" % ast.key)
 
-        self._info.add(ast.properties.key)
+        self._info.add(ast.key)
 
     @visitor(script.AlpStart)
     def visit_alp_start(self, ast):
         if self._start_symbol is not None:
             raise DoubleDefinitionError("The start symbol has been defined twice")
 
-        self._start_symbol = ast.properties.symbol
-        self._referenced_symbols.add(ast.properties.symbol)
+        self._start_symbol = ast.symbol
+        self._referenced_symbols.add(ast.symbol)
 
     @visitor(script.AlpToken, script.AlpLiteral, script.AlpIgnore)
     def visit_alp_named_token(self, ast):
-        self.check_duplicate_symbol(ast.properties.name)
-        self._symbols.add(ast.properties.name)
+        self.check_duplicate_symbol(ast.name)
+        self._symbols.add(ast.name)
 
     @visitor(script.AlpKeyword)
     def visit_alp_unnamed_token(self, ast):
-        name = ast.properties.value.upper()
+        name = ast.value.upper()
         self.check_duplicate_symbol(name)
         self._symbols.add(name)
 
     @visitor(script.AlpPrecedence)
     def visit_alp_precedence(self, ast):
-        for entry in ast.properties.tokens:
+        for entry in ast.tokens:
             if entry in self._referenced_symbols:
                 raise DoubleDefinitionError("Precedence symbol %r defined twice" % entry)
 
@@ -95,35 +99,40 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpNode)
     def visit_alp_node(self, ast):
-        self.check_duplicate_symbol(ast.properties.name)
-        self._symbols.add(ast.properties.name)
+        self.check_duplicate_symbol(ast.name)
+        self._symbols.add(ast.name)
 
-        self.visit(ast.properties.body)
+        self.visit(ast.body)
 
-        members = set((property.properties.name for property in ast.properties.body.properties.properties))
+        members = set()
+        for property in ast.body.properties:
+            if is_reserved(property.name):
+                raise PropertyError("%s is reserved as a property" % property.name)
 
-        for rule in ast.properties.body.properties.rules:
-            for entry in rule.properties.entries:
-                if entry.properties.ignored:
+            members.add(property.name)
+
+        for rule in ast.body.rules:
+            for entry in rule.entries:
+                if entry.ignored:
                     continue
 
-                if entry.properties.key is not None and entry.properties.key not in members:
-                    raise RuleError("Node rule entry key %r not in property list" % entry.properties.key)
+                if entry.key is not None and entry.key not in members:
+                    raise RuleError("Node rule entry key %r not in property list" % entry.key)
 
     @visitor(script.AlpSelection)
     def visit_alp_selection(self, ast):
-        self.check_duplicate_symbol(ast.properties.name)
-        self._symbols.add(ast.properties.name)
+        self.check_duplicate_symbol(ast.name)
+        self._symbols.add(ast.name)
 
-        self.visit(ast.properties.body)
+        self.visit(ast.body)
 
-        for rule in ast.properties.body:
+        for rule in ast.body:
             count = 0
-            for entry in rule.properties.entries:
-                if entry.properties.ignored:
+            for entry in rule.entries:
+                if entry.ignored:
                     continue
 
-                if entry.properties.key is not None:
+                if entry.key is not None:
                     raise RuleError("Selection rule entry can not have a key")
 
                 count += 1
@@ -136,37 +145,37 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpList)
     def visit_alp_list(self, ast):
-        self.check_duplicate_symbol(ast.properties.name)
-        self._symbols.add(ast.properties.name)
-        self.visit(ast.properties.body)
+        self.check_duplicate_symbol(ast.name)
+        self._symbols.add(ast.name)
+        self.visit(ast.body)
 
         allowed_symbols = set(('tail', 'head', 'body'))
 
-        for rule in ast.properties.body:
-            for entry in rule.properties.entries:
-                if entry.properties.ignored:
+        for rule in ast.body:
+            for entry in rule.entries:
+                if entry.ignored:
                     continue
 
-                if entry.properties.key is None:
+                if entry.key is None:
                     raise RuleError("List rule entry has no key")
 
-                if entry.properties.key not in allowed_symbols:
-                    raise RuleError("Invalid rule entry key %r found in a list node" % entry.properties.key)
+                if entry.key not in allowed_symbols:
+                    raise RuleError("Invalid rule entry key %r found in a list node" % entry.key)
 
     @visitor(script.AlpNodeBody)
     def visit_alp_node_body(self, ast):
-        for _, value in ast.properties.items():
+        for _, value in ast.ast_properties.items():
             self.visit(value)
 
     @visitor(script.AlpRule)
     def visit_alp_rule(self, ast):
-        self.visit(ast.properties.entries)
-        if ast.properties.precsymbol is not None:
-            self._symbols.add(ast.properties.precsymbol)
+        self.visit(ast.entries)
+        if ast.precsymbol is not None:
+            self._symbols.add(ast.precsymbol)
 
         keys = set()
-        for entry in ast.properties.entries:
-            key = entry.properties.key
+        for entry in ast.entries:
+            key = entry.key
             if key is not None:
                 if key in keys:
                     raise RuleError("Rule entry key %r defined twice" % key)
@@ -175,7 +184,7 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpRuleEntry)
     def visit_alp_rule_entry(self, ast):
-        self._referenced_symbols.add(ast.properties.name)
+        self._referenced_symbols.add(ast.name)
 
     @visitor(tuple)
     def visit_list(self, ast):
