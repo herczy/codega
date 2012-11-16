@@ -13,9 +13,22 @@ class OrderedDict(object, DictMixin):
     _data = None
     _keyorder = None
 
-    def __init__(self):
+    def __init__(self, iterable=()):
         self._data = {}
         self._keyorder = []
+
+        if isinstance(iterable, dict):
+            self._data = iterable.copy()
+            self._keyorder = list(iterable.keys())
+
+        elif isinstance(iterable, OrderedDict):
+            self._data = iterable._data.copy()
+            self._keyorder = list(iterable._keyorder)
+
+        else:
+            for key, value in iterable:
+                self._keyorder.append(key)
+                self._data[key] = value
 
     def keys(self):
         return list(self._keyorder)
