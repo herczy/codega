@@ -1,6 +1,6 @@
 import optparse
 
-from codega.builder.config import run_make
+from codega.builder import BuildRunner
 
 from base import OptparsedCommand
 
@@ -16,4 +16,4 @@ class CommandClean(OptparsedCommand):
         super(CommandClean, self).__init__('clean', options, helpstring='Clean up codega targets and any additional files listed in the make file')
 
     def execute(self):
-        return run_make('cleanup', self.opts.config)
+        return BuildRunner.run_task_file(self.opts.config, 'cleanup')

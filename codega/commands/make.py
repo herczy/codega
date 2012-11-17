@@ -1,6 +1,6 @@
 import optparse
 
-from codega.builder.config import run_make
+from codega.builder import BuildRunner
 
 from base import OptparsedCommand
 
@@ -19,5 +19,11 @@ class CommandMake(OptparsedCommand):
 
         super(CommandMake, self).__init__('make', options, helpstring='Build codega targets listed in the make file')
 
+    def filter(self, name):
+        if self.opts.target:
+            return name in self.opts.target
+
+        return True
+
     def execute(self):
-        return run_make('build', self.opts.config, targets=tuple(self.opts.target), force=self.opts.force)
+        return BuildRunner.run_task_file(self.opts.config, 'build', filter=self.filter, force=self.opts.force)
