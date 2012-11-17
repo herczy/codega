@@ -5,13 +5,12 @@ Configuration builder, is a facade to the build sub-system
 import os.path
 
 from codega import logger
-from codega.config.structures import Config, Source, Target, Settings, StructureBuilder
+from codega.config.structures import StructureBuilder
 from codega.config.saver import save_config
 from codega.config.loader import ConfigLoader
 
 from codega.rsclocator import FallbackLocator, FileResourceLocator
 from codega.error import ParseError
-from codega.version import Version
 from codega.builder.copy import CopyTask
 
 from builder import Builder
@@ -49,7 +48,7 @@ class ConfigBuilder(Builder):
         self.push_task(task)
 
     def add_external(self, external, targets=(), force=False):
-        task = ProxyTask(self, lambda phase_id, force: ConfigBuilder.run_make(phase_id, external, targets=targets, force=force))
+        task = ProxyTask(self, lambda phase_id, force: run_make(phase_id, external, targets=targets, force=force))
         self.push_task(task)
 
     def add_copy(self, copy):
