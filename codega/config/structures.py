@@ -1,3 +1,4 @@
+import os
 import re
 
 from codega.ordereddict import OrderedDict, DictMixin
@@ -7,7 +8,7 @@ from codega.version import Version
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
 
-def config_property(name, property_type = basestring, enable_change = True):
+def config_property(name, property_type=basestring, enable_change=True):
     if enable_change:
         def setter(self, value):
             if not isinstance(value, property_type):
@@ -64,7 +65,7 @@ class Settings(NodeBase, DictMixin):
 
     class RecursiveContainer(OrderedDict):
         '''Implements a recursive container. The keys are ordered'''
-        data = config_property('_data', enable_change = False)
+        data = config_property('_data', enable_change=False)
 
         def __setitem__(self, key, value):
             if not isinstance(key, basestring):
@@ -81,7 +82,7 @@ class Settings(NodeBase, DictMixin):
 
         __getattr__ = OrderedDict.__getitem__
 
-    data = config_property('_data', enable_change = False)
+    data = config_property('_data', enable_change=False)
 
     @property
     def empty(self):
@@ -169,7 +170,7 @@ class ModuleReference(NodeBase):
     def is_default(self):
         return self._module is None or self._reference is None
 
-    def __init__(self, parent, module_def = None, reference_def = None):
+    def __init__(self, parent, module_def=None, reference_def=None):
         super(ModuleReference, self).__init__(parent)
 
         self._module_def = module_def
@@ -215,9 +216,9 @@ class Source(NodeBase):
     _transform = None
 
     name = config_property('_name')
-    parser = config_property('_parser', enable_change = False)
+    parser = config_property('_parser', enable_change=False)
     resource = config_property('_resource')
-    transform = config_property('_transform', enable_change = False)
+    transform = config_property('_transform', enable_change=False)
 
     def __init__(self, parent):
         super(Source, self).__init__(parent)
@@ -242,8 +243,8 @@ class Target(NodeBase):
 
     source = config_property('_source')
     filename = config_property('_filename')
-    generator = config_property('_generator', enable_change = False)
-    settings = config_property('_settings', enable_change = False)
+    generator = config_property('_generator', enable_change=False)
+    settings = config_property('_settings', enable_change=False)
 
     def __init__(self, parent):
         super(Target, self).__init__(parent)
@@ -277,7 +278,7 @@ class PathList(NodeBase):
     _paths = None
 
     destination = config_property('_destination')
-    paths = config_property('_paths', enable_change = False)
+    paths = config_property('_paths', enable_change=False)
 
     def __init__(self, parent):
         super(PathList, self).__init__(parent)
@@ -365,11 +366,11 @@ class Config(NodeBase):
 
     _dependencies = None
 
-    paths = config_property('_paths', enable_change = False)
-    sources = config_property('_sources', enable_change = False)
-    targets = config_property('_targets', enable_change = False)
-    copy = config_property('_copy', enable_change = False)
-    external = config_property('_external', enable_change = False)
+    paths = config_property('_paths', enable_change=False)
+    sources = config_property('_sources', enable_change=False)
+    targets = config_property('_targets', enable_change=False)
+    copy = config_property('_copy', enable_change=False)
+    external = config_property('_external', enable_change=False)
 
     @property
     def version(self):
@@ -403,3 +404,65 @@ class Config(NodeBase):
         self._external = []
         self._dependencies = {}
 
+
+class StructureBuilder(object):
+    def __init__(self):
+        self.__config = Config()
+        self.__config.paths.destination = '.'
+        self.__config.version = latest_version
+
+    @property
+    def config(self):
+        return self.__config
+
+    def add_source(self, name, resource, parser=None):
+        # Create source object
+        source = Source(self.__config)
+        source.name = name
+        source.resource = resource
+        if parser is not None:
+            source.parser.load_from_string(parser)
+        self.__config.sources[source.name] = source
+
+        return source
+
+    def add_target(self, source, filename, generator):
+        # Create target object
+        target = Target(self.__config)
+        target.source = source
+        target.filename = filename
+        target.generator.load_from_string(generator)
+        self.__config.targets[target.filename] = target
+
+        return target
+
+    def set_destination(self, path):
+        self.__config.paths.destination = path
+
+    def add_include(self, path):
+        self.__config.paths.paths.append(path)
+
+    def add_setting(self, target, key, value):
+        if isinstance(target, basestring):
+            target = self.__config.targets[target]
+
+        if isinstance(key, basestring):
+            key = key.split('.')
+
+        if '' in key:
+            raise RuntimeError('Empty key component found')
+
+        actual = target.settings
+        for index, component in enumerate(key[:-1]):
+            if component not in actual:
+                actual[component] = Settings.RecursiveContainer()
+
+            elif not isinstance(actual[component], Settings.RecursiveContainer):
+                raise RuntimeError("Key %r is not a container" % '.'.join(key[:index]), 0)
+
+            actual = actual[component]
+
+        if key[-1] in actual:
+            raise RuntimeError("Key %r already exists in settings" % '.'.join(key[-1]), 0)
+
+        actual[key[-1]] = value
