@@ -1,6 +1,6 @@
 '''Dictionary tools to handle template arguments better'''
 
-def dict_from_element(element, base = None):
+def dict_from_element(element, base=None):
     '''Return a dictionary copy of element.attrib. Use base as
     the base dictionary'''
 
@@ -27,7 +27,7 @@ def filter_by_keys(filt, base):
     keys = filter(filt, base.keys())
     return dict((k, base[k]) for k in keys)
 
-def filter_keys(base, keywords):
+def filter_keys(base, *keywords):
     '''Only include keys in keyword'''
 
     return filter_by_keys(lambda k: k in keywords, base)
@@ -39,7 +39,7 @@ def exclude_internals(base):
         if key[:2] == '__':
             return False
 
-        if key in ('self', ):
+        if key in ('self',):
             return False
 
         return True

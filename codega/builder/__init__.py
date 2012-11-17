@@ -1,3 +1,0 @@
-'''
-Building related modules
-'''
