@@ -1,8 +1,7 @@
 from lxml import etree
 
-from codega import logger
 from codega.error import ParseError
-from codega.visitor import ClassVisitor, visitor
+from codega.visitor import XmlVisitor, visitor
 from codega.source import XmlSource, validate_xml
 from codega.version import Version
 from codega.rsclocator import ModuleLocator
@@ -10,109 +9,86 @@ from codega.rsclocator import ModuleLocator
 import structures
 from update import UpdateVisitor
 
-class ParseVisitor(ClassVisitor):
-    '''Parse the configs XML tree representation to the internal representation.'''
-
+class ParseVisitor(XmlVisitor):
     def __init__(self):
         super(ParseVisitor, self).__init__()
 
-        self._current_node = None
+        self.current_node = None
 
-    def visit(self, node, xml_node):
-        self._current_node = xml_node
-        try:
-            super(ParseVisitor, self).visit(node, xml_node)
+    def visit(self, node, *args, **kwargs):
+        self.current_node = node
+        return super(ParseVisitor, self).visit(node, *args, **kwargs)
 
-        except Exception, e:
-            if isinstance(e, ParseError):
-                raise
+    def get_text(self, node, key, default=None):
+        item = node.find(key)
+        if item is None:
+            return default
 
-            logger.error("Exception caught: %s" % e)
-            raise ParseError("XML entry invalid (see line %s)" % self._current_node.sourceline)
+        return item.text.strip()
 
-    @visitor(structures.ModuleReference)
-    def module_reference(self, node, xml_node):
-        node.load_from_string(xml_node.text)
+    @visitor('config')
+    def visit_config(self, node):
+        self._builder = structures.StructureBuilder()
+        for child in node:
+            self.visit(child)
 
-    @visitor(structures.Source)
-    def source(self, node, xml_node):
-        node.name = xml_node.find('name').text
+        return self._builder.config
 
-        resource = xml_node.find('resource').text
-        node.resource = '' if not resource else resource
-
-        parser = xml_node.find('parser')
-        if parser is not None:
-            self.visit(node.parser, parser)
-
-        for transform in xml_node:
-            if transform.tag == 'transform':
-                transform_module = structures.ModuleReference(node)
-                self.visit(transform_module, transform)
-                node.transform.append(transform_module)
-
-    @visitor(structures.Settings.RecursiveContainer)
-    def recursive_container(self, node, xml_node):
-        for chld in xml_node:
-            if chld.tag == 'entry':
-                node[chld.attrib['name']] = chld.text
+    @visitor('paths')
+    def visit_paths(self, node):
+        for child in node:
+            value = child.text.strip()
+            if child.tag == 'target':
+                self._builder.set_destination(value)
 
             else:
-                new_node = node[chld.attrib['name']] = structures.Settings.RecursiveContainer()
-                self.visit(new_node, chld)
+                self._builder.add_include(value)
 
-    @visitor(structures.Settings)
-    def settings(self, node, xml_node):
-        self.visit(node.data, xml_node)
+    @visitor('source')
+    def visit_source(self, node):
+        name = self.get_text(node, 'name')
+        resource = self.get_text(node, 'resource')
+        parser = self.get_text(node, 'parser')
+        transform = (child.text.strip() for child in node if child.tag == 'transform')
 
-    @visitor(structures.Target)
-    def target(self, node, xml_node):
-        node.source = xml_node.find('source').text
-        node.filename = xml_node.find('target').text
-        self.visit(node.generator, xml_node.find('generator'))
+        self._builder.add_source(name, resource, parser=parser, transform=transform)
 
-        settings_xml = xml_node.find('settings')
-        if settings_xml is not None:
-            self.visit(node.settings, settings_xml)
+    @visitor('target')
+    def visit_target(self, node):
+        source = self.get_text(node, 'source')
+        generator = self.get_text(node, 'generator')
+        filename = self.get_text(node, 'target')
 
-    @visitor(structures.PathList)
-    def path_list(self, node, xml_node):
-        for chld in xml_node:
-            if chld.tag == 'target':
-                node.destination = chld.text
+        target = self._builder.add_target(source, filename, generator)
 
-            else:
-                node.paths.append(chld.text)
+        settings = node.find('settings')
+        if settings is not None:
+            self.visit(settings, target)
 
-    @visitor(structures.Copy)
-    def copy(self, node, xml_node):
-        node.source = xml_node.find('source').text
-        node.target = xml_node.find('target').text
+    @visitor('copy')
+    def visit_copy(self, node):
+        source = self.get_text(node, 'source')
+        target = self.get_text(node, 'target')
 
-    @visitor(structures.Config)
-    def config(self, node, xml_node):
-        node.version = xml_node.attrib['version']
-        for chld in xml_node:
-            if chld.tag == 'paths':
-                self.visit(node.paths, chld)
+        self._builder.add_copy(source, target)
 
-            elif chld.tag == 'external':
-                node.external.append(chld.text.strip())
+    @visitor('external')
+    def visit_external(self, node):
+        self._builder.add_external(node.text.strip())
 
-            elif chld.tag == 'source':
-                source = structures.Source(node)
-                self.visit(source, chld)
-                node.sources[source.name] = source
+    @visitor('settings')
+    def visit_settings(self, node, target):
+        for child in node:
+            self.visit(child, target, (child.attrib['name'],))
 
-            elif chld.tag == 'target':
-                target = structures.Target(node)
-                self.visit(target, chld)
-                node.targets[target.filename] = target
+    @visitor('container')
+    def visit_container(self, node, target, keystub):
+        for child in node:
+            self.visit(child, target, keystub + (child.attrib['name'],))
 
-            elif chld.tag == 'copy':
-                copy = structures.Copy(node)
-                self.visit(copy, chld)
-                node.copy[copy.target] = copy
+    @visitor('entry')
+    def visit_entry(self, node, target, keystub):
+        self._builder.add_setting(target, keystub, node.text.strip())
 
 class ConfigXmlSource(XmlSource):
     '''XML source. This is the default source'''
@@ -143,20 +119,16 @@ class ConfigXmlSource(XmlSource):
         # Validate the XML root with the config.xsd. The config.xsd file always
         # refers to the current version (see UpdateVisitor.version_current)
         try:
-            validate_xml(xml_root, resource = 'config.xsd', resource_locator = ModuleLocator(__import__(__name__)))
+            validate_xml(xml_root, resource='config.xsd', resource_locator=ModuleLocator(__import__(__name__)))
 
         except etree.DocumentInvalid, e:
             raise ParseError('Configuration is invalid', e.error_log.last_error.line)
 
-        # Initialize configuration object
-        config = structures.Config()
-
         # Parse the XML structure
         visitor = ParseVisitor()
         try:
-            visitor.visit(config, xml_root)
+            return visitor.visit(xml_root)
 
         except Exception, e:
-            raise ParseError(str(e), visitor._current_node.sourceline)
-
-        return config
+            raise
+            raise ParseError(str(e), visitor.current_node.sourceline)

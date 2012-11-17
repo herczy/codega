@@ -415,13 +415,19 @@ class StructureBuilder(object):
     def config(self):
         return self.__config
 
-    def add_source(self, name, resource, parser=None):
+    def add_source(self, name, resource, parser=None, transform=()):
         # Create source object
         source = Source(self.__config)
         source.name = name
         source.resource = resource
         if parser is not None:
             source.parser.load_from_string(parser)
+
+        for trans in transform:
+            transform_module = ModuleReference(source)
+            transform_module.load_from_string(trans)
+            source.transform.append(transform_module)
+
         self.__config.sources[source.name] = source
 
         return source
@@ -432,9 +438,22 @@ class StructureBuilder(object):
         target.source = source
         target.filename = filename
         target.generator.load_from_string(generator)
+
         self.__config.targets[target.filename] = target
 
         return target
+
+    def add_copy(self, source, target):
+        copy = Copy(self.__config)
+        copy.source = source
+        copy.target = target
+
+        self.__config.copy[copy.target] = copy
+
+        return copy
+
+    def add_external(self, config):
+        self.__config.external.append(config)
 
     def set_destination(self, path):
         self.__config.paths.destination = path
@@ -451,6 +470,9 @@ class StructureBuilder(object):
 
         if '' in key:
             raise RuntimeError('Empty key component found')
+
+        if len(key) == 0:
+            raise RuntimeError('Empty key found')
 
         actual = target.settings
         for index, component in enumerate(key[:-1]):
