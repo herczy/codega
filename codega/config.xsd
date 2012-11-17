@@ -19,6 +19,9 @@
 
         <!-- copy -->
         <xs:element ref="copy" minOccurs="0" maxOccurs="unbounded" />
+
+        <!-- external processing -->
+        <xs:element ref="module" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
@@ -78,6 +81,22 @@
     </xs:complexType>
   </xs:element>
 
+  <!-- module -->
+  <xs:element name="module">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- module path, optional -->
+        <xs:element name="path" minOccurs="0" maxOccurs="1" type="xs:string" />
+
+        <!-- module name -->
+        <xs:element name="name" type="module_locator" />
+
+        <!-- module-specific settings -->
+        <xs:element name="settings" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <!-- settings -->
   <xs:group name="settings">
     <xs:sequence>
@@ -107,6 +126,12 @@
   </xs:element>
 
   <!-- other -->
+
+  <xs:simpleType name="module_locator">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*" />
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:simpleType name="class_locator">
     <xs:restriction base="xs:string">
