@@ -8,7 +8,7 @@ from codega import logger
 from codega.rsclocator import FallbackLocator, FileResourceLocator
 from codega.source import SourceBase
 from codega.context import Context
-from codega.decorators import abstract
+from codega.decorators import abstract, mark, has_mark
 from codega.generator.base import GeneratorBase
 from codega.config.source import ConfigSource, ParseError
 
@@ -62,6 +62,11 @@ def get_config(config_file):
     elif os.path.isfile(config_file):
         return config_file
 
+
+def task(name):
+    return mark('task', True)
+
+
 class BuilderBase(object):
     def __init__(self, parent):
         self.__parent = parent
@@ -70,21 +75,37 @@ class BuilderBase(object):
     def parent(self):
         return self.__parent
 
-    @abstract
-    def build(self, force):
-        pass
+    def check_filter(self, filter, name):
+        return filter is None or filter(name)
 
-    @abstract
-    def cleanup(self, name):
-        pass
+    def run_task(self, task, *args, **kwargs):
+        if hasattr(self, task):
+            fun = getattr(self, task)
+
+            if has_mark(fun, 'task'):
+                fun(*args, **kwargs)
+                return True
+
+        return False
+
+    def __str__(self):
+        return 'builder:%d' % id(self)
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self)
 
 
 class TargetBuilder(BuilderBase):
     def __init__(self, parent, target):
         super(TargetBuilder, self).__init__(parent)
+
         self.__target = target
 
-    def build(self, force=False):
+    @task('build')
+    def build(self, filter=None, force=False):
+        if not self.check_filter(filter, self.__target.filename):
+            return
+
         destination = self.parent.get_target_path(self.__target.filename)
         source = self.parent.config.sources[self.__target.source]
 
@@ -122,16 +143,28 @@ class TargetBuilder(BuilderBase):
         with open(destination, 'w') as out:
             out.write(output)
 
-    def cleanup(self):
+    @task('cleanup')
+    def cleanup(self, filter=None):
+        if not self.check_filter(filter, self.__target.filename):
+            return
+
         self.parent.remove_dest_file(self.__target.filename)
+
+    def __str__(self):
+        return 'target(%s)' % self.__target.filename
 
 
 class CopyBuilder(BuilderBase):
     def __init__(self, parent, copy):
         super(CopyBuilder, self).__init__(parent)
+
         self.__copy = copy
 
-    def build(self, force=False):
+    @task('build')
+    def build(self, filter=None, force=False):
+        if not self.check_filter(filter, self.__copy.target):
+            return
+
         source = self.parent.locator.find(self.__copy.source)
         destination = self.parent.get_target_path(self.__copy.target)
 
@@ -140,8 +173,31 @@ class CopyBuilder(BuilderBase):
 
         shutil.copy(source, destination)
 
-    def cleanup(self):
+    @task('cleanup')
+    def cleanup(self, filter=None):
+        if not self.check_filter(filter, self.__copy.target):
+            return
+
         self.parent.remove_dest_file(self.__copy.target)
+
+    def __str__(self):
+        return 'copy(%s)' % self.__copy.target
+
+
+class ExternalBuilder(BuilderBase):
+    def __init__(self, parent, external):
+        super(ExternalBuilder, self).__init__(parent)
+
+        self.__external = external
+
+    def run_task(self, task, *args, **kwargs):
+        if not BuildRunner.run_task_file(self.parent.locator.find(self.__external), task, *args, **kwargs):
+            raise BuilderError('Could not run task %r on external %s' % (task, self.__external))
+
+        return True
+
+    def __str__(self):
+        return 'external(%s)' % self.__external
 
 
 class BuildRunner(object):
@@ -152,17 +208,26 @@ class BuildRunner(object):
 
         self.__source_results = {}
 
-        self.__builders = {}
+        self.__builders = []
         self.__init_builders()
 
-    def run_task(self, task, **kwargs):
-        try:
-            getattr(self, task)(**kwargs)
-
-        except Exception, error:
-            logger.critical('Could not complete %s: %s', task, error)
-            logger.exception()
+    def run_task(self, task, *args, **kwargs):
+        if not self.__builders:
+            logger.error("No builders found")
             return False
+
+        for builder in self.__builders:
+            try:
+                if not builder.run_task(task, *args, **kwargs):
+                    logger.info('Builder has no task %s' % task)
+
+                else:
+                    logger.info('Completed task %s on %s' % (task, builder))
+
+            except Exception, error:
+                logger.critical('Could not complete %s: %s', task, error)
+                logger.exception()
+                return False
 
         return True
 
@@ -187,6 +252,7 @@ class BuildRunner(object):
 
         except ParseError, parse_error:
             logger.error('Parse error: %s', parse_error)
+            logger.exception()
             return False
 
         return cls(config, base_path=os.path.dirname(config_path)).run_task(task, **kwargs)
@@ -199,26 +265,6 @@ class BuildRunner(object):
     def locator(self):
         return self.__locator
 
-    def build(self, filter=None, force=False):
-        for key, builder in self.__builders.items():
-            if filter is not None and not filter(key):
-                continue
-
-            builder.build(force=force)
-
-        # Run external builds
-        self.__run_external('build', filter=filter, force=force)
-
-    def cleanup(self, filter=None):
-        for key, builder in self.__builders.items():
-            if filter is not None and not filter(key):
-                continue
-
-            builder.cleanup()
-
-        # Run external cleanups
-        self.__run_external('cleanup', filter=filter)
-
     def get_target_path(self, relpath):
         abspath = os.path.join(self.__base_path, self.__config.paths.destination, relpath)
         dirname = os.path.dirname(abspath)
@@ -228,14 +274,26 @@ class BuildRunner(object):
         return abspath
 
     def remove_dest_file(self, relpath):
-        destination = os.path.join(self.__config.paths.destination, relpath)
+        logger.debug('Trying to remove %r' % relpath)
+        try:
+            destination = self.get_target_path(relpath)
+
+        except BuilderError:
+            logger.debug('Path containing %r not found' % relpath)
+            return
+
         if os.path.isfile(destination):
+            logger.info('Removing file %s' % destination)
             os.unlink(destination)
+
+        else:
+            logger.debug('File %r not found' % relpath)
 
     def get_source(self, source):
         if isinstance(source, basestring):
             source = self.__config.sources[source]
 
+        logger.debug('Trying to parse source %r' % source.name)
         if source not in self.__source_results:
             parser = source.parser.load(self.__locator)
             if not issubclass(parser, SourceBase):
@@ -250,6 +308,10 @@ class BuildRunner(object):
                 res = modtrans(res)
 
             self.__source_results[source] = res
+            logger.info('Source %r successfuly parsed' % source.name)
+
+        else:
+            logger.debug('Source already parsed')
 
         return self.__source_results[source]
 
@@ -262,8 +324,12 @@ class BuildRunner(object):
     def __init_builders(self):
         # Add targets 
         for name, target in self.__config.targets.items():
-            self.__builders[name] = TargetBuilder(self, target)
+            self.__builders.append(TargetBuilder(self, target))
 
         # Add copies
         for name, copy in self.__config.copy.values():
-            self.__builders[name] = CopyBuilder(self, copy)
+            self.__builders.append(CopyBuilder(self, copy))
+
+        # Add externals
+        for ext in self.__config.external:
+            self.__builders.append(ExternalBuilder(self, ext))
