@@ -24,6 +24,9 @@ def clean(text):
     # From 1.1: rename filename to resource
     res = re.sub(r'name><filename>([^<]*)</filename>', r'name><resource>\1</resource>', res)
 
+    # From 1.5: module reference format changed
+    res = re.sub(r'<generator>([^:]*):([^:]*)</generator>', r'<generator>\1.\2</generator>', res)
+
     return res
 
 class TestVisitors(TestCase):
@@ -58,7 +61,7 @@ class TestVisitors(TestCase):
                     ConfigSource().load(fn)
 
                 if ext == '.xml':
-                    self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
+                    self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))#, 'The newly saved config does not equal %s' % (item_path,))
 
     def check_parse00(self, cfg):
         self.assertEqual(cfg.paths.destination, './')
@@ -215,23 +218,22 @@ class TestModuleReference(TestCase):
         self.assertEqual(mr.module, None)
         self.assertEqual(mr.reference, None)
 
-        mr.load_from_string('codega.source:XmlSource')
+        mr.load_from_string('codega.source.XmlSource')
         self.assertEqual(mr.module, 'codega.source')
         self.assertEqual(mr.reference, 'XmlSource')
 
         self.assertEqual(mr.load(ModuleLocator(codega)), XmlSource)
 
-        self.assertRaises(ValueError, mr.load_from_string, 'c.g:--')
-        self.assertRaises(ValueError, mr.load_from_string, 'c.g')
-        self.assertRaises(ValueError, setattr, mr, 'module', '::')
-        self.assertRaises(ValueError, setattr, mr, 'module', 'x::')
+        self.assertRaises(ValueError, mr.load_from_string, 'c.g.--')
+        self.assertRaises(ValueError, setattr, mr, 'module', '..')
+        self.assertRaises(ValueError, setattr, mr, 'module', 'x..')
         self.assertRaises(ValueError, setattr, mr, 'module', ' ')
         self.assertRaises(ValueError, setattr, mr, 'module', '.x.y')
         self.assertRaises(ValueError, setattr, mr, 'reference', 'a.b')
         self.assertEqual(mr.module, 'codega.source')
         self.assertEqual(mr.reference, 'XmlSource')
 
-        mr.load_from_string('a:b')
+        mr.load_from_string('a.b')
         self.assertRaises(ImportError, mr.load, ModuleLocator(codega))
 
         del mr.module

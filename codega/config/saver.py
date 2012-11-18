@@ -21,7 +21,7 @@ class SaveVisitor(ClassVisitor):
 
     @visitor(structures.ModuleReference)
     def module_reference(self, node):
-        return '%s:%s' % (node.module, node.reference)
+        return '%s.%s' % (node.module, node.reference)
 
     @visitor(structures.Source)
     def source(self, node):

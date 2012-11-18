@@ -44,8 +44,8 @@
       <xs:sequence>
         <xs:element name="name" type="xs:string" />
         <xs:element name="resource" type="xs:string" />
-        <xs:element name="parser" type="class_locator" minOccurs="0" maxOccurs="1" />
-        <xs:element name="transform" type="class_locator" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="parser" type="locator" minOccurs="0" maxOccurs="1" />
+        <xs:element name="transform" type="locator" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -55,7 +55,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="source" type="xs:string" />
-        <xs:element name="generator" type="class_locator" />
+        <xs:element name="generator" type="locator" />
         <xs:element name="target" type="xs:string" />
 
         <xs:element name="settings" minOccurs="0" maxOccurs="1">
@@ -108,8 +108,9 @@
 
   <!-- other -->
 
-  <xs:simpleType name="class_locator">
+  <xs:simpleType name="locator">
     <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*" />
       <xs:pattern value="[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*:[a-zA-Z_][a-zA-Z0-9_]*" />
     </xs:restriction>
   </xs:simpleType>

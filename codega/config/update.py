@@ -28,6 +28,8 @@ class UpdateVisitor(ExplicitVisitor):
     * 1.3 -- Added 'copy' tag so a file can be copied to it's destination.
     * 1.4 -- Added 'transform' tag to sources. Transformations are module refs that can
              be used to transform the source to a different structure.
+    * 1.5 -- Module reference format changed. Now instead of ':' the module and class
+             separator is '.'
     '''
 
     @visitor(Version(1, 0))
@@ -39,26 +41,10 @@ class UpdateVisitor(ExplicitVisitor):
         xml_root.attrib['version'] = '1.1'
         return self.visit(Version(1, 1), xml_root)
 
-    @visitor(Version(1, 1))
-    def update_1_1(self, version, xml_root):
-        '''Update 1.1 configs to 1.2'''
-
-        return self.visit(Version(1, 2), xml_root)
-
-    @visitor(Version(1, 2))
-    def update_1_2(self, version, xml_root):
-        '''Update 1.2 configs to 1.3'''
-
-        return self.visit(Version(1, 3), xml_root)
-
-    @visitor(Version(1, 3))
-    def update_1_3(self, version, xml_root):
-        '''Update 1.3 configs to 1.4'''
-
-        return self.visit(Version(1, 4), xml_root)
-
-    @visitor(latest_version)
+    @visitor(Version(1, 1), Version(1, 2), Version(1, 3), Version(1, 4), latest_version)
     def version_current(self, version, xml_root):
+        '''Formats that don't need further change'''
+
         return xml_root
 
     def visit_fallback(self, version, xml_root):

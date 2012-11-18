@@ -180,20 +180,30 @@ class ModuleReference(NodeBase):
         return getattr(locator.import_module(self.module), self.reference)
 
     def load_from_string(self, string):
-        if ':' not in string:
-            raise ValueError("Invalid module reference %s" % string)
+        # Old format: module and class are split with ':'
+        if ':' in string:
+            module, reference = string.rsplit(':', 1)
 
-        # Keep the previous state if invalid
-        state = (self._module, self._reference)
+        # New format: first part is the module, last
+        # part (after last period) is the class
+        elif '.' in string:
+            module, reference = string.rsplit('.', 1)
+
+        else:
+            raise ValueError("Invalid module reference %r" % string)
+
+        # Save the module/reference values. This is here so if the setters
+        # raise any error, we still have a consistent state.
+        savestate = (self.module, self.reference)
         try:
-            self.module, self.reference = string.split(':')
+            self.module, self.reference = module, reference
 
         except:
-            self._module, self._reference = state
+            self.module, self.reference = savestate
             raise
 
     def __str__(self):
-        return '%s:%s' % (self.module, self.reference)
+        return '%s.%s' % (self.module, self.reference)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self)
