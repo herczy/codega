@@ -229,7 +229,6 @@ class FallbackGenerator(ScriptBaseGenerator):
     template = 'fallback'
 
     def get_bindings(self, source, context):
-        raise Exception("AAAA")
         return dict(a_source=source, a_context=context)
 
 main_generator = MainGenerator(ScriptMeta)
