@@ -1,11 +1,13 @@
 from lxml import etree
 
-from codega.error import SaveError
 from codega.visitor import ClassVisitor, visitor
 
 import structures
 
-def build_element(tag, attributes = {}, text = None, children = []):
+class SaveError(Exception):
+    '''Errors with saving a configuration structure'''
+
+def build_element(tag, attributes={}, text=None, children=[]):
     res = etree.Element(tag)
     if text is not None:
         res.text = text
@@ -23,16 +25,16 @@ class SaveVisitor(ClassVisitor):
 
     @visitor(structures.Source)
     def source(self, node):
-        res = build_element('source', children = [
-                  build_element('name', text = node.name),
-                  build_element('resource', text = node.resource),
+        res = build_element('source', children=[
+                  build_element('name', text=node.name),
+                  build_element('resource', text=node.resource),
               ])
 
         if not node.parser.is_default:
-            res.append(build_element('parser', text = self.visit(node.parser)))
+            res.append(build_element('parser', text=self.visit(node.parser)))
 
         for transform in node.transform:
-            res.append(build_element('transform', text = self.visit(transform)))
+            res.append(build_element('transform', text=self.visit(transform)))
 
         return res
 
@@ -41,23 +43,23 @@ class SaveVisitor(ClassVisitor):
         res = []
         for name, value in node.iteritems():
             if isinstance(value, basestring):
-                res.append(build_element('entry', attributes = { 'name' : name }, text = value))
+                res.append(build_element('entry', attributes={ 'name' : name }, text=value))
 
             else:
-                res.append(build_element('container', attributes = { 'name' : name }, children = self.visit(value)))
+                res.append(build_element('container', attributes={ 'name' : name }, children=self.visit(value)))
 
         return res
 
     @visitor(structures.Settings)
     def settings(self, node):
-        return build_element('settings', children = self.visit(node.data))
+        return build_element('settings', children=self.visit(node.data))
 
     @visitor(structures.Target)
     def target(self, node):
         res = etree.Element('target')
-        res.append(build_element('source', text = node.source))
-        res.append(build_element('generator', text = self.visit(node.generator)))
-        res.append(build_element('target', text = node.filename))
+        res.append(build_element('source', text=node.source))
+        res.append(build_element('generator', text=self.visit(node.generator)))
+        res.append(build_element('target', text=node.filename))
 
         if not node.settings.empty:
             res.append(self.visit(node.settings))
@@ -67,22 +69,22 @@ class SaveVisitor(ClassVisitor):
     @visitor(structures.PathList)
     def path_list(self, node):
         res = build_element('paths')
-        res.append(build_element('target', text = node.destination))
+        res.append(build_element('target', text=node.destination))
         for path in node.paths:
-            res.append(build_element('path', text = path))
+            res.append(build_element('path', text=path))
 
         return res
 
     @visitor(structures.Copy)
     def copy(self, node):
-        return build_element('copy', children = [build_element('source', text = node.source), build_element('target', text = node.target)])
+        return build_element('copy', children=[build_element('source', text=node.source), build_element('target', text=node.target)])
 
     @visitor(structures.Config)
     def config(self, node):
         res = etree.Element('config')
         res.attrib['version'] = str(node.version)
         res.append(self.visit(node.paths))
-        res.extend([build_element('external', text = ext) for ext in node.external])
+        res.extend([build_element('external', text=ext) for ext in node.external])
         res.extend([self.visit(source) for source in node.sources.values()])
         res.extend([self.visit(target) for target in node.targets.values()])
         res.extend([self.visit(copy) for copy in node.copy.values()])
@@ -91,7 +93,7 @@ class SaveVisitor(ClassVisitor):
 
 def save_config(config):
     try:
-        return etree.tostring(SaveVisitor().visit(config), pretty_print = True)
+        return etree.tostring(SaveVisitor().visit(config), pretty_print=True)
 
     except Exception, e:
         raise SaveError('Error detected while saving the config: %s' % e)

@@ -1,8 +1,10 @@
 from codega.config import latest_version
 
-from codega.error import VersionMismatchError
 from codega.visitor import ExplicitVisitor, visitor
 from codega.version import Version
+
+class VersionMismatchError(Exception):
+    '''The version isn't what it supposed to be'''
 
 class UpdateVisitor(ExplicitVisitor):
     '''To be able to handle different versions, we need to 'update' the

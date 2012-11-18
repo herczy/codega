@@ -2,6 +2,9 @@
 
 from codega.decorators import abstract
 
+class GeneratorError(Exception):
+    '''Base class for generator-related errors'''
+
 class GeneratorBase(object):
     '''Generator base class'''
 

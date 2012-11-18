@@ -1,6 +1,5 @@
 from lxml import etree
 
-from codega.error import ParseError
 from codega.visitor import XmlVisitor, visitor
 from codega.source import XmlSource, validate_xml
 from codega.version import Version
@@ -8,6 +7,12 @@ from codega.rsclocator import ModuleLocator
 
 import structures
 from update import UpdateVisitor
+
+class ParseError(Exception):
+    '''The given source could not be parsed'''
+
+    def __init__(self, msg, lineno):
+        super(ParseError, self).__init__("%s (at line %d)" % (msg, lineno))
 
 class ParseVisitor(XmlVisitor):
     def __init__(self):

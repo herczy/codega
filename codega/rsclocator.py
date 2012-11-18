@@ -9,8 +9,13 @@ A locators purposes are the following:
 import os.path
 import sys
 
-from error import ResourceError
 from decorators import abstract
+
+class ResourceError(Exception):
+    '''Resource error, thrown when a resource is not found'''
+
+    def __init__(self, msg, resource):
+        super(ResourceError, self).__init__("%s (resource = %r)" % (msg, resource))
 
 class ResourceLocatorBase(object):
     '''Resource loader base object'''

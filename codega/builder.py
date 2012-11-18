@@ -9,9 +9,8 @@ from codega.rsclocator import FallbackLocator, FileResourceLocator
 from codega.source import SourceBase
 from codega.context import Context
 from codega.decorators import abstract
-from codega.error import ParseError
 from codega.generator.base import GeneratorBase
-from codega.config.source import ConfigSource
+from codega.config.source import ConfigSource, ParseError
 
 
 class BuilderError(Exception):

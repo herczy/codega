@@ -4,9 +4,12 @@ the filter function list. Each function is applied subsequently.
 '''
 
 from codega.decorators import has_mark, set_mark, get_mark
-from codega.error import StateError
 
+from base import GeneratorError
 from function import FunctionGenerator
+
+class FilterError(GeneratorError):
+    '''Raised when the filtering (or preparation) fails.'''
 
 def add_filter(filter):
     '''
@@ -54,7 +57,7 @@ class FilterGenerator(FunctionGenerator):
         return output
 
     @classmethod
-    def factory(cls, subfactory = None):
+    def factory(cls, subfactory=None):
         '''
         The sub-factory will be used to create a generator. The results of this generator will
         be used as the base of the filter.
@@ -64,7 +67,7 @@ class FilterGenerator(FunctionGenerator):
 
         def __decorator(func):
             if not has_mark(func, 'filters'):
-                raise StateError('The current function was marked as a %s yet it has no filters defined' % cls.__name__)
+                raise FilterError('The current function was marked as a %s yet it has no filters defined' % cls.__name__)
 
             generator = func
             if subfactory is not None:
