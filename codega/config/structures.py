@@ -442,12 +442,13 @@ class StructureBuilder(object):
 
         return source
 
-    def add_target(self, source, filename, generator):
+    def add_target(self, source, filename, generator, settings=()):
         # Create target object
         target = Target(self.__config)
         target.source = source
         target.filename = filename
         target.generator.load_from_string(generator)
+        self.__add_setting_list(target.settings, values=settings)
 
         self.__config.targets[target.filename] = target
 
@@ -471,10 +472,11 @@ class StructureBuilder(object):
     def add_include(self, path):
         self.__config.paths.paths.append(path)
 
-    def add_setting(self, target, key, value):
-        if isinstance(target, basestring):
-            target = self.__config.targets[target]
+    def __add_setting_list(self, target, values):
+        for key, value in values:
+            self.__add_setting(target, key, value)
 
+    def __add_setting(self, target, key, value):
         if isinstance(key, basestring):
             key = key.split('.')
 
@@ -484,7 +486,7 @@ class StructureBuilder(object):
         if len(key) == 0:
             raise RuntimeError('Empty key found')
 
-        actual = target.settings
+        actual = target
         for index, component in enumerate(key[:-1]):
             if component not in actual:
                 actual[component] = Settings.RecursiveContainer()

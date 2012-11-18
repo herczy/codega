@@ -31,6 +31,11 @@ class ParseVisitor(XmlVisitor):
 
         return item.text.strip()
 
+    def process_settings(self, node):
+        if node is not None:
+            return self.visit(node)
+        return ()
+
     @visitor('config')
     def visit_config(self, node):
         self._builder = structures.StructureBuilder()
@@ -63,12 +68,9 @@ class ParseVisitor(XmlVisitor):
         source = self.get_text(node, 'source')
         generator = self.get_text(node, 'generator')
         filename = self.get_text(node, 'target')
+        settings = self.process_settings(node.find('settings'))
 
-        target = self._builder.add_target(source, filename, generator)
-
-        settings = node.find('settings')
-        if settings is not None:
-            self.visit(settings, target)
+        self._builder.add_target(source, filename, generator, settings=settings)
 
     @visitor('copy')
     def visit_copy(self, node):
@@ -82,18 +84,24 @@ class ParseVisitor(XmlVisitor):
         self._builder.add_external(node.text.strip())
 
     @visitor('settings')
-    def visit_settings(self, node, target):
+    def visit_settings(self, node):
+        res = []
         for child in node:
-            self.visit(child, target, (child.attrib['name'],))
+            res.extend(self.visit(child, ()))
+
+        return res
 
     @visitor('container')
-    def visit_container(self, node, target, keystub):
+    def visit_container(self, node, keystub):
+        res = []
         for child in node:
-            self.visit(child, target, keystub + (child.attrib['name'],))
+            res.extend(self.visit(child, keystub + (node.attrib['name'],)))
+
+        return res
 
     @visitor('entry')
-    def visit_entry(self, node, target, keystub):
-        self._builder.add_setting(target, keystub, node.text.strip())
+    def visit_entry(self, node, keystub):
+        return [(keystub + (node.attrib['name'],), node.text.strip())]
 
 class ConfigSource(XmlSource):
     '''XML source. This is the default source'''
