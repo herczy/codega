@@ -130,5 +130,4 @@ class ConfigXmlSource(XmlSource):
             return visitor.visit(xml_root)
 
         except Exception, e:
-            raise
             raise ParseError(str(e), visitor.current_node.sourceline)
