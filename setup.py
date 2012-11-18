@@ -29,9 +29,12 @@ but mostly C/C++. However it can be easily used for other purposes
         author_email = "hercinger.viktor@gmail.com",
         maintainer = "Viktor Hercinger",
         maintainer_email = "hercinger.viktor@gmail.com",
-        packages = [ 'codega', 'codega.config', 'codega.commands', \
-                     'codega.builder', 'codega.generator', \
-                     'codega.alp', 'codega.alp.generator' ],
+        packages = [ 'codega',
+                     'codega.config',
+                     'codega.commands',
+                     'codega.generator',
+                     'codega.alp',
+                     'codega.alp.generator' ],
         package_data = { 'codega' : [ 'config.xsd' ],
                          'codega.alp' : [ 'alplang.alp' ],
                          'codega.alp.generator' : [ 'scriptgen.mako' ] },

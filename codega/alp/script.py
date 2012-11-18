@@ -2,9 +2,9 @@
 # BE LOST AT ANY TIME! MODIFY THE TEMPLATE INSTEAD (see below)
 #
 # Source file         alplang.alp
-# Parser class        codega.alp.generator:ScriptParser
+# Parser class        codega.alp.generator.ScriptParser
 # Target file         script.py
-# Generator class     codega.alp.generator:main_generator
+# Generator class     codega.alp.generator.main_generator
 
 __version__ = '2'
 __language__ = 'alp'
