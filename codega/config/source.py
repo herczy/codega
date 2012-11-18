@@ -90,13 +90,13 @@ class ParseVisitor(XmlVisitor):
     def visit_entry(self, node, target, keystub):
         self._builder.add_setting(target, keystub, node.text.strip())
 
-class ConfigXmlSource(XmlSource):
+class ConfigSource(XmlSource):
     '''XML source. This is the default source'''
 
     def load_fileobj(self, fileobj):
         # Parse raw XML file
         try:
-            xml_root = super(ConfigXmlSource, self).load_fileobj(fileobj)
+            xml_root = super(ConfigSource, self).load_fileobj(fileobj)
 
         except Exception, e:
             raise ParseError("Could not load source XML: %s" % e, 0)

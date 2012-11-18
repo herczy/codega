@@ -1,17 +1,12 @@
 from unittest import TestCase
 
-import re
-import os
-import os.path
-from lxml import etree
-
 import codega
 
 from codega.rsclocator import *
 from codega.source import XmlSource
 
 from codega.config.structures import *
-from codega.config.loader import *
+from codega.config.source import *
 from codega.config import *
 from codega.config.saver import *
 
@@ -36,14 +31,14 @@ class TestVisitors(TestCase):
         path = os.path.join(os.path.dirname(__file__), 'data')
         for item in os.listdir(path):
             fn, ext = os.path.splitext(item)
-            if ext not in ('.xml', '.codega'):
+            if ext != '.xml':
                 continue
 
             name, expect = os.path.splitext(fn)
             item_path = os.path.join(path, item)
 
             try:
-                cfg = ConfigLoader().load(item_path)
+                cfg = ConfigSource().load(item_path)
 
             except Exception, e:
                 if expect != '.fail':
@@ -58,9 +53,9 @@ class TestVisitors(TestCase):
                 if hasattr(self, 'check_%s' % name):
                     getattr(self, 'check_%s' % name)(cfg)
 
-                with make_tempfile(suffix = '.xml') as (fd, fn):
+                with make_tempfile(suffix='.xml') as (fd, fn):
                     os.write(fd, save_config(cfg))
-                    ConfigLoader().load(fn)
+                    ConfigSource().load(fn)
 
                 if ext == '.xml':
                     self.assertEqual(clean(save_config(cfg)), clean(open(item_path).read()))
@@ -152,7 +147,7 @@ class TestFunctions(TestCase):
 
         class B(object):
             _x = None
-            x = config_property('_x', property_type = int)
+            x = config_property('_x', property_type=int)
 
         value = B()
         value.x = 1
@@ -164,7 +159,7 @@ class TestFunctions(TestCase):
 
         class C(object):
             _x = []
-            x = config_property('_x', enable_change = False)
+            x = config_property('_x', enable_change=False)
 
         value = C()
         self.assertEqual(value.x, [])
@@ -174,15 +169,15 @@ class TestFunctions(TestCase):
         self.assertEqual(value.x, [1])
 
     def test_build_element(self):
-        attrib = dict(a = 'a', b = 'b')
-        root = build_element('test', attributes = attrib, text = 'x')
+        attrib = dict(a='a', b='b')
+        root = build_element('test', attributes=attrib, text='x')
         self.assertTrue(isinstance(root, etree._Element))
         self.assertEqual(root.tag, 'test')
         self.assertEqual(root.attrib, attrib)
         self.assertEqual(root.text, 'x')
         self.assertEqual(list(root), [])
 
-        root = build_element('test', attributes = attrib, children = [ build_element('test0') ])
+        root = build_element('test', attributes=attrib, children=[ build_element('test0') ])
         self.assertTrue(isinstance(root, etree._Element))
         self.assertEqual(root.tag, 'test')
         self.assertEqual(root.attrib, attrib)

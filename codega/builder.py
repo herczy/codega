@@ -11,7 +11,7 @@ from codega.context import Context
 from codega.decorators import abstract
 from codega.error import ParseError
 from codega.generator.base import GeneratorBase
-from codega.config.loader import ConfigLoader
+from codega.config.source import ConfigSource
 
 
 class BuilderError(Exception):
@@ -57,15 +57,11 @@ def build_locator(config, base_path=None):
 
 def get_config(config_file):
     if config_file is None:
-        if os.path.isfile('codega'):
-            return 'codega'
-
-        elif os.path.isfile('codega.xml'):
+        if os.path.isfile('codega.xml'):
             return 'codega.xml'
 
-    else:
-        if os.path.isfile(config_file):
-            return config_file
+    elif os.path.isfile(config_file):
+        return config_file
 
 class BuilderBase(object):
     def __init__(self, parent):
@@ -188,7 +184,7 @@ class BuildRunner(object):
         # Load configuration file
         try:
             logger.info('Loading config file %r', config_path)
-            config = ConfigLoader().load(config_path)
+            config = ConfigSource().load(config_path)
 
         except ParseError, parse_error:
             logger.error('Parse error: %s', parse_error)

@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<config version="1.0">
+    <paths>
+        <target>./</target>
+        <path>./</path>
+        <path>../basic</path>
+    </paths>
+    <source>
+        <name>config</name>
+        <filename>codega.xml</filename>
+        <transform>transform:reverse</transform>
+        <transform>transform:uppercase</transform>
+    </source>
+    <target>
+        <source>config</source>
+        <generator>dumper:DumpGenerator</generator>
+        <target>config.txt</target>
+        <settings>
+            <entry name="test0">value</entry>
+            <container name="test1">
+                <entry name="test2">value2</entry>
+            </container>
+        </settings>
+    </target>
+</config>
