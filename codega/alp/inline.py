@@ -7,9 +7,8 @@ import types
 import os.path
 
 from codega.context import Context
-from codega.config.structures import *
 
-from codega.alp.generator import *
+from codega.alp.generator import scriptsource, scriptgen
 
 def load(alpfile, alpname='<alp>', modname='alp'):
     ast = scriptsource.parse(alpfile, name=alpname)
