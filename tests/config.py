@@ -88,27 +88,13 @@ class TestVisitors(TestCase):
         self.assertEqual(cfg.copy['y'].target, 'y')
 
     def check_parse02(self, cfg):
-        self.assertEqual(cfg.paths.destination, '12345')
-        self.assertEqual(cfg.paths.paths, ['789'])
+        self.check_parse00(cfg)
 
-        self.assertEqual(cfg.sources['name'].name, 'name')
-        self.assertEqual(cfg.sources['name'].resource, 'source.xml')
-        self.assertEqual(cfg.sources['name'].parser.module, 'codega.source')
-        self.assertEqual(cfg.sources['name'].parser.reference, 'XmlSource')
-
-        self.assertEqual(cfg.sources['name2'].name, 'name2')
-        self.assertEqual(cfg.sources['name2'].resource, 'source.xml')
-        self.assertEqual(cfg.sources['name2'].parser.module, 'a')
-        self.assertEqual(cfg.sources['name2'].parser.reference, 'b')
-
-        target = cfg.targets['source.cc']
-        self.assertEqual(target.source, 'name')
-        self.assertEqual(target.generator.module, 'my.generator')
-        self.assertEqual(target.generator.reference, 'source')
-
-        self.assertEqual(target.settings.setting.key, 'something')
-        self.assertEqual(target.settings.setting.other, 'some other thing')
-        self.assertEqual(target.settings.other, 'foo')
+        module = cfg.modules['protoparse']
+        self.assertEqual(module.reference.module, 'protoparse')
+        self.assertEqual(module.reference.reference, 'Module')
+        self.assertEqual(module.settings.header_template, 'pp_@NAME@.h')
+        self.assertEqual(module.settings.scandir, './sources')
 
 class TestFunctions(TestCase):
     def test_validators(self):

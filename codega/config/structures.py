@@ -276,6 +276,30 @@ class Copy(NodeBase):
     source = config_property('_source')
     target = config_property('_target')
 
+class Module(NodeBase):
+    '''
+    External module.
+
+    Members:
+    _name -- Name of the module
+    _reference -- Module class reference
+    _settings -- Module settings
+    '''
+
+    _name = None
+    _reference = None
+    _settings = None
+
+    name = config_property('_name')
+    reference = config_property('_reference', enable_change=False)
+    settings = config_property('_settings', enable_change=False)
+
+    def __init__(self, parent):
+        super(Module, self).__init__(parent)
+
+        self._reference = ModuleReference(self)
+        self._settings = Settings(self)
+
 class PathList(NodeBase):
     '''List of paths
 
@@ -309,63 +333,71 @@ class Config(NodeBase):
     _dependencies -- Dependencies between targets and sources
     '''
 
-    class SourceCollection(OrderedDict):
+    class Collection(OrderedDict):
+        '''Homogenous collection of items.'''
+
+        def __init__(self, parent, type):
+            super(Config.Collection, self).__init__()
+
+            self._parent = parent
+            self._type = type
+
+        def _check_before_insert(self, key, value):
+            if not isinstance(value, self._type):
+                raise TypeError("Can only add %s values" % self._type.__name__)
+
+        def _check_before_delete(self, key):
+            pass
+
+        def __setitem__(self, key, value):
+            self._check_before_insert(key, value)
+
+            value.name = key
+            super(Config.Collection, self).__setitem__(key, value)
+
+        def __getitem__(self, key):
+            try:
+                return super(Config.Collection, self).__getitem__(key)
+
+            except KeyError:
+                raise KeyError("Entry %s not found" % key)
+
+        def __delitem__(self, key):
+            self._check_before_delete(key)
+
+            super(Config.Collection).__delete__(key)
+
+    class SourceCollection(Collection):
         '''Source list, checks for types and possible dependencies'''
 
         def __init__(self, parent):
-            super(Config.SourceCollection, self).__init__()
+            super(Config.SourceCollection, self).__init__(parent, Source)
 
-            self._parent = parent
-
-        def __setitem__(self, key, value):
-            if not isinstance(value, Source):
-                raise TypeError("Cannot add non-source objects to source list")
-
-            value.name = key
-            super(Config.SourceCollection, self).__setitem__(key, value)
-
-        def __getitem__(self, key):
-            try:
-                return super(Config.SourceCollection, self).__getitem__(key)
-
-            except KeyError:
-                raise KeyError("Source %s not found" % key)
-
-        def __delitem__(self, key):
+        def _check_before_delete(self, key):
+            super(Config.TargetCollection, self)._check_before_delete(key)
             if key in self._parent._dependencies.values():
                 raise KeyError("Source %s can not be deleted, it has dependencies" % key)
 
-            del self._sources[key]
-
-    class TargetCollection(OrderedDict):
+    class TargetCollection(Collection):
         '''Target list, checks for types and possible dependencies'''
 
         def __init__(self, parent):
-            super(Config.TargetCollection, self).__init__()
+            super(Config.TargetCollection, self).__init__(parent, Target)
 
-            self._parent = parent
-
-        def __setitem__(self, key, value):
-            if not isinstance(value, Target):
-                raise TypeError("Cannot add non-source objects to source list")
-
+        def _check_before_insert(self, key, value):
+            super(Config.TargetCollection, self)._check_before_insert(key, value)
             if not self._parent.sources.has_key(value.source):
                 raise KeyError("Source %s does not exist" % value.source)
 
-            value.name = key
-            super(Config.TargetCollection, self).__setitem__(key, value)
-            self._parent._dependencies[value.filename] = value.source
-
         def __delitem__(self, key):
-            del self._parent._dependencies[self._targets[key]]
-            del self._targets[key]
+            super(Config.TargetCollection).__delete__(key)
+            del self._parent._dependencies[self[key]]
 
-        def __getitem__(self, key):
-            try:
-                return super(Config.TargetCollection, self).__getitem__(key)
+    class ModuleCollection(Collection):
+        '''List of modules'''
 
-            except KeyError:
-                raise KeyError("Target %s not found" % key)
+        def __init__(self, parent):
+            super(Config.ModuleCollection, self).__init__(parent, Module)
 
     _version = None
     _paths = None
@@ -373,6 +405,7 @@ class Config(NodeBase):
     _targets = None
     _copy = None
     _external = None
+    _modules = None
 
     _dependencies = None
 
@@ -381,6 +414,7 @@ class Config(NodeBase):
     targets = config_property('_targets', enable_change=False)
     copy = config_property('_copy', enable_change=False)
     external = config_property('_external', enable_change=False)
+    modules = config_property('_modules', enable_change=False)
 
     @property
     def version(self):
@@ -410,9 +444,11 @@ class Config(NodeBase):
         self._paths = PathList(self)
         self._sources = Config.SourceCollection(self)
         self._targets = Config.TargetCollection(self)
+        self._modules = Config.ModuleCollection(self)
         self._copy = OrderedDict()
         self._external = []
         self._dependencies = {}
+        self._module = []
 
 
 class StructureBuilder(object):
@@ -465,6 +501,15 @@ class StructureBuilder(object):
 
     def add_external(self, config):
         self.__config.external.append(config)
+
+    def add_module(self, name, module, settings=()):
+        modref = Module(self.__config)
+        modref.reference.load_from_string(module)
+        self.__add_setting_list(modref.settings, values=settings)
+
+        self.__config.modules[name] = modref
+
+        return modref
 
     def set_destination(self, path):
         self.__config.paths.destination = path

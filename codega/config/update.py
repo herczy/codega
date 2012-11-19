@@ -30,6 +30,8 @@ class UpdateVisitor(ExplicitVisitor):
              be used to transform the source to a different structure.
     * 1.5 -- Module reference format changed. Now instead of ':' the module and class
              separator is '.'
+
+             Added 'module' functionality for creating configs on-the-fly.
     '''
 
     @visitor(Version(1, 0))

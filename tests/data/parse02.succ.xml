@@ -1,0 +1,32 @@
+<config version="1.5">
+    <paths>
+        <target>./</target>
+        <path>./</path>
+    </paths>
+    <source>
+        <name>config</name>
+        <resource>codega.xml</resource>
+    </source>
+    <target>
+        <source>config</source>
+        <generator>dumper.DumpGenerator</generator>
+        <target>config.txt</target>
+        <settings>
+          <entry name="test0">value0</entry>
+          <container name="test1">
+            <entry name="test2">value2</entry>
+          </container>
+        </settings>
+    </target>
+    <copy>
+    	<source>x</source>
+    	<target>y</target>
+    </copy>
+    <module name="protoparse">
+        <reference>protoparse.Module</reference>
+        <settings>
+            <entry name="header_template">pp_@NAME@.h</entry>
+            <entry name="scandir">./sources</entry>
+        </settings>
+    </module>
+</config>

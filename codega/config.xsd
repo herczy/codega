@@ -19,6 +19,9 @@
 
         <!-- copy -->
         <xs:element ref="copy" minOccurs="0" maxOccurs="unbounded" />
+
+        <!-- modular -->
+        <xs:element ref="module" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
@@ -63,7 +66,6 @@
             <xs:group ref="settings" />
           </xs:complexType>
         </xs:element>
-
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -75,6 +77,21 @@
         <xs:element name="source" type="xs:string" />
         <xs:element name="target" type="xs:string" />
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- module -->
+  <xs:element name="module">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="reference" type="locator" />
+        <xs:element name="settings" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:group ref="settings" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
 

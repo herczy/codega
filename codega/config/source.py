@@ -79,6 +79,14 @@ class ParseVisitor(XmlVisitor):
 
         self._builder.add_copy(source, target)
 
+    @visitor('module')
+    def visit_module(self, node):
+        name = node.attrib['name']
+        reference = self.get_text(node, 'reference')
+        settings = self.process_settings(node.find('settings'))
+
+        self._builder.add_module(name, reference, settings=settings)
+
     @visitor('external')
     def visit_external(self, node):
         self._builder.add_external(node.text.strip())

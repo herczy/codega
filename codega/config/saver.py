@@ -79,6 +79,14 @@ class SaveVisitor(ClassVisitor):
     def copy(self, node):
         return build_element('copy', children=[build_element('source', text=node.source), build_element('target', text=node.target)])
 
+    @visitor(structures.Module)
+    def module(self, node):
+        children = [build_element('reference', text=self.visit(node.reference))]
+        if not node.settings.empty:
+            children.append(self.visit(node.settings))
+
+        return build_element('module', attributes=dict(name=node.name), children=children)
+
     @visitor(structures.Config)
     def config(self, node):
         res = etree.Element('config')
@@ -88,6 +96,7 @@ class SaveVisitor(ClassVisitor):
         res.extend([self.visit(source) for source in node.sources.values()])
         res.extend([self.visit(target) for target in node.targets.values()])
         res.extend([self.visit(copy) for copy in node.copy.values()])
+        res.extend([self.visit(module) for module in node.modules.values()])
 
         return res
 
