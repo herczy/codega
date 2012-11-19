@@ -108,10 +108,6 @@ import ${_import_name}${asexpr}\
 
 <%def name='AlpToken()'>\
 lexer_factory.add_token('${key}', '${name}');\
-% for conv in conversions:
-
-lexer_factory.add_conversion('${key}', ${conv});\
-% endfor
 </%def>
 
 <%def name='AlpLiteral()'>\
@@ -124,13 +120,6 @@ lexer_factory.add_ignore_token('${key}', '${name}');\
 
 <%def name='AlpKeyword()'>\
 lexer_factory.add_keyword('${key}');\
-</%def>
-
-<%def name='AlpConversion()'>\
-${'.'.join(conversion)}\
-% if arguments is not None:
-(${', '.join(arguments)})\
-% endif
 </%def>
 
 <%def name='AlpPrecedence()'>\

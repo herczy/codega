@@ -44,7 +44,6 @@ literal EMAIL 'email';
 # Symbols
 literal SEMICOLON ';';
 literal COLON ',';
-literal ARROW '=>';
 literal MINUS '-';
 literal EQ '=';
 literal PERIOD '.';
@@ -143,7 +142,6 @@ node AlpToken
   optional conversions;
 
   rule -TOKEN ID STRING;
-  rule -TOKEN ID STRING -ARROW AlpConversionList;
 };
 
 node AlpLiteral
@@ -167,28 +165,6 @@ node AlpIgnore
   required value;
 
   rule -IGNORE ID STRING;
-};
-
-# Token conversions
-list AlpConversionList
-{
-  rule;
-  rule body=AlpConversionListTail;
-};
-
-list AlpConversionListTail
-{
-  rule head=AlpConversion;
-  rule head=AlpConversion -ARROW body=AlpConversionListTail;
-};
-
-node AlpConversion
-{
-  required conversion;
-  optional arguments;
-  
-  rule AlpModuleName;
-  rule AlpModuleName -LPAREN AlpValueList -RPAREN;
 };
 
 # Parser constructs
@@ -301,23 +277,4 @@ list AlpIdList
 {
   rule head=ID;
   rule head=ID -COLON body=AlpIdList;
-};
-
-selection AlpValue
-{
-  rule ID;
-  rule STRING;
-  rule INTEGER;
-};
-
-list AlpValueList
-{
-  rule;
-  rule body=AlpValueListTail;
-};
-
-list AlpValueListTail
-{
-  rule head=AlpValue;
-  rule head=AlpValue -COLON body=AlpValueListTail;
 };

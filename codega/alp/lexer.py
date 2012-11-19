@@ -18,7 +18,6 @@ class Lexer(object):
     error_context = None
     lexer_object = None
     current_location = None
-    conversions = None
 
     error_message = 'Invalid token: @token@'
 
@@ -48,9 +47,6 @@ class Lexer(object):
         token = self.lexer_object.token()
         if token is not None:
             token.location = self.current_location.clone()
-            for conv in self.conversions.get(token.type, ()):
-                token.value = conv(token.value)
-
             self.log.debug('Got next token; value=%r, type=%s, location=%s' % (token.value, token.type, token.location))
 
         else:
@@ -98,7 +94,6 @@ class LexerFactory(object):
     _tokens = None
     _literals = None
     _ignored = None
-    _conversions = None
 
     _error_context = None
     _error_message = None
@@ -107,7 +102,6 @@ class LexerFactory(object):
         self._tokens = {}
         self._literals = set()
         self._ignored = set()
-        self._conversions = {}
 
         self.log = logger.getLogger('lexer-factory-%d' % logger.sysid(self))
         self.log.info('Initialized lexer factory')
@@ -141,12 +135,6 @@ class LexerFactory(object):
 
         self.add_literal(keyword.upper(), keyword)
         self.log.debug("Added keyword token %s" % keyword)
-
-    def add_conversion(self, name, conversion):
-        '''Add a conversion function to the lexer.'''
-
-        self._conversions.setdefault(name, [])
-        self._conversions[name].append(conversion)
 
     def set_error_context(self, context, message=None):
         '''Set error context with an error message template.'''
@@ -232,7 +220,6 @@ class LexerFactory(object):
             cls_dict['error_message'] = self._error_message
 
         cls_dict['token_list'] = filter(lambda key: key not in self._ignored, self._tokens.keys())
-        cls_dict['conversions'] = dict(self._conversions)
 
         lexer_class = type('AutoLexer', (Lexer,), cls_dict)
 
