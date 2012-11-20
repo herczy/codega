@@ -127,10 +127,10 @@ class TargetBuilder(BuilderBase):
         context = Context(self.parent.config, source, self.__target)
 
         # Load source
-        data = self.parent.get_source(source)
+        data = self.parse_source(source)
 
         # Generate output
-        generator = self.__target.generator.load(self.parent.locator)
+        generator = self.get_generator(self.__target)
         if isinstance(generator, type) and issubclass(generator, GeneratorBase):
             generator = generator()
 
@@ -150,9 +150,42 @@ class TargetBuilder(BuilderBase):
 
         self.parent.remove_dest_file(self.__target.filename)
 
+    def parse_source(self, source):
+        if isinstance(source, basestring):
+            source = self.__config.sources[source]
+
+        logger.debug('Trying to parse source %r' % source.name)
+        if not self.parent.is_cached(source):
+            logger.info('Source %r successfuly parsed' % source.name)
+
+        else:
+            logger.debug('Source already parsed')
+
+        return self.parent.get_cached(source, self.__parse_source_noncached, source)
+
+    def get_generator(self, target):
+        return target.generator.load(self.parent.locator)
+
+    def get_parser(self, source):
+        return source.parser.load(self.parent.locator)
+
     def __str__(self):
         return 'target(%s)' % self.__target.filename
 
+    def __parse_source_noncached(self, source):
+        parser = self.get_parser(source)
+        if not issubclass(parser, SourceBase):
+            raise BuilderError("Parser reference %s could not be loaded" % parser)
+
+        res = parser().load(source.resource, self.parent.locator)
+        if isinstance(res, etree._ElementTree):
+            res = res.getroot()
+
+        for transform in source.transform:
+            modtrans = transform.load(self.parent.locator)
+            res = modtrans(res)
+
+        return res
 
 class CopyBuilder(BuilderBase):
     def __init__(self, parent, copy):
@@ -207,9 +240,19 @@ class BuildRunner(object):
         self.__locator = build_locator(config, base_path=base_path)
 
         self.__source_results = {}
+        self.__cache = {}
 
         self.__builders = []
         self.__init_builders()
+
+    def is_cached(self, key):
+        return key in self.__cache
+
+    def get_cached(self, key, func, *args, **kwargs):
+        if key not in self.__cache:
+            self.__cache[key] = func(*args, **kwargs)
+
+        return self.__cache[key]
 
     def run_task(self, task, *args, **kwargs):
         if not self.__builders:
@@ -288,38 +331,6 @@ class BuildRunner(object):
 
         else:
             logger.debug('File %r not found' % relpath)
-
-    def get_source(self, source):
-        if isinstance(source, basestring):
-            source = self.__config.sources[source]
-
-        logger.debug('Trying to parse source %r' % source.name)
-        if source not in self.__source_results:
-            parser = source.parser.load(self.__locator)
-            if not issubclass(parser, SourceBase):
-                raise BuilderError("Parser reference %s could not be loaded" % parser)
-
-            res = parser().load(source.resource, self.__locator)
-            if isinstance(res, etree._ElementTree):
-                res = res.getroot()
-
-            for transform in source.transform:
-                modtrans = transform.load(self.__locator)
-                res = modtrans(res)
-
-            self.__source_results[source] = res
-            logger.info('Source %r successfuly parsed' % source.name)
-
-        else:
-            logger.debug('Source already parsed')
-
-        return self.__source_results[source]
-
-    def __run_external(self, task, **kwargs):
-        for ext in self.__config.external:
-            if not self.__class__.run_task_file(self.__locator.find(ext), task, **kwargs):
-                raise BuilderError('Could not run task %r on external %s' % (task, ext))
-
 
     def __init_builders(self):
         # Add targets 
