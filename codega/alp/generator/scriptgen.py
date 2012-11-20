@@ -89,7 +89,7 @@ class TokenGeneratorBase(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         key, name = self.get_attributes(source)
-        return dict(key=key, name=name)
+        return dict(key=key, name=name, source=source)
 
 class TokenGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpToken)
@@ -197,7 +197,7 @@ class RuleGenerator(ScriptBaseGenerator):
     template = 'AlpRule'
 
     def get_bindings(self, source, context):
-        return dict(index=context.index, name=context.name, entries=context.map(self.parent, source.entries), precsym=source.precsymbol)
+        return dict(index=context.index, name=context.name, entries=context.map(self.parent, source.entries), source=source)
 
 class RuleEntryGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpRuleEntry)

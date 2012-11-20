@@ -15,33 +15,33 @@ import calcparser
 class PrettyPrint(ClassVisitor):
     @visitor(calcparser.binary_expression)
     def v_binary_expr(self, o):
-        return '(%s %s %s)' % (self.visit(o.properties.operand0), o.properties.operator, self.visit(o.properties.operand1))
+        return '(%s %s %s)' % (self.visit(o.operand0), o.operator, self.visit(o.operand1))
 
     @visitor(calcparser.unary_expression)
     def v_unary_expr(self, o):
-        return '%s%s' % (o.properties.operator, self.visit(o.properties.operand))
+        return '%s%s' % (o.operator, self.visit(o.operand))
 
     @visitor(calcparser.assignment)
     def v_assign(self, o):
-        return '%s = %s' % (o.properties.rvalue, self.visit(o.properties.lvalue))
+        return '%s = %s' % (o.rvalue, self.visit(o.lvalue))
 
     @visitor(calcparser.call)
     def v_call(self, o):
-        return '%s(%s)' % (o.properties.func, ', '.join(self.visit(a) for a in o.properties.args))
+        return '%s(%s)' % (o.func, ', '.join(self.visit(a) for a in o.args))
 
     @visitor(calcparser.expr_for)
     def v_for(self, o):
-        if o.properties.step is None:
+        if o.step is None:
             step = 1.0
 
         else:
-            step = self.visit(o.properties.step)
+            step = self.visit(o.step)
 
-        return '(for %s in %s to %s step %s do %s)' % (o.properties.bound, self.visit(o.properties.begin), self.visit(o.properties.end), step, self.visit(o.properties.assignment))
+        return '(for %s in %s to %s step %s do %s)' % (o.bound, self.visit(o.begin), self.visit(o.end), step, self.visit(o.assignment))
 
     @visitor(calcparser.funcdef)
     def v_funcdef(self, o):
-        return '%s(%s) = %s' % (o.properties.name, ', '.join(self.visit(a) for a in o.properties.args), self.visit(o.properties.expression))
+        return '%s(%s) = %s' % (o.name, ', '.join(self.visit(a) for a in o.args), self.visit(o.expression))
 
     def visit_fallback(self, o):
         return str(o)
@@ -63,21 +63,21 @@ class Evaluate(ClassVisitor):
     @visitor(calcparser.binary_expression)
     def v_binary_expr(self, o):
         operators = {'+' : operator.add, '-' : operator.sub, '*' : operator.mul, '/' : operator.div, '^' : operator.pow}
-        return operators[o.properties.operator](self.visit(o.properties.operand0), self.visit(o.properties.operand1))
+        return operators[o.operator](self.visit(o.operand0), self.visit(o.operand1))
 
     @visitor(calcparser.unary_expression)
     def v_unary_expr(self, o):
         operators = {'-' : operator.neg}
-        return operators[o.properties.operator](self.visit(o.properties.operand))
+        return operators[o.operator](self.visit(o.operand))
 
     @visitor(calcparser.call)
     def v_call(self, o):
-        return funcs[o.properties.func](*(self.visit(a) for a in o.properties.args))
+        return funcs[o.func](*(self.visit(a) for a in o.args))
 
     @visitor(calcparser.assignment)
     def v_assign(self, o):
-        vals[o.properties.rvalue] = self.visit(o.properties.lvalue)
-        return vals[o.properties.rvalue]
+        vals[o.rvalue] = self.visit(o.lvalue)
+        return vals[o.rvalue]
 
     @visitor(calcparser.funcdef)
     def v_funcdef(self, o):
@@ -85,37 +85,41 @@ class Evaluate(ClassVisitor):
             global vals
             oldvals = vals.copy()
             try:
-                for arg_passed, arg_name in zip(args, o.properties.args):
+                for arg_passed, arg_name in zip(args, o.args):
                     vals[arg_name] = arg_passed
 
-                return self.visit(o.properties.expression)
+                return self.visit(o.expression)
 
             finally:
                 vals = oldvals
 
         global funcs
-        funcs[o.properties.name] = __func
+        funcs[o.name] = __func
         return 0.0
 
     @visitor(calcparser.expr_for)
     def v_for(self, o):
-        if o.properties.step is None:
+        if o.step is None:
             step = 1.0
 
         else:
-            step = self.visit(o.properties.step)
+            step = self.visit(o.step)
 
-        current = self.visit(o.properties.begin)
-        end = self.visit(o.properties.end)
+        current = self.visit(o.begin)
+        end = self.visit(o.end)
 
         res = 0.0
         while current < end:
-            vals[o.properties.bound] = current
-            res = self.visit(o.properties.assignment)
+            vals[o.bound] = current
+            res = self.visit(o.assignment)
 
             current += step
 
         return res
+
+    @visitor(calcparser.number)
+    def v_num(self, o):
+        return float(o.value)
 
     def visit_fallback(self, o):
         if isinstance(o, tuple):

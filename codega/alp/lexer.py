@@ -19,6 +19,9 @@ class Lexer(object):
     lexer_object = None
     current_location = None
 
+    error_tokens = None
+    warning_tokens = None
+
     error_message = 'Invalid token: @token@'
 
     token_list = None
@@ -27,6 +30,7 @@ class Lexer(object):
         self.source_name = source_name
         self.error_context = error_context
         self.current_location = Location(self.source_name, 0, 0, 0)
+        self.data = ''
 
         # Create logger for lexer
         self.log = logger.getLogger('lexer-%d' % logger.sysid(self))
@@ -37,7 +41,14 @@ class Lexer(object):
 
         self.log.info('Created lexer; class ID=lexer-class-%d' % logger.sysid(self.__class__))
 
+    def get_location(self, position):
+        loc = Location(self.source_name, 0, 0, 0)
+        loc.update(self.data[:position])
+
+        return loc
+
     def input(self, data):
+        self.data = data
         self.lexer_object.input(data)
         self.log.debug('Lexer got input; length=%d' % len(data))
 
@@ -54,6 +65,19 @@ class Lexer(object):
 
         data = self.lexer_object.lexdata[prev_pos:self.lexer_object.lexpos]
         self.current_location.update(data)
+
+        if token is not None:
+            if token.type in self.error_tokens:
+                error = replace(self.error_tokens[token.type], type=token.type, value=token.value, location=token.location)
+                self.error_context.error(error, token.location)
+                self.log.error(error)
+                return None
+
+            if token.type in self.warning_tokens:
+                warning = replace(self.warning_tokens[token.type], type=token.type, value=token.value, location=token.location)
+                self.error_context.warning(warning, token.location)
+                self.log.warning(warning)
+
         return token
 
     def ignore_token(self, token):
@@ -103,13 +127,22 @@ class LexerFactory(object):
         self._literals = set()
         self._ignored = set()
 
+        self._error_tokens = {}
+        self._warning_tokens = {}
+
         self.log = logger.getLogger('lexer-factory-%d' % logger.sysid(self))
         self.log.info('Initialized lexer factory')
 
-    def add_token(self, name, regexp):
+    def add_token(self, name, regexp, error=None, warning=None):
         '''Add a list of tokens to parse.'''
 
         self._tokens[name] = regexp
+        if error is not None:
+            self._error_tokens[name] = error
+
+        elif warning is not None:
+            self._warning_tokens[name] = warning
+
         self.log.debug('Added token type %s; regex=%r' % (name, regexp))
 
     def add_ignore_token(self, name, *args, **kwargs):
@@ -220,6 +253,9 @@ class LexerFactory(object):
             cls_dict['error_message'] = self._error_message
 
         cls_dict['token_list'] = filter(lambda key: key not in self._ignored, self._tokens.keys())
+
+        cls_dict['error_tokens'] = self._error_tokens
+        cls_dict['warning_tokens'] = self._warning_tokens
 
         lexer_class = type('AutoLexer', (Lexer,), cls_dict)
 

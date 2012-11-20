@@ -56,6 +56,8 @@ literal LPAREN '(';
 literal RPAREN ')';
 
 literal PRECSYM '%prec';
+literal ERRSYM '%error';
+literal WARNSYM '%warning';
 
 # Tokens
 token ID '[a-zA-Z_][a-zA-Z0-9_]*';
@@ -139,17 +141,18 @@ node AlpToken
 {
   required name;
   required value;
-  optional conversions;
+  required metainfo;
 
-  rule -TOKEN ID STRING;
+  rule -TOKEN ID STRING AlpTokenMetainfoList;
 };
 
 node AlpLiteral
 {
   required name;
   required value;
+  required metainfo;
 
-  rule -LITERAL ID STRING;
+  rule -LITERAL ID STRING AlpTokenMetainfoList;
 };
 
 node AlpKeyword
@@ -243,10 +246,9 @@ list AlpRuleList
 node AlpRule
 {
   required entries;
-  optional precsymbol;
+  required metainfo;
 
-  rule -RULE AlpRuleEntryList;
-  rule -RULE AlpRuleEntryList -PRECSYM ID;
+  rule -RULE AlpRuleEntryList AlpRuleMetainfoList;
 };
 
 list AlpRuleEntryList
@@ -277,4 +279,51 @@ list AlpIdList
 {
   rule head=ID;
   rule head=ID -COLON body=AlpIdList;
+};
+
+# Rule/token metainfo
+list AlpRuleMetainfoList
+{
+  rule;
+  rule head=AlpRuleMetainfo body=AlpRuleMetainfoList;
+};
+
+list AlpTokenMetainfoList
+{
+  rule;
+  rule head=AlpTokenMetainfo body=AlpTokenMetainfoList;
+};
+
+selection AlpRuleMetainfo
+{
+  rule AlpPrecedenceMetainfo;
+  rule AlpErrorMetainfo;
+  rule AlpWarningMetainfo;
+};
+
+selection AlpTokenMetainfo
+{
+  rule AlpErrorMetainfo;
+  rule AlpWarningMetainfo;
+};
+
+node AlpPrecedenceMetainfo
+{
+  required prec;
+
+  rule -PRECSYM ID;
+};
+
+node AlpErrorMetainfo
+{
+  required message_format;
+
+  rule -ERRSYM STRING;
+};
+
+node AlpWarningMetainfo
+{
+  required message_format;
+
+  rule -WARNSYM STRING;
 };

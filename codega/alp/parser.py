@@ -67,6 +67,17 @@ class ParserBase(object):
 
         return token
 
+    def get_location(self, prod):
+        begin = self.lexer_object.get_location(prod.lexpos(1))
+        end = self.lexer_object.get_location(prod.lexpos(len(prod) - 1))
+        return begin, end
+
+    def report_error(self, *args, **kwargs):
+        self.__report(self.lexer_object.error_context.error, *args, **kwargs)
+
+    def report_warning(self, *args, **kwargs):
+        self.__report(self.lexer_object.error_context.warning, *args, **kwargs)
+
     @property
     def tokens(self):
         return self.lexer_object.tokens
@@ -78,3 +89,9 @@ class ParserBase(object):
     @classmethod
     def subclass(cls, name, members, metacls=type):
         return metacls(name, (cls,), members)
+
+    def __report(self, func, msg, rule, prod):
+        args = dict(('prod%d' % (i + 1), repr(entry)) for i, entry in enumerate(prod[1:]))
+        args['rule'] = repr(rule)
+        exp = replace(msg, **args)
+        func(exp, self.lexer_object.get_location(prod.lexpos(1)))

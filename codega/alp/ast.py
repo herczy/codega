@@ -14,6 +14,8 @@ def is_reserved(name):
     return False
 
 class AstNodeBase(object):
+    ast_location = None
+
     def __init__(self, *args, **kwargs):
         assert hasattr(self, 'ast_class_info')
         self.ast_class_info.map_properties(self, args, kwargs)

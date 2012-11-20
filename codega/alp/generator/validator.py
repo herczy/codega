@@ -17,6 +17,9 @@ class RuleError(ValidationError):
 class PropertyError(ValidationError):
     '''A property definition is invalid.'''
 
+class MetainfoError(ValidationError):
+    '''A metainfo is duplicated, invalid, etc.'''
+
 class Validator(ClassVisitor):
     '''Validate the AST of an ALP language descriptor file.
 
@@ -57,6 +60,25 @@ class Validator(ClassVisitor):
         if name in self._symbols:
             raise DoubleDefinitionError("Symbol %r has been defined twice" % name)
 
+    def check_metainfo(self, ast):
+        visited = set()
+        dup = set()
+        for key, _ in self.visit(ast.metainfo):
+            if key in visited:
+                dup.add(key)
+            visited.add(key)
+
+        if dup:
+            strlist = ', '.join(repr(k) for k in dup)
+            raise MetainfoError("The following metainfos are duplicated in %r: %s" % (ast, strlist))
+
+        if 'error' in visited and 'warning' in visited:
+            raise MetainfoError("Both warning and error set for %r" % ast)
+
+    def get_metainfo_dict(self, ast):
+        self.check_metainfo(ast)
+        return dict(self.visit(ast.metainfo))
+
     @visitor(script.AlpScript)
     def visit_alp_script(self, ast):
         self.visit(ast.head)
@@ -79,6 +101,9 @@ class Validator(ClassVisitor):
 
     @visitor(script.AlpToken, script.AlpLiteral, script.AlpIgnore)
     def visit_alp_named_token(self, ast):
+        if ast.ast_name != 'AlpIgnore':
+            self.check_metainfo(ast)
+
         self.check_duplicate_symbol(ast.name)
         self._symbols.add(ast.name)
 
@@ -95,7 +120,6 @@ class Validator(ClassVisitor):
                 raise DoubleDefinitionError("Precedence symbol %r defined twice" % entry)
 
             self._referenced_symbols.add(entry)
-
 
     @visitor(script.AlpNode)
     def visit_alp_node(self, ast):
@@ -170,8 +194,11 @@ class Validator(ClassVisitor):
     @visitor(script.AlpRule)
     def visit_alp_rule(self, ast):
         self.visit(ast.entries)
-        if ast.precsymbol is not None:
-            self._symbols.add(ast.precsymbol)
+
+        metainfo = self.get_metainfo_dict(ast)
+
+        if 'prec' in metainfo:
+            self._symbols.add(metainfo['prec'].prec)
 
         keys = set()
         for entry in ast.entries:
@@ -186,10 +213,25 @@ class Validator(ClassVisitor):
     def visit_alp_rule_entry(self, ast):
         self._referenced_symbols.add(ast.name)
 
+    @visitor(script.AlpErrorMetainfo)
+    def visit_alp_metainfo_error(self, ast):
+        return 'error', ast
+
+    @visitor(script.AlpWarningMetainfo)
+    def visit_alp_metainfo_warning(self, ast):
+        return 'warning', ast
+
+    @visitor(script.AlpPrecedenceMetainfo)
+    def visit_alp_metainfo_precsym(self, ast):
+        return 'prec', ast
+
     @visitor(tuple)
     def visit_list(self, ast):
+        res = []
         for entry in ast:
-            self.visit(entry)
+            res.append(self.visit(entry))
+
+        return tuple(res)
 
     def visit_fallback(self, ast):
         pass

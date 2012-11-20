@@ -5,6 +5,20 @@
     def indent(source, level=1):
         return _indent(source, level=level, indent_string='    ')
 
+    def unescape(string):
+        return ''.join(s for s in string[1:-1] if s != '\\')
+
+    def process_token_metainfo(prefix, source):
+        res = list(prefix)
+        for meta in source.metainfo:
+            if meta.ast_name == 'AlpErrorMetainfo':
+                res.append('error=%r' % unescape(meta.message_format))
+
+            elif meta.ast_name == 'AlpWarningMetainfo':
+                res.append('warning=%r' % unescape(meta.message_format))
+
+        return res
+
 %>
 
 <%def name='AlpScript()'>\
@@ -21,6 +35,7 @@ __email__ = ${email or "'Unknown'"}
 from codega.alp.lexer import LexerFactory
 from codega.alp.parser import ParserBase
 from codega.alp.errorcontext import ErrorContext
+from codega.alp import tools
 from codega.alp import rule
 from codega.alp import ast
 
@@ -107,11 +122,11 @@ import ${_import_name}${asexpr}\
 </%def>
 
 <%def name='AlpToken()'>\
-lexer_factory.add_token('${key}', '${name}');\
+lexer_factory.add_token(${', '.join(process_token_metainfo(("'" + key + "'", "'" + name + "'"), source))})\
 </%def>
 
 <%def name='AlpLiteral()'>\
-lexer_factory.add_literal('${key}', '${name}');\
+lexer_factory.add_literal(${', '.join(process_token_metainfo(("'" + key + "'", "'" + name + "'"), source))})\
 </%def>
 
 <%def name='AlpIgnore()'>\
@@ -177,13 +192,28 @@ ${rule}
     args = [ "'%s'" % name ]
     args.extend(entries)
 
+    metainfo = dict((meta.ast_name, meta) for meta in source.metainfo)
+    rulename = 'rule_%s_%s' % (name, index)
+
+    skip_apply = 'AlpErrorMetainfo' in metainfo
+
 %>\
-rule_${name}_${index} = rule.Rule(${', '.join(args)})
-% if precsym is not None:
-rule_${name}_${index}.precedence = '${precsym}'
+${rulename} = rule.Rule(${', '.join(args)})
+% if 'AlpPrecedenceMetainfo' in metainfo:
+${rulename}.precedence = '${metainfo['AlpPrecedenceMetainfo'].prec}'
 % endif
 def p_${name}_${index}(self, p):
-    p[0] = self.rule_${name}_${index}(${name}, p[1:])
+% if 'AlpErrorMetainfo' in metainfo:
+    self.report_error(${metainfo['AlpErrorMetainfo'].message_format}, self.${rulename}, p)
+% endif
+% if 'AlpWarningMetainfo' in metainfo:
+    self.report_warning(${metainfo['AlpWarningMetainfo'].message_format}, self.${rulename}, p)
+% endif
+% if not skip_apply:
+    p[0] = self.${rulename}(${name}, p[1:])
+    if isinstance(p[0], ast.AstNodeBase):
+        p[0].ast_location = self.get_location(p)
+% endif
 p_${name}_${index}.__doc__ = rule_${name}_${index}.to_yacc_rule()
 </%def>
 
