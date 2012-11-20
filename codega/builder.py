@@ -234,6 +234,10 @@ class ExternalBuilder(BuilderBase):
 
 
 class BuildRunner(object):
+    target_class = TargetBuilder
+    copy_class = CopyBuilder
+    external_class = ExternalBuilder
+
     def __init__(self, config, base_path='.'):
         self.__config = config
         self.__base_path = base_path
@@ -333,14 +337,10 @@ class BuildRunner(object):
             logger.debug('File %r not found' % relpath)
 
     def __init_builders(self):
-        # Add targets 
-        for name, target in self.__config.targets.items():
-            self.__builders.append(TargetBuilder(self, target))
+        self.__add_items(self.__config.targets.values(), self.target_class)
+        self.__add_items(self.__config.copy.values(), self.copy_class)
+        self.__add_items(self.__config.external, self.external_class)
 
-        # Add copies
-        for name, copy in self.__config.copy.values():
-            self.__builders.append(CopyBuilder(self, copy))
-
-        # Add externals
-        for ext in self.__config.external:
-            self.__builders.append(ExternalBuilder(self, ext))
+    def __add_items(self, items, cls):
+        for item in items:
+            self.__builders.append(cls(self, item))
