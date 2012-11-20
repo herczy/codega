@@ -222,5 +222,5 @@ rule.RuleEntry('${name}', key=${repr(key)}, ignore=${repr(ignored)})\
 </%def>
 
 <%def name='fallback()'>\
-# Unknown item ${a_source.name}\
+# Unknown item ${a_source.ast_name}\
 </%def>
