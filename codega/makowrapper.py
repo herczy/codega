@@ -73,7 +73,7 @@ class MakoTemplateset(TemplatesetBase):
     get_template.__doc__ = TemplatesetBase.get_template.__doc__
 
     def get_subset(self, name):
-        return MakoTemplatesetFile(self._lookup.get_template(name))
+        return MakoTemplatesetFile(template_object=self._lookup.get_template(name))
 
 class MakoTemplatesetFile(TemplatesetBase):
     '''Mako file-based templateset (a wrapper to mako.template.Template)
@@ -87,7 +87,11 @@ class MakoTemplatesetFile(TemplatesetBase):
     def __init__(self, *args, **kwargs):
         super(MakoTemplatesetFile, self).__init__()
 
-        self._template = ExternalMakoTemplate(*args, **kwargs)
+        if 'template_object' in kwargs:
+            self._template = kwargs.pop('template_object')
+
+        else:
+            self._template = ExternalMakoTemplate(*args, **kwargs)
 
     # TemplateCollection interface
     def get_template(self, name):
