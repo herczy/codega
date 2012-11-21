@@ -53,7 +53,7 @@ class TemplatesetGeneratorFactory(object):
     _template_set = None
     _template_generator = None
 
-    def __init__(self, template_set, template_generator = TemplateGenerator):
+    def __init__(self, template_set, template_generator=TemplateGenerator):
         self._template_set = template_set
         self._template_generator = template_generator
 

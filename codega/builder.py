@@ -296,10 +296,13 @@ class BuildRunner(object):
         logger.debug('Trying to parse source %r' % source.name)
         if source not in self.__source_results:
             parser = source.parser.load(self.__locator)
-            if not issubclass(parser, SourceBase):
+            if isinstance(parser, type) and issubclass(parser, SourceBase):
+                parser = parser()
+
+            if not isinstance(parser, SourceBase):
                 raise BuilderError("Parser reference %s could not be loaded" % parser)
 
-            res = parser().load(source.resource, self.__locator)
+            res = parser.load(source.resource, self.__locator)
             if isinstance(res, etree._ElementTree):
                 res = res.getroot()
 
