@@ -12,6 +12,8 @@ __language__ = 'alp'
 __author__ = 'Hercinger Viktor'
 __email__ = 'hercinger.viktor@gmail.com'
 
+from codega.source import SourceBase
+
 from codega.alp.lexer import LexerFactory
 from codega.alp.parser import ParserBase
 from codega.alp.errorcontext import ErrorContext
@@ -883,3 +885,12 @@ def parse(sourcename, data):
 
 def parse_file(filename):
     return parse(sourcename=filename, data=open(filename).read())
+
+class Source(SourceBase):
+    def load(self, resource, resource_locator=None):
+        '''Load some file source.'''
+
+        if resource_locator is not None:
+            resource = resource_locator.find(resource)
+
+        return parse_file(resource)
