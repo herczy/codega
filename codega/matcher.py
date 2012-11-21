@@ -122,3 +122,18 @@ def all(*matchers):
         return True
 
     return __matcher
+
+def property(*exists, **equals):
+    @matcher
+    def __match(source, context):
+        for prop in exists:
+            if not hasattr(source, prop):
+                return False
+
+        for prop, value in equals.items():
+            if not hasattr(source, prop) or getattr(source, prop) != value:
+                return False
+
+        return True
+
+    return __match

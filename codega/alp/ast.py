@@ -1,5 +1,6 @@
 from codega.visitor import VisitorBase
 from codega.ordereddict import OrderedDict
+from codega.matcher import matcher
 
 REQUIRED = 0
 OPTIONAL = 1
@@ -110,3 +111,12 @@ class AstVisitor(VisitorBase):
 
     def aspects(self, node):
         return [node.ast_name]
+
+
+
+def ast_name(name):
+    @matcher
+    def __match(source, context):
+        return source.ast_name == source
+
+    return __match

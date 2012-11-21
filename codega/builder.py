@@ -233,10 +233,42 @@ class ExternalBuilder(BuilderBase):
         return 'external(%s)' % self.__external
 
 
+class ModuleTarget(TargetBuilder):
+    def __init__(self, parent, target, module):
+        super(TargetBuilder, self).__init__(parent, target)
+
+        self.__module = module
+
+    def get_generator(self, target):
+        return self.__module.get_generator(target)
+
+    def get_parser(self, source):
+        return self.__module.get_parser(source)
+
+
+class ModuleBuilder(BuilderBase):
+    def __init__(self, parent, module):
+        super(ModuleBuilder, self).__init__(parent)
+
+        self.__module_config = module
+        py_module = self.__module_config.reference.load(parent.locator)
+        self.__module = getattr(py_module, 'Module')(self.parent.locator, module)
+
+        target_constructor = lambda parent, target: ModuleTarget(parent, target, self.__module)
+        self.__builder_class = type('ModuleBuildRunner', (BuildRunner,), dict(target_class=target_constructor))
+
+    def run_task(self, task, *args, **kwargs):
+        return self.__builder_class(self.__module.get_config(), self.parent.base_path).run_task()
+
+    def __str__(self):
+        return 'module(%s)' % self.__module_config.name
+
+
 class BuildRunner(object):
     target_class = TargetBuilder
     copy_class = CopyBuilder
     external_class = ExternalBuilder
+    module_class = ModuleBuilder
 
     def __init__(self, config, base_path='.'):
         self.__config = config
@@ -248,6 +280,18 @@ class BuildRunner(object):
 
         self.__builders = []
         self.__init_builders()
+
+    @property
+    def config(self):
+        return self.__config
+
+    @property
+    def locator(self):
+        return self.__locator
+
+    @property
+    def base_path(self):
+        return self.__base_path
 
     def is_cached(self, key):
         return key in self.__cache
@@ -304,14 +348,6 @@ class BuildRunner(object):
 
         return cls(config, base_path=os.path.dirname(config_path)).run_task(task, **kwargs)
 
-    @property
-    def config(self):
-        return self.__config
-
-    @property
-    def locator(self):
-        return self.__locator
-
     def get_target_path(self, relpath):
         abspath = os.path.join(self.__base_path, self.__config.paths.destination, relpath)
         dirname = os.path.dirname(abspath)
@@ -340,6 +376,7 @@ class BuildRunner(object):
         self.__add_items(self.__config.targets.values(), self.target_class)
         self.__add_items(self.__config.copy.values(), self.copy_class)
         self.__add_items(self.__config.external, self.external_class)
+        self.__add_items(self.__config.modules.values(), self.modules_class)
 
     def __add_items(self, items, cls):
         for item in items:

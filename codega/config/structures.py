@@ -65,6 +65,7 @@ class Settings(NodeBase, DictMixin):
 
     class RecursiveContainer(OrderedDict):
         '''Implements a recursive container. The keys are ordered'''
+
         data = config_property('_data', enable_change=False)
 
         def __setitem__(self, key, value):
@@ -95,6 +96,27 @@ class Settings(NodeBase, DictMixin):
 
     def add_container(self, key):
         return self._data.add_container(key)
+
+    def keys(self):
+        return self._data.keys()
+
+    def safe_get(self, key, default=None):
+        if isinstance(key, basestring):
+            key = key.split('.')
+
+        key = list(key)
+
+        actual = self._data
+        while key:
+            try:
+                actual = actual[key[0]]
+
+            except KeyError:
+                return default
+
+            del key[0]
+
+        return actual
 
     def __getitem__(self, key):
         return self._data.__getitem__(key)

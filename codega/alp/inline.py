@@ -9,16 +9,23 @@ import os.path
 from codega.context import Context
 
 from codega.alp.generator import scriptsource, scriptgen
+from codega.source import SourceBase
 
-def load(alpfile, alpname='<alp>', modname='alp'):
+
+def build(alpfile, alpname):
     ast = scriptsource.parse(alpfile, name=alpname)
     context = Context(None, None, None)
-    code = compile(scriptgen.main_generator(ast, context), alpname, 'exec')
+    return scriptgen.main_generator(ast, context)
+
+
+def load(alpfile, alpname='<alp>', modname='alp'):
+    code = compile(build(alpfile, alpname), alpname, 'exec')
 
     retmod = types.ModuleType(modname)
     exec code in retmod.__dict__
 
     return retmod
+
 
 def load_file(alpfile):
     modname = os.path.splitext(os.path.basename(alpfile))[0]
