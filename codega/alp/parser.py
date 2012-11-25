@@ -68,8 +68,13 @@ class ParserBase(object):
         return token
 
     def get_location(self, prod):
-        begin = self.lexer_object.get_location(prod.lexpos(1))
-        end = self.lexer_object.get_location(prod.lexpos(len(prod) - 1))
+        if len(prod) > 1:
+            begin = self.lexer_object.get_location(prod.lexpos(1))
+            end = self.lexer_object.get_location(prod.lexpos(len(prod) - 1))
+
+        else:
+            begin, end = None, None
+
         return begin, end
 
     def report_error(self, *args, **kwargs):
