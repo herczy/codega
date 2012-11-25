@@ -90,6 +90,15 @@ class Scope(object):
 
         return self._subscopes
 
+    def __contains__(self, name):
+        if name in self._bindings:
+            return True
+
+        if self.parent is not None and name in self.parent:
+            return True
+
+        return False
+
     def __getitem__(self, name):
         '''
         Get an entry from the scope. If `name` is not found in `_bindings`, try with the parent.
@@ -188,6 +197,11 @@ class ScopeHandler(object):
         '''Exit the current scope. Wrapper for `ScopeHandler.pop()`'''
 
         self.pop()
+
+    def __contains__(self, name):
+        '''Proxy of `Scope.__contains__`'''
+
+        return name in self._current_scope
 
     def __getitem__(self, name):
         '''Proxy to `Scope.__getitem__()`'''
