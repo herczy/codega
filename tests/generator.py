@@ -46,13 +46,13 @@ class MyObjectGenerator(ObjectGenerator):
     @generator(TemplateGenerator.factory(template_1))
     def generator_1(self, source, context):
         # Template explicitly specified
-        return dict(name = 'testrunner!', source = source, context = context)
+        return dict(name='testrunner!', source=source, context=context)
 
     @match(lambda s, c: s == 2)
     @generator(TemplateGenerator.factory(template_2))
     def generator_2(self, source, context):
         # Template explicitly specified
-        return dict(name = 'testrunner!', source = source, context = context)
+        return dict(name='testrunner!', source=source, context=context)
 
 class TestGenerators(TestCase):
     matcher = lambda self, src, context: src == 0
@@ -72,7 +72,7 @@ class TestGenerators(TestCase):
 
     def test_template(self):
         tpl = TemplateMockup('template %(value)s %(context)s', 'value', 'context')
-        p = TemplateGenerator(tpl, lambda x, c: dict(value = x, context = c))
+        p = TemplateGenerator(tpl, lambda x, c: dict(value=x, context=c))
         self.check(p, 0, 1, 'template 0 1')
         self.check(p, 1, 2, 'template 1 2')
 
@@ -83,10 +83,10 @@ class TestGenerators(TestCase):
         p3 = FunctionGenerator(fungen)
 
         p = PriorityGenerator()
-        p.register(p0, matcher = lambda s, c: s == 0 and c == 1)
-        p.register(p1, matcher = lambda s, c: s == 1)
-        p.register(p2, matcher = lambda s, c: s == 2)
-        p.register(p3, matcher = lambda s, c: s == 0, priority = PRI_LOW)
+        p.register(p0, matcher=lambda s, c: s == 0 and c == 1)
+        p.register(p1, matcher=lambda s, c: s == 1)
+        p.register(p2, matcher=lambda s, c: s == 2)
+        p.register(p3, matcher=lambda s, c: s == 0, priority=PRI_LOW)
 
         self.assertTrue(len(p._generators) == 4)
 

@@ -6,3 +6,4 @@ from ordereddict import *
 from rsclocator import *
 from source import *
 from version import *
+from visitor import *
