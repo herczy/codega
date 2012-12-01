@@ -1,5 +1,6 @@
 '''Dictionary tools to handle template arguments better'''
 
+
 def dict_from_element(element, base=None):
     '''Return a dictionary copy of element.attrib. Use base as
     the base dictionary'''
@@ -11,15 +12,18 @@ def dict_from_element(element, base=None):
     res.update(element.attrib)
     return res
 
+
 def map_keys(func, base):
     '''Call func for each key in base'''
 
     return dict((func(k), base[k]) for k in base.keys())
 
+
 def map_values(func, base):
     '''Call func for each value in base'''
 
     return dict((k, func(base[k])) for k in base.keys())
+
 
 def filter_by_keys(filt, base):
     '''Filter keys from dict by the filt function'''
@@ -27,10 +31,12 @@ def filter_by_keys(filt, base):
     keys = filter(filt, base.keys())
     return dict((k, base[k]) for k in keys)
 
+
 def filter_keys(base, *keywords):
     '''Only include keys in keyword'''
 
     return filter_by_keys(lambda k: k in keywords, base)
+
 
 def exclude_internals(base):
     '''Exclude keywords typically reserved for Python from the dictionary'''
@@ -46,6 +52,7 @@ def exclude_internals(base):
 
     return filter_by_keys(__filter, base)
 
+
 def bindict(source, context, **bind):
     '''Create a dict from the context, source and other keywords'''
 
@@ -55,6 +62,7 @@ def bindict(source, context, **bind):
     res['arg_source'] = source
 
     return exclude_internals(res)
+
 
 def autobindict(func):
     '''Translate typical template arguments into a contextualized version'''

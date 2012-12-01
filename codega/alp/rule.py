@@ -1,6 +1,7 @@
 LEFT = 0
 RIGHT = 1
 
+
 class RuleEntry(object):
     def __init__(self, name, ignore=None, key=None):
         self.name = name
@@ -19,6 +20,7 @@ class RuleEntry(object):
 
     def __repr__(self):
         return 'RuleEntry(%s)' % self
+
 
 class Rule(object):
     def __init__(self, name, *entries):

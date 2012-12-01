@@ -6,6 +6,7 @@ from codega.decorators import abstract
 from tools import replace, cleanup_file_list
 import logger
 
+
 class ParserBase(object):
     '''Base class for yacc parsers.'''
 
@@ -24,7 +25,7 @@ class ParserBase(object):
         parse_tab = tempfile.NamedTemporaryFile(prefix='parsetab-')
         # This is a hack, since ply appends a .py to the supplied tabmodule name.
         # So not only do we create a file for nothing but if not cleaned up manually
-        # a tempfile will be leaked. Thanks, David Beazley. ;-) 
+        # a tempfile will be leaked. Thanks, David Beazley. ;-)
         cleanup_file_list.append(parse_tab.name + '.py')
 
         # Create ply parser

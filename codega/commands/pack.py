@@ -17,11 +17,12 @@ from codega import logger
 
 from base import CommandBase
 
+
 class CommandPack(CommandBase):
     _arg = None
 
     def __init__(self):
-        super(CommandPack, self).__init__('pack', helpstring = 'Create a script containing the compressed codega module and the main script')
+        super(CommandPack, self).__init__('pack', helpstring='Create a script containing the compressed codega module and the main script')
 
     def create_compressed_script(self, target):
         '''Create a script containing the compressed codega module and the main script
@@ -41,12 +42,12 @@ class CommandPack(CommandBase):
             return exclude
 
         def compress(target, name, path):
-            tar.add(path, arcname = name, exclude = exclude_files)
+            tar.add(path, arcname=name, exclude=exclude_files)
 
         def checksum(data):
             return sha256(data).hexdigest()
 
-        def split_data(data, line_width = 80):
+        def split_data(data, line_width=80):
             enc = b64encode(data)
             res = []
             while enc:
@@ -80,7 +81,7 @@ class CommandPack(CommandBase):
         logger.info('Compressing codega path %r', os.path.dirname(codega.__file__))
 
         output = StringIO()
-        tar = TarFile.open(fileobj = output, mode = 'w:bz2')
+        tar = TarFile.open(fileobj=output, mode='w:bz2')
         compress(tar, 'codega', os.path.dirname(codega.__file__))
 
         tar.close()
@@ -99,8 +100,10 @@ import tarfile
 import sys
 import base64
 
+
 outdir = '.codega-%(checksum)s'
 outdir = os.path.join(os.path.dirname(__file__), outdir)
+
 
 def check_decompress():
     global outdir

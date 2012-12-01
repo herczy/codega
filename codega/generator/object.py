@@ -8,12 +8,14 @@ from codega import logger
 
 from priority import PriorityGenerator, PRI_BASE
 
-def generator(factory = None):
+
+def generator(factory=None):
     '''Mark the function as a generator. If factory is set, the
     generator function will be passed to the factory and the result
     is used.'''
 
     return mark('generator', factory)
+
 
 def match(matcher):
     '''Add a matcher to the generator'''
@@ -27,10 +29,12 @@ def match(matcher):
 
     return __decorate
 
+
 def priority(priority):
     '''Specify priority of the generator'''
 
     return mark('priority', priority)
+
 
 class ObjectGenerator(PriorityGenerator):
     '''The list of generators is extracted from the instance on start'''
@@ -66,4 +70,4 @@ class ObjectGenerator(PriorityGenerator):
                 logger.debug('Factory found for sub-generator %r: %r', generator, factory)
                 generator = factory(generator)
 
-            self.register(generator, priority = priority, matcher = ObjectGenerator.__get_internal_matcher(matchers))
+            self.register(generator, priority=priority, matcher=ObjectGenerator.__get_internal_matcher(matchers))

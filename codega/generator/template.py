@@ -5,6 +5,7 @@ and render a template with them.
 
 from base import GeneratorBase
 
+
 class TemplateGenerator(GeneratorBase):
     '''Generates output with a template.
 

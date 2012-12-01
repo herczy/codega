@@ -17,12 +17,14 @@ from codega import logger
 
 from base import GeneratorBase
 
+
 PRI_HIGHEST = -100
 PRI_HIGH = -10
 PRI_BASE = 0
 PRI_LOW = 10
 PRI_LOWEST = 100
 PRI_FALLBACK = 1000
+
 
 class PriorityGenerator(GeneratorBase):
     '''A list of generators which are tried one-by-one until one can handle the source
@@ -38,7 +40,7 @@ class PriorityGenerator(GeneratorBase):
 
         self._generators = []
 
-    def register(self, generator, priority = PRI_BASE, matcher = None):
+    def register(self, generator, priority=PRI_BASE, matcher=None):
         '''Register a generator
 
         Arguments:

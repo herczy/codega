@@ -111,14 +111,14 @@ class TargetBuilder(BuilderBase):
 
         # Check if we need to rebuild the target
         if not force and os.path.exists(destination):
-            modules = [ 'codega', source.parser.module, self.__target.generator.module ]
+            modules = ['codega', source.parser.module, self.__target.generator.module]
 
             # If the destination modification time is more recent than any other
             # listed modification time (mtime of any of the modules or files) we
             # need to rebuild
             time = 0
             time = max(time, get_mtime(source.resource))
-            time = reduce(max, [ get_module_time(self.parent.locator, m) for m in modules ], time)
+            time = reduce(max, [get_module_time(self.parent.locator, m) for m in modules], time)
 
             if get_mtime(destination) >= time:
                 return
@@ -323,9 +323,8 @@ class BuildRunner(object):
             if not self.__class__.run_task_file(self.__locator.find(ext), task, **kwargs):
                 raise BuilderError('Could not run task %r on external %s' % (task, ext))
 
-
     def __init_builders(self):
-        # Add targets 
+        # Add targets
         for name, target in self.__config.targets.items():
             self.__builders.append(TargetBuilder(self, target))
 

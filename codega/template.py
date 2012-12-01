@@ -11,6 +11,7 @@ from decorators import abstract
 
 from generator.template import TemplateGenerator
 
+
 class TemplateBase(object):
     '''Base class for templates'''
 
@@ -19,6 +20,7 @@ class TemplateBase(object):
     @abstract
     def render(self, bindings):
         '''Render the template with the given bindings'''
+
 
 class TemplatesetBase(object):
     '''Template set base class'''
@@ -43,6 +45,7 @@ class TemplatesetBase(object):
         '''
 
         return self.get_template(name).render(bindings)
+
 
 class TemplatesetGeneratorFactory(object):
     '''

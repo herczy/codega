@@ -5,6 +5,7 @@ from lxml import etree
 
 from decorators import abstract
 
+
 class SourceBase(object):
     '''A source should parse the supplied input and create an XML etree'''
 
@@ -19,6 +20,7 @@ class SourceBase(object):
         resource -- The resource to be parsed
         resource_locator -- An optional ResourceLocatorBase for locating the resource
         '''
+
 
 class FileSourceBase(SourceBase):
     '''A file source should parse a file (or list of files) and create an XML etree.'''
@@ -35,17 +37,20 @@ class FileSourceBase(SourceBase):
 
         return self.load_fileobj(open(resource))
 
+
 class XmlSource(FileSourceBase):
     '''XML source. This is the default source'''
 
     def load_fileobj(self, fileobj):
         return etree.parse(fileobj)
 
+
 class NullSource(SourceBase):
     '''This source parses nothing and returns nothing'''
 
     def load(self, resource, resource_locator=None):
         return etree.ElementTree()
+
 
 def validate_xml(xml, *args, **kwargs):
     '''Load an XSD source and validate XML with it

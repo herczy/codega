@@ -2,23 +2,30 @@ from codega.visitor import ClassVisitor, visitor
 from codega.alp import script
 from codega.alp.ast import is_reserved
 
+
 class ValidationError(Exception):
     '''Validator-related error'''
+
 
 class MissingSymbolError(ValidationError):
     '''Symbol missing'''
 
+
 class DoubleDefinitionError(ValidationError):
     '''A symbol, script, etc. has been defined multiple times'''
+
 
 class RuleError(ValidationError):
     '''An error has been detected in a rule'''
 
+
 class PropertyError(ValidationError):
     '''A property definition is invalid.'''
 
+
 class MetainfoError(ValidationError):
     '''A metainfo is duplicated, invalid, etc.'''
+
 
 class Validator(ClassVisitor):
     '''Validate the AST of an ALP language descriptor file.

@@ -3,10 +3,12 @@ from codega.alp import script
 
 from validator import Validator
 
+
 def parse(fileobj, name='<unknown>'):
     ast = script.parse(name, fileobj.read())
     Validator.run(ast)
     return ast
+
 
 class ScriptParser(SourceBase):
     '''ALP descriptor language parser. This is a thin wrapper

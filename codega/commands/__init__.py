@@ -6,8 +6,9 @@ from clean import CommandClean
 
 from codega.ordereddict import OrderedDict
 
+
 class CommandMain(CommandContainer):
-    def __init__(self, name, helpstring = None):
+    def __init__(self, name, helpstring=None):
         commands = OrderedDict()
         commands['help'] = CommandHelp(self, 'Display list of commands with their meaning')
         commands['make'] = CommandMake()
@@ -15,4 +16,4 @@ class CommandMain(CommandContainer):
         commands['build'] = CommandBuild()
         commands['pack'] = CommandPack()
 
-        super(CommandMain, self).__init__(name, commands, helpstring = helpstring)
+        super(CommandMain, self).__init__(name, commands, helpstring=helpstring)

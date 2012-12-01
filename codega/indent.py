@@ -3,7 +3,8 @@
 Dependencies: None
 '''
 
-def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', strip_result = True):
+
+def indent(text, level=1, indent_empty_lines=False, indent_string='  ', strip_result=True):
     '''General purpose indentation
 
     Arguments:
@@ -26,9 +27,10 @@ def indent(text, level = 1, indent_empty_lines = False, indent_string = '  ', st
 
     return '\n'.join(map(__indent_line, text.split('\n')))
 
-def deindent(text, level = None, ignore_wrong_indentation = False, lstrip = True, rstrip = False):
+
+def deindent(text, level=None, ignore_wrong_indentation=False, lstrip=True, rstrip=False):
     '''De-indent a text.
-    
+
     Arguments:
     text -- Text to deindent
     level -- How many levels to deindent. If set to none and the text has a
@@ -81,6 +83,7 @@ def deindent(text, level = None, ignore_wrong_indentation = False, lstrip = True
 
     return '\n'.join(res)
 
+
 def c_multi_comment(text):
     '''C multi-line comment.
 
@@ -93,8 +96,9 @@ def c_multi_comment(text):
     text -- Text to indent
     '''
 
-    box = indent(text, indent_empty_lines = True, indent_string = ' * ')
+    box = indent(text, indent_empty_lines=True, indent_string=' * ')
     return '/*\n%s\n */' % box
+
 
 def hash_comment(text):
     '''Python/Shell/etc. style multiline comment
@@ -105,9 +109,10 @@ def hash_comment(text):
     #
     '''
 
-    return indent(text, indent_empty_lines = True, indent_string = '# ')
+    return indent(text, indent_empty_lines=True, indent_string='# ')
 
-def disclaimer(context, comment = hash_comment):
+
+def disclaimer(context, comment=hash_comment):
     '''Create a commented disclaimer.
 
     The disclaimer will look something like this:

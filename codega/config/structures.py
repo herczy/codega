@@ -6,10 +6,13 @@ from codega.config import latest_version
 from codega.version import Version
 
 module_validator = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
+
 classname_validator = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
 
 def config_property(name, property_type=basestring, enable_change=True):
     if enable_change:
+
         def setter(self, value):
             if not isinstance(value, property_type):
                 raise TypeError("Config attributes can only be of class %s" % property_type.__class__)
@@ -20,6 +23,7 @@ def config_property(name, property_type=basestring, enable_change=True):
             setattr(self, name, None)
 
     else:
+
         def setter(self, value):
             raise AttributeError("Attribute cannot be set")
 
@@ -30,6 +34,7 @@ def config_property(name, property_type=basestring, enable_change=True):
         return getattr(self, name)
 
     return property(getter, setter, deleter)
+
 
 class NodeBase(object):
     '''Base class for configuration nodes
@@ -50,6 +55,7 @@ class NodeBase(object):
 
     def __init__(self, parent):
         self._parent = parent
+
 
 class Settings(NodeBase, DictMixin):
     '''Target settings.
@@ -106,6 +112,7 @@ class Settings(NodeBase, DictMixin):
         self._data.__delitem__(key)
 
     __getattr__ = __getitem__
+
 
 class ModuleReference(NodeBase):
     '''Refers to a class that's used by the config
@@ -208,6 +215,7 @@ class ModuleReference(NodeBase):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self)
 
+
 class Source(NodeBase):
     '''Config source entry
 
@@ -236,6 +244,7 @@ class Source(NodeBase):
         self._transform = []
         self._parser = ModuleReference(self, 'codega.source', 'XmlSource')
 
+
 class Target(NodeBase):
     '''Config target entry
 
@@ -262,6 +271,7 @@ class Target(NodeBase):
         self._settings = Settings(self)
         self._generator = ModuleReference(self)
 
+
 class Copy(NodeBase):
     '''Copy target entry
 
@@ -275,6 +285,7 @@ class Copy(NodeBase):
 
     source = config_property('_source')
     target = config_property('_target')
+
 
 class PathList(NodeBase):
     '''List of paths
@@ -295,6 +306,7 @@ class PathList(NodeBase):
 
         self._destination = '.'
         self._paths = []
+
 
 class Config(NodeBase):
     '''Complete configuration
@@ -349,7 +361,7 @@ class Config(NodeBase):
             if not isinstance(value, Target):
                 raise TypeError("Cannot add non-source objects to source list")
 
-            if not self._parent.sources.has_key(value.source):
+            if value.source not in self._parent.sources:
                 raise KeyError("Source %s does not exist" % value.source)
 
             value.name = key

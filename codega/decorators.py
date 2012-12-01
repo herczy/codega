@@ -2,6 +2,7 @@
 
 import types
 
+
 def set_attributes(name, doc=None):
     '''
     Set the name and documentation attributes to the decorated function
@@ -15,6 +16,7 @@ def set_attributes(name, doc=None):
 
     return __decorator
 
+
 def copy_attributes(base):
     '''
     Copy name and documentation attributes of base
@@ -22,6 +24,7 @@ def copy_attributes(base):
     '''
 
     return set_attributes(base.__name__, doc=base.__doc__)
+
 
 def abstract(func):
     '''The class method is an abstract.
@@ -36,11 +39,13 @@ def abstract(func):
 
     return __wrapper
 
+
 def init_mark(func):
     '''Init markings on function'''
 
     if not hasattr(func, '__marks__'):
         func.__marks__ = {}
+
 
 def set_mark(func, mark_type, mark_value):
     '''Mark a function with some value.
@@ -57,10 +62,11 @@ def set_mark(func, mark_type, mark_value):
 
     init_mark(func)
 
-    if func.__marks__.has_key(mark_type):
+    if mark_type in func.__marks__:
         raise RuntimeError("Function %s has already been marked with %s" % (func.__name__, mark_type))
 
     func.__marks__[mark_type] = mark_value
+
 
 def copy_marks(dest, src):
     '''Copy the marks on src to dest'''
@@ -69,6 +75,7 @@ def copy_marks(dest, src):
 
     if hasattr(src, '__marks__'):
         dest.__marks__.update(src.__marks__)
+
 
 def mark(mark_type, mark_value):
     '''Decorator wrapper for set_mark
@@ -85,10 +92,12 @@ def mark(mark_type, mark_value):
 
     return __decorator
 
+
 def has_mark(func, mark_type):
     '''Check if the function has been marked with the given type'''
 
-    return getattr(func, '__marks__', {}).has_key(mark_type)
+    return mark_type in getattr(func, '__marks__', {})
+
 
 def get_mark(func, mark_type):
     '''Return the value of the given mark'''
@@ -98,7 +107,8 @@ def get_mark(func, mark_type):
 
     return func.__marks__[mark_type]
 
-def get_mark_default(func, mark_type, default = None):
+
+def get_mark_default(func, mark_type, default=None):
     '''Return the value of the given mark or default if mark is not found'''
 
     if not has_mark(func, mark_type):
@@ -106,7 +116,8 @@ def get_mark_default(func, mark_type, default = None):
 
     return func.__marks__[mark_type]
 
-def collect_marked(functions, mark_type, mark_value = None):
+
+def collect_marked(functions, mark_type, mark_value=None):
     '''Collect all functions marked in the dictionary.
 
     Arguments:
@@ -128,10 +139,12 @@ def collect_marked(functions, mark_type, mark_value = None):
 
         yield mark, value
 
+
 def collect_marked_bound(obj, *args, **kwargs):
     '''Collect all methods marked bound to the object'''
 
     return collect_marked(dict((k, getattr(obj, k)) for k in dir(obj)), *args, **kwargs)
+
 
 def define(obj):
     '''
@@ -156,7 +169,8 @@ def define(obj):
 
     return __decorator
 
-def bind(value, pos= -1):
+
+def bind(value, pos=-1):
     '''Bind one of the arguments of a function'''
 
     def __decorator(func):

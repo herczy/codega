@@ -1,4 +1,5 @@
-from logging import * #@UnusedWildImport
+from logging import *
+
 
 class IDMapper(object):
     '''Map object IDs to sequential, readable IDs. The first object registered will
@@ -33,8 +34,10 @@ class IDMapper(object):
 
         return self._mapping[objid]
 
+
 # System mapping is the system namespace for maps
 system_mapping = IDMapper()
+
 
 def sysid(object):
     '''Get the mapped ID of an object.'''
@@ -42,6 +45,7 @@ def sysid(object):
     global system_mapping
 
     return system_mapping.get_id(object)
+
 
 class Progress(object):
     '''Track the progress of an operation.'''
@@ -83,6 +87,7 @@ class Progress(object):
         else:
             self.message("Process '%s' succeeded" % self._name)
 
+
 def make_proxy_caller(level):
     '''Make a proxy caller for the ply logger.'''
 
@@ -90,6 +95,7 @@ def make_proxy_caller(level):
         self.log(level, *args, **kwargs)
 
     return __wrapper
+
 
 class PlyLoggerWrapping(object):
     '''Wrap ply/lex logging.'''

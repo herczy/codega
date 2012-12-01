@@ -7,6 +7,7 @@ from codega import logger
 
 from base import OptparsedCommand
 
+
 class CommandBuild(OptparsedCommand):
     def __init__(self):
         options = [

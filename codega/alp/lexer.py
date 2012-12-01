@@ -10,6 +10,7 @@ import logger
 
 keyword_regex = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*$')
 
+
 class Lexer(object):
     '''Custom, ply-based lexer. Takes the tokens the same way the ply
     lexer takes but makes some extra additional comfort features.'''
@@ -112,6 +113,7 @@ class Lexer(object):
         column = position - nlpos - 1
         return Location(self.source_name, lineno, column, position)
 
+
 class LexerFactory(object):
     '''Create a Lexer object with the given settings.'''
 
@@ -198,6 +200,7 @@ class LexerFactory(object):
             return literal_state, action
 
         if action is None:
+
             @TOKEN(expression)
             def tokenizer(self, t):
                 if t.value in matches:
@@ -207,6 +210,7 @@ class LexerFactory(object):
                 return t
 
         else:
+
             @TOKEN(expression)
             def tokenizer(self, t):
                 if t.value in matches:

@@ -1,6 +1,6 @@
 import os.path
 
-from codega.generator.declarative import * #@UnusedWildImports
+from codega.generator.declarative import *
 from codega.generator.priority import PRI_FALLBACK, PRI_HIGH
 from codega.makowrapper import MakoTemplatesetFile
 
@@ -9,8 +9,10 @@ from codega.alp import script
 from codega import matcher
 from codega.variant import use_variant, variant
 
+
 token_types = ('AlpToken', 'AlpLiteral', 'AlpIgnore', 'AlpKeyword')
 parser_types = ('AlpNode', 'AlpSelection', 'AlpList')
+
 
 def name_matcher(names):
     @matcher
@@ -19,10 +21,12 @@ def name_matcher(names):
 
     return __matcher
 
+
 basepath = os.path.dirname(__file__)
 template_path = os.path.join(basepath, 'scriptgen.mako')
 ScriptMeta = create_declarative_metaclass()
 templates = MakoTemplatesetFile(filename=template_path)
+
 
 class ScriptBaseGenerator(Generator):
     __metaclass__ = ScriptMeta
@@ -30,6 +34,7 @@ class ScriptBaseGenerator(Generator):
 
     def generate(self, source, context):
         return templates.render(self.template, self.get_bindings(source, context))
+
 
 class AlpScriptGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpScript)
@@ -73,6 +78,7 @@ class AlpScriptGenerator(ScriptBaseGenerator):
         result.update(ctx=context)
         return result
 
+
 class AlpImportGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpImport)
 
@@ -80,6 +86,7 @@ class AlpImportGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(source.ast_properties)
+
 
 class TokenGeneratorBase(ScriptBaseGenerator):
     __base__ = True
@@ -91,17 +98,21 @@ class TokenGeneratorBase(ScriptBaseGenerator):
         key, name = self.get_attributes(source)
         return dict(key=key, name=name, source=source)
 
+
 class TokenGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpToken)
     template = 'AlpToken'
+
 
 class LiteralGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpLiteral)
     template = 'AlpLiteral'
 
+
 class IgnoreGenerator(TokenGeneratorBase):
     __matcher__ = matcher.cls(script.AlpIgnore)
     template = 'AlpIgnore'
+
 
 class KeywordGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpKeyword)
@@ -109,6 +120,7 @@ class KeywordGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(key=source.value)
+
 
 class AstNodeGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
@@ -119,6 +131,7 @@ class AstNodeGenerator(ScriptBaseGenerator):
         body = source.body
         return dict(name=source.name, properties=context.map(self.parent, body.properties))
 
+
 class AstListGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
     __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpList))
@@ -126,6 +139,7 @@ class AstListGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(name=source.name)
+
 
 class AstSelectionGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
@@ -135,6 +149,7 @@ class AstSelectionGenerator(ScriptBaseGenerator):
     def get_bindings(self, source, context):
         return dict(name=source.name)
 
+
 class AstPropertyGenerator(ScriptBaseGenerator):
     __priority__ = PRI_HIGH
     __matcher__ = matcher.all(variant('ast'), matcher.cls(script.AlpProperty))
@@ -143,12 +158,14 @@ class AstPropertyGenerator(ScriptBaseGenerator):
     def get_bindings(self, source, context):
         return dict(klass=source.klass.upper(), name=source.name)
 
+
 class PrecedenceGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpPrecedence)
     template = 'AlpPrecedence'
 
     def get_bindings(self, source, context):
         return dict(dir=source.direction, items=source.tokens)
+
 
 class NodeGeneratorBase(ScriptBaseGenerator):
     __base__ = True
@@ -173,6 +190,7 @@ class NodeGeneratorBase(ScriptBaseGenerator):
 
         return rules
 
+
 class NodeGenerator(NodeGeneratorBase):
     __matcher__ = matcher.cls(script.AlpNode)
     template = 'AlpNode'
@@ -183,6 +201,7 @@ class NodeGenerator(NodeGeneratorBase):
 
         return dict(name=name, rules=self.get_rules(name, context, body.rules))
 
+
 class SelectionGenerator(NodeGeneratorBase):
     __matcher__ = matcher.any(matcher.cls(script.AlpSelection), matcher.cls(script.AlpList))
     template = 'AlpNode'
@@ -192,12 +211,14 @@ class SelectionGenerator(NodeGeneratorBase):
 
         return dict(name=name, rules=self.get_rules(name, context, source.body))
 
+
 class RuleGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpRule)
     template = 'AlpRule'
 
     def get_bindings(self, source, context):
         return dict(index=context.index, name=context.name, entries=context.map(self.parent, source.entries), source=source)
+
 
 class RuleEntryGenerator(ScriptBaseGenerator):
     __matcher__ = matcher.cls(script.AlpRuleEntry)
@@ -206,6 +227,7 @@ class RuleEntryGenerator(ScriptBaseGenerator):
     def get_bindings(self, source, context):
         return dict(source.ast_properties)
 
+
 class FallbackGenerator(ScriptBaseGenerator):
     __priority__ = PRI_FALLBACK
 
@@ -213,5 +235,6 @@ class FallbackGenerator(ScriptBaseGenerator):
 
     def get_bindings(self, source, context):
         return dict(a_source=source, a_context=context)
+
 
 main_generator = MainGenerator(ScriptMeta)

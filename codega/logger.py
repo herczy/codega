@@ -4,25 +4,26 @@ import traceback
 import sys
 
 from lxml.etree import use_global_python_log, PyErrorLog
-from logging import debug, info, warning, error, critical, log, DEBUG, INFO, WARNING, ERROR, CRITICAL #@UnusedImports
+from logging import debug, info, warning, error, critical, log, DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 def prepare(level=None):
     import logging
 
     levels = {
-        'debug' : DEBUG,
-        'info' : INFO,
-        'warning' : WARNING,
-        'error' : ERROR,
-        'critical' : CRITICAL,
-        '4' : DEBUG,
-        '3' : INFO,
-        '2' : WARNING,
-        '1' : ERROR,
-        '0' : CRITICAL,
+        'debug': DEBUG,
+        'info': INFO,
+        'warning': WARNING,
+        'error': ERROR,
+        'critical': CRITICAL,
+        '4': DEBUG,
+        '3': INFO,
+        '2': WARNING,
+        '1': ERROR,
+        '0': CRITICAL,
     }
 
-    logging.basicConfig(format='%(levelname) -10s %(message)s')
+    logging.basicConfig(format='%(asctime)s %(levelname) -10s %(message)s')
 
     levelname = None
     if level is None:
@@ -51,7 +52,7 @@ def prepare(level=None):
 
 
 def exception(preface=None, level=DEBUG, short_desc=None, long_desc=None, level_trace=None, line_prefix=None):
-    exc_type, exc_value, trace = sys.exc_info() #@UnusedVariables
+    exc_type, exc_value, trace = sys.exc_info()
 
     if short_desc is None:
         short_desc = str(exc_value)

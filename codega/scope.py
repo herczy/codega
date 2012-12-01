@@ -8,26 +8,27 @@ Implementation for keeping track of scopes. Scopes contain information about nam
 reachable from a point during generation.
 '''
 
+
 class Scope(object):
     '''
     Scope object to keep track of named objects.
-    
+
     During generation some named objects should be reachable, like variable names, fields, etc.
     So when i.e. an expression references such an object through its name, this object will contain
     all information on it, be it a type, a field in a type, etc.
-    
+
     The member `_parent` contains the parent scope and `_bindings` contains the scope elements. `_subscopes`
-    contains the scopes depending on this one.  
+    contains the scopes depending on this one.
     '''
 
     _parent = None
     _bindings = None
     _subscopes = None
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         '''
         Initializes an empty scope.
-        
+
         If `parent` is set, then everything that wasn't found here will be proxied to the
         `parent` object. This is accomplished through the `\\[\\]` operator.
         '''
@@ -44,7 +45,7 @@ class Scope(object):
 
         self._subscopes.append(subscope)
 
-    def is_subscope(self, subscope, recursive = True):
+    def is_subscope(self, subscope, recursive=True):
         '''Determine if a scope is a sub-scope of the current one'''
 
         if subscope in self._subscopes:
@@ -55,7 +56,7 @@ class Scope(object):
 
         return False
 
-    def is_superscope(self, superscope, recursive = True):
+    def is_superscope(self, superscope, recursive=True):
         '''Determine if a scope is a super-scope of the current one'''
 
         if self._parent is None:
@@ -105,7 +106,7 @@ class Scope(object):
         If the parent scope doesn't have it either raise a `KeyError`.
         '''
 
-        if self._bindings.has_key(name):
+        if name in self._bindings:
             return self._bindings[name]
 
         if self.parent is not None:
@@ -121,7 +122,7 @@ class Scope(object):
     def __delitem__(self, name):
         '''Try to delete `name` in the current scope. If it could not be deleted, raise a `KeyError`'''
 
-        if not self._bindings.has_key(name):
+        if name not in self._bindings:
             raise KeyError("%s was not found in the current scope" % name)
 
         del self._bindings[name]
@@ -129,7 +130,7 @@ class Scope(object):
     def scope_of(self, name):
         '''Get the scope of the item `name`'''
 
-        if self._bindings.has_key(name):
+        if name in self._bindings:
             return self
 
         if self._parent:
@@ -137,14 +138,15 @@ class Scope(object):
 
         raise KeyError("%s was not found in the scopes" % name)
 
-    def to_dict(self, recursive = True):
+    def to_dict(self, recursive=True):
         '''Convert scope to dictionary (recursively if requested)'''
 
         res = dict(self._bindings)
         if recursive and self._parent:
-            res.update(self._parent.to_dict(recursive = True))
+            res.update(self._parent.to_dict(recursive=True))
 
         return res
+
 
 class ScopeHandler(object):
     '''
@@ -154,7 +156,7 @@ class ScopeHandler(object):
     _scope_class = None
     _current_scope = None
 
-    def __init__(self, scope_class = Scope):
+    def __init__(self, scope_class=Scope):
         self._scope_class = scope_class
         self._current_scope = self._scope_class()
 
@@ -162,7 +164,7 @@ class ScopeHandler(object):
     def current(self):
         return self._current_scope
 
-    def scope_of(self, key, try_only = False):
+    def scope_of(self, key, try_only=False):
         '''Determine the scope of the key'''
 
         try:
@@ -177,7 +179,7 @@ class ScopeHandler(object):
     def push(self):
         '''Create a subscope of this scope.'''
 
-        self._current_scope = self._scope_class(parent = self._current_scope)
+        self._current_scope = self._scope_class(parent=self._current_scope)
         return self._current_scope
 
     def pop(self):
@@ -218,7 +220,7 @@ class ScopeHandler(object):
 
         del self._current_scope[name]
 
-    def get(self, name, default = None):
+    def get(self, name, default=None):
         try:
             return self[name]
 

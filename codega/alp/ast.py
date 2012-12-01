@@ -6,12 +6,14 @@ OPTIONAL = 1
 
 reserved_property_prefixes = set(('__', 'ast_'))
 
+
 def is_reserved(name):
     for prefix in reserved_property_prefixes:
         if name.startswith(prefix):
             return True
 
     return False
+
 
 class AstNodeBase(object):
     ast_location = None
@@ -24,6 +26,7 @@ class AstNodeBase(object):
         return "%s(%s)" % (self.ast_name, ', '.join('%s=%r' % (k, v) for k, v in self.ast_properties.items()))
 
     __repr__ = __str__
+
 
 class Info(object):
     '''Stores information about an AST class'''
@@ -81,6 +84,7 @@ class Info(object):
 
         return metainfo.define_class(self.__name, (AstNodeBase,), members)
 
+
 class Metainfo(object):
     '''AST node-set meta information. Contains the AST node classes.'''
 
@@ -102,6 +106,7 @@ class Metainfo(object):
         self.register(name, cls)
 
         return cls
+
 
 class AstVisitor(VisitorBase):
     '''AST specific visitor class. For AST classes the

@@ -8,11 +8,13 @@ from codega.rsclocator import ModuleLocator
 import structures
 from update import UpdateVisitor
 
+
 class ParseError(Exception):
     '''The given source could not be parsed'''
 
     def __init__(self, msg, lineno):
         super(ParseError, self).__init__("%s (at line %d)" % (msg, lineno))
+
 
 class ParseVisitor(XmlVisitor):
     def __init__(self):
@@ -103,6 +105,7 @@ class ParseVisitor(XmlVisitor):
     def visit_entry(self, node, keystub):
         return [(keystub + (node.attrib['name'],), node.text.strip())]
 
+
 class ConfigSource(XmlSource):
     '''XML source. This is the default source'''
 
@@ -118,7 +121,7 @@ class ConfigSource(XmlSource):
 
     def parse_config_xml(self, xml_root):
         # Update the XML tree if needed (this needs pre-verifying the version)
-        if not xml_root.attrib.has_key('version'):
+        if 'version' not in xml_root.attrib:
             raise ParseError("Configuration version cannot be determined", 1)
 
         try:

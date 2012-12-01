@@ -3,8 +3,10 @@ from codega.config import latest_version
 from codega.visitor import ExplicitVisitor, visitor
 from codega.version import Version
 
+
 class VersionMismatchError(Exception):
     '''The version isn't what it supposed to be'''
+
 
 class UpdateVisitor(ExplicitVisitor):
     '''To be able to handle different versions, we need to 'update' the
@@ -49,4 +51,3 @@ class UpdateVisitor(ExplicitVisitor):
 
     def visit_fallback(self, version, xml_root):
         raise VersionMismatchError("Configs with version %s are not supported" % version)
-

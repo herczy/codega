@@ -8,6 +8,7 @@ import traceback
 from codega.decorators import abstract
 from codega import logger
 
+
 class CommandBase(object):
     '''Abstract base class for commands
 
@@ -27,7 +28,7 @@ class CommandBase(object):
     def name(self):
         return self._name
 
-    def __init__(self, name, helpstring = None):
+    def __init__(self, name, helpstring=None):
         self._name = name
         self._helpstring = helpstring if helpstring else '<no help supplied>'
 
@@ -46,11 +47,11 @@ class CommandBase(object):
         exception -- Caught exception
         '''
 
-        logger.exception(preface = 'An error occured during the execution of %s' % self.name,
-                         level = logger.ERROR,
-                         short_desc = desc_short,
-                         long_desc = desc_long,
-                         level_trace = logger.DEBUG)
+        logger.exception(preface='An error occured during the execution of %s' % self.name,
+                         level=logger.ERROR,
+                         short_desc=desc_short,
+                         long_desc=desc_long,
+                         level_trace=logger.DEBUG)
 
     def run(self, argv):
         try:
@@ -67,6 +68,7 @@ class CommandBase(object):
         except:
             self.handle_exception('unknown error', traceback.format_exc())
             return False
+
 
 class OptparsedCommand(CommandBase):
     '''A command with optparse-style options
@@ -89,7 +91,7 @@ class OptparsedCommand(CommandBase):
     def args(self):
         return self._args
 
-    def __init__(self, name, options = [], **kwargs):
+    def __init__(self, name, options=[], **kwargs):
         super(OptparsedCommand, self).__init__(name, **kwargs)
 
         self._option_list = options
@@ -97,7 +99,7 @@ class OptparsedCommand(CommandBase):
     def prepare(self, argv):
         logger.debug('Preparing arguments')
         try:
-            parser = optparse.OptionParser(option_list = self._option_list)
+            parser = optparse.OptionParser(option_list=self._option_list)
             self._opts, self._args = parser.parse_args(argv)
             return True
 
@@ -106,6 +108,7 @@ class OptparsedCommand(CommandBase):
                 logger.error('Option parser exited with error code %d', e.code)
 
             return False
+
 
 class CommandContainer(CommandBase):
     '''A command that has further subcommands
@@ -134,7 +137,7 @@ class CommandContainer(CommandBase):
 
         cmd, passon = self._args[0], self._args[1:]
 
-        if not self._commands.has_key(cmd):
+        if cmd not in self._commands:
             print >> sys.stderr, 'Command %s not found' % cmd
             return False
 
@@ -142,6 +145,7 @@ class CommandContainer(CommandBase):
 
     def __iter__(self):
         return iter(self._commands.iteritems())
+
 
 class CommandHelp(CommandBase):
     '''A generic help command
@@ -153,7 +157,7 @@ class CommandHelp(CommandBase):
     _container = None
 
     def __init__(self, container, helpstring):
-        super(CommandHelp, self).__init__('help', helpstring = helpstring)
+        super(CommandHelp, self).__init__('help', helpstring=helpstring)
 
         self._container = container
 

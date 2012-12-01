@@ -4,6 +4,7 @@ A function generator is a generator that calls a function for the generation.
 
 from base import GeneratorBase
 
+
 class FunctionGenerator(GeneratorBase):
     '''A function is provided to do the generation
 

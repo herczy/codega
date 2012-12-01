@@ -10,6 +10,7 @@ from codega.context import Context
 
 from codega.alp.generator import scriptsource, scriptgen
 
+
 def load(alpfile, alpname='<alp>', modname='alp'):
     ast = scriptsource.parse(alpfile, name=alpname)
     context = Context(None, None, None)
@@ -19,6 +20,7 @@ def load(alpfile, alpname='<alp>', modname='alp'):
     exec code in retmod.__dict__
 
     return retmod
+
 
 def load_file(alpfile):
     modname = os.path.splitext(os.path.basename(alpfile))[0]

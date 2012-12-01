@@ -4,8 +4,10 @@ from codega.visitor import ClassVisitor, visitor
 
 import structures
 
+
 class SaveError(Exception):
     '''Errors with saving a configuration structure'''
+
 
 def build_element(tag, attributes={}, text=None, children=[]):
     res = etree.Element(tag)
@@ -15,6 +17,7 @@ def build_element(tag, attributes={}, text=None, children=[]):
         res.attrib[k] = v
     res.extend(children)
     return res
+
 
 class SaveVisitor(ClassVisitor):
     '''Parse the internal config representation into an XML tree representation'''
@@ -43,10 +46,10 @@ class SaveVisitor(ClassVisitor):
         res = []
         for name, value in node.iteritems():
             if isinstance(value, basestring):
-                res.append(build_element('entry', attributes={ 'name' : name }, text=value))
+                res.append(build_element('entry', attributes={'name': name}, text=value))
 
             else:
-                res.append(build_element('container', attributes={ 'name' : name }, children=self.visit(value)))
+                res.append(build_element('container', attributes={'name': name}, children=self.visit(value)))
 
         return res
 
@@ -90,6 +93,7 @@ class SaveVisitor(ClassVisitor):
         res.extend([self.visit(copy) for copy in node.copy.values()])
 
         return res
+
 
 def save_config(config):
     try:

@@ -11,11 +11,14 @@ import sys
 
 from decorators import abstract
 
+
 class ResourceError(Exception):
     '''Resource error, thrown when a resource is not found'''
 
     def __init__(self, msg, resource):
-        super(ResourceError, self).__init__("%s (resource = %r)" % (msg, resource))
+        msg = "%s (resource = %r)" % (msg, resource)
+        super(ResourceError, self).__init__(msg)
+
 
 class ResourceLocatorBase(object):
     '''Resource loader base object'''
@@ -35,6 +38,7 @@ class ResourceLocatorBase(object):
     def import_module(self, module):
         '''Abstract method for locating a module'''
 
+
 class FileResourceLocator(ResourceLocatorBase):
     '''Class that helps locating files from the given path.
 
@@ -52,7 +56,8 @@ class FileResourceLocator(ResourceLocatorBase):
         self._path = path
 
     def import_module(self, modname):
-        '''Imports a module. This function extends the system path list temporarly to do this.
+        '''Imports a module. This function extends the system
+        path list temporarly to do this.
 
         Arguments:
         modname -- Module name, Python style
@@ -77,7 +82,8 @@ class FileResourceLocator(ResourceLocatorBase):
         dest = os.path.join(self._path, resource)
 
         if check_exists and not os.path.exists(dest):
-            raise ResourceError("Resource could not be located", resource=resource)
+            raise ResourceError("Resource could not be located", \
+                                resource=resource)
 
         return dest
 
@@ -91,11 +97,13 @@ class FileResourceLocator(ResourceLocatorBase):
             for fn in filenames:
                 yield os.path.join(relpath, fn)
 
+
 class FallbackLocator(ResourceLocatorBase):
     '''Locator object containing a list of other locators.
 
-    This locator iterates its entries and tries to find the resource with its entries. Used for combining
-    different ResourceLocatorBase instances instead of creating a big locator.
+    This locator iterates its entries and tries to find the resource
+    with its entries. Used for combining different ResourceLocatorBase
+    instances instead of creating a big locator.
 
     Members:
     _locators -- List of locators
@@ -147,6 +155,7 @@ class FallbackLocator(ResourceLocatorBase):
                 pass
 
         raise ImportError("No module named %s" % module)
+
 
 class ModuleLocator(FileResourceLocator):
     '''Locate files relative to module path'''

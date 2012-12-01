@@ -7,6 +7,7 @@ in different fashions.
 
 from matcher import matcher
 
+
 def variant(var):
     '''Matcher for checking the context for a variant'''
 
@@ -16,11 +17,12 @@ def variant(var):
 
     return __matcher
 
+
 def use_variant(context, variant):
     '''
     Set the variant of the context. This call returns an object which has the
     enter/exit mechanism of Python (so the result should be used with `with`).
-    
+
     The variant will be reversed on exit, so the context state is the same as
     it was prior to entering.
     '''
@@ -40,6 +42,7 @@ def use_variant(context, variant):
                 del context.variant
 
     return __variant_context()
+
 
 def get_variant(context):
     '''Get the context variant'''

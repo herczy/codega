@@ -1,5 +1,6 @@
 from UserDict import DictMixin
 
+
 class OrderedDict(object, DictMixin):
     '''Implements an ordered dictionary.
 
@@ -37,7 +38,7 @@ class OrderedDict(object, DictMixin):
         return self._data[key]
 
     def __setitem__(self, key, value):
-        if self._data.has_key(key):
+        if key in self._data:
             self._data[key] = value
 
         else:

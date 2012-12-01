@@ -8,8 +8,10 @@ from codega.decorators import has_mark, set_mark, get_mark
 from base import GeneratorError
 from function import FunctionGenerator
 
+
 class FilterError(GeneratorError):
     '''Raised when the filtering (or preparation) fails.'''
+
 
 def add_filter(filter):
     '''
@@ -31,10 +33,11 @@ def add_filter(filter):
 
     return __decorator
 
+
 class FilterGenerator(FunctionGenerator):
     '''Filter the output of another generator. The priority and matchers are taken from
     the wrapped generator.
-    
+
     Members:
     _filters -- The filter function(s)
     '''
@@ -61,7 +64,7 @@ class FilterGenerator(FunctionGenerator):
         '''
         The sub-factory will be used to create a generator. The results of this generator will
         be used as the base of the filter.
-        
+
         If no sub-factory is given, the function is used without any wrapping.
         '''
 

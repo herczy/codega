@@ -8,7 +8,10 @@ import os
 
 import atexit
 
+
 replacement_regex = re.compile(r'\@([a-zA-Z_][a-zA-Z0-9_]+)\@')
+
+
 def replace(text, **bindings):
     '''
     Replace @[a-zA-Z_][a-zA-Z0-9_]+@ tokens from bindings
@@ -20,7 +23,10 @@ def replace(text, **bindings):
     global replacement_regex
     return replacement_regex.sub(__replacement_function, text).replace('@@', '@')
 
+
 cleanup_file_list = []
+
+
 def __cleanup_files():
     '''
     At exit, clean up file names in cleanup_file_list.
@@ -31,5 +37,6 @@ def __cleanup_files():
     for filename in cleanup_file_list:
         if os.path.isfile(filename):
             os.remove(filename)
+
 
 atexit.register(__cleanup_files)

@@ -6,7 +6,8 @@ Registering is automatic.
 from codega.generator.priority import PriorityGenerator, PRI_BASE
 from codega.generator.base import GeneratorBase
 
-def create_declarative_metaclass(base = type):
+
+def create_declarative_metaclass(base=type):
     '''
     Create a metatype for handlers. All handlers with this metatype
     will be collected.
@@ -26,6 +27,7 @@ def create_declarative_metaclass(base = type):
 
     return __declarative
 
+
 def collection(cls):
     '''
     Get the collection of a class or metaclass.
@@ -43,6 +45,7 @@ def collection(cls):
     else:
         raise TypeError("Invalid argument type")
 
+
 class Generator(GeneratorBase):
     '''
     Subgenerator of a main generator.
@@ -56,6 +59,7 @@ class Generator(GeneratorBase):
     @property
     def parent(self):
         return self.__parent
+
 
 class MainGenerator(PriorityGenerator):
     '''
@@ -81,4 +85,4 @@ class MainGenerator(PriorityGenerator):
 
             # Create instance and register it
             instance = cls(self)
-            self.register(instance, priority = priority, matcher = matcher)
+            self.register(instance, priority=priority, matcher=matcher)

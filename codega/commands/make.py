@@ -4,6 +4,7 @@ from codega.builder import BuildRunner
 
 from base import OptparsedCommand
 
+
 class CommandMake(OptparsedCommand):
     _arg = None
 

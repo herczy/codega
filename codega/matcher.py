@@ -6,6 +6,7 @@ from lxml import etree
 
 from codega.decorators import abstract
 
+
 class MatcherBase(object):
     '''Matcher base class'''
 
@@ -16,6 +17,7 @@ class MatcherBase(object):
     @property
     def neg(self):
         return CombinedMatcher(operator.__not__, self)
+
 
 class FunctionMatcher(MatcherBase):
     '''MatcherBase wrapper for functions
@@ -33,6 +35,7 @@ class FunctionMatcher(MatcherBase):
 
     def __call__(self, source, context):
         return self._function(source, context)
+
 
 class CombinedMatcher(MatcherBase):
     '''Emulates a result
@@ -52,19 +55,24 @@ class CombinedMatcher(MatcherBase):
     def __call__(self, source, context):
         return self._operator(*map(lambda matcher: matcher(source, context), self._arguments))
 
+
 matcher = FunctionMatcher
+
 
 @matcher
 def true(source, context):
     return True
 
+
 @matcher
 def false(source, context):
     return False
 
+
 @matcher
 def comment(source, context):
     return isinstance(source, etree._Comment)
+
 
 def tag(tag):
     @matcher
@@ -72,6 +80,7 @@ def tag(tag):
         return source.tag == tag
 
     return __matcher
+
 
 def parent(tag):
     @matcher
@@ -85,6 +94,7 @@ def parent(tag):
     return __matcher
 root = parent(None)
 
+
 def xpath(xpath):
     xpath = etree.XPath(xpath)
 
@@ -94,12 +104,14 @@ def xpath(xpath):
 
     return __matcher
 
+
 def cls(cls):
     @matcher
     def __matcher(source, context):
         return isinstance(source, cls)
 
     return __matcher
+
 
 def any(*matchers):
     @matcher
@@ -111,6 +123,7 @@ def any(*matchers):
         return False
 
     return __matcher
+
 
 def all(*matchers):
     @matcher
