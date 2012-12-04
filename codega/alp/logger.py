@@ -1,4 +1,5 @@
-from logging import *
+from logging import getLogger
+from codega.logger import ERROR, WARNING, TRACE
 
 
 class IDMapper(object):
@@ -109,5 +110,5 @@ class PlyLoggerWrapping(object):
     error = make_proxy_caller(ERROR)
     critical = error
     warning = make_proxy_caller(WARNING)
-    info = make_proxy_caller(INFO)
-    debug = make_proxy_caller(DEBUG)
+    info = make_proxy_caller(TRACE)
+    debug = make_proxy_caller(TRACE)

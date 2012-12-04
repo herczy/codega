@@ -4,18 +4,25 @@ import traceback
 import sys
 
 from lxml.etree import use_global_python_log, PyErrorLog
-from logging import debug, info, warning, error, critical, log, DEBUG, INFO, WARNING, ERROR, CRITICAL
+from logging import debug, info, warning, error, critical, log, addLevelName, DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+
+TRACE = 9
+addLevelName(TRACE, 'TRACE')
+trace = lambda msg, *args, **kwargs: log(TRACE, msg, *args, **kwargs)
 
 
 def prepare(level=None):
     import logging
 
     levels = {
+        'trace': TRACE,
         'debug': DEBUG,
         'info': INFO,
         'warning': WARNING,
         'error': ERROR,
         'critical': CRITICAL,
+        '5': TRACE,
         '4': DEBUG,
         '3': INFO,
         '2': WARNING,
