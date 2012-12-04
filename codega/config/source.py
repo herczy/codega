@@ -4,6 +4,7 @@ from codega.visitor import XmlVisitor, visitor
 from codega.source import XmlSource, validate_xml
 from codega.version import Version
 from codega.rsclocator import ModuleLocator
+from codega import logger
 
 import structures
 from update import UpdateVisitor
@@ -109,6 +110,11 @@ class ParseVisitor(XmlVisitor):
 class ConfigSource(XmlSource):
     '''XML source. This is the default source'''
 
+    def __init__(self, replacement=None):
+        super(ConfigSource, self).__init__()
+
+        self.__replacement = replacement
+
     def load_fileobj(self, fileobj):
         # Parse raw XML file
         try:
@@ -116,6 +122,11 @@ class ConfigSource(XmlSource):
 
         except Exception, e:
             raise ParseError("Could not load source XML: %s" % e, 0)
+
+        # Apply replacements
+        if self.__replacement is not None:
+            logger.debug('Applying replacement functions to XML')
+            self.__make_replacements(xml_root.getroot())
 
         return self.parse_config_xml(xml_root.getroot())
 
@@ -147,3 +158,9 @@ class ConfigSource(XmlSource):
 
         except Exception, e:
             raise ParseError(str(e), visitor.current_node.sourceline)
+
+    def __make_replacements(self, xml):
+        xml.text = self.__replacement(xml.text)
+        for chld in xml:
+            chld.tail = self.__replacement(chld.tail)
+            self.__make_replacements(chld)

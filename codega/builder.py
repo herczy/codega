@@ -1,6 +1,7 @@
 import os
 import stat
 import shutil
+import re
 
 from lxml import etree
 
@@ -61,6 +62,15 @@ def get_config(config_file):
 
     elif os.path.isfile(config_file):
         return config_file
+
+
+def environment_replacement(string):
+    def __replace(match):
+        logger.debug('Match found: %s' % match.group())
+        name = match.group()[1:-1]
+        return os.getenv(name)
+
+    return re.sub(r'\@[a-zA-Z_][a-zA-Z0-9_]*\@', __replace, string)
 
 
 def task(name):
@@ -248,7 +258,7 @@ class BuildRunner(object):
         # Load configuration file
         try:
             logger.info('Loading config file %r', config_path)
-            config = ConfigSource().load(config_path)
+            config = ConfigSource(BuildRunner.__environment_replacements).load(config_path)
 
         except ParseError, parse_error:
             logger.error('Parse error: %s', parse_error)
@@ -335,3 +345,12 @@ class BuildRunner(object):
         # Add externals
         for ext in self.__config.external:
             self.__builders.append(ExternalBuilder(self, ext))
+
+    @staticmethod
+    def __environment_replacements(text):
+        def __replace(match):
+            logger.debug('Match found: %s' % match.group())
+            name = match.group()[1:-1]
+            return os.getenv(name)
+
+        return re.sub(r'\@[a-zA-Z_][a-zA-Z0-9_]*\@', __replace, text)
