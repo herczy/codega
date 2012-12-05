@@ -8,6 +8,8 @@ Implementation for keeping track of scopes. Scopes contain information about nam
 reachable from a point during generation.
 '''
 
+import copy
+
 
 class Scope(object):
     '''
@@ -25,7 +27,7 @@ class Scope(object):
     _bindings = None
     _subscopes = None
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, copy_on_access=True):
         '''
         Initializes an empty scope.
 
@@ -36,6 +38,7 @@ class Scope(object):
         self._parent = parent
         self._bindings = {}
         self._subscopes = []
+        self._copy_on_access = copy_on_access
 
         if parent is not None:
             parent.add_subscope(self)
@@ -110,7 +113,14 @@ class Scope(object):
             return self._bindings[name]
 
         if self.parent is not None:
-            return self.parent[name]
+            orig = self.parent[name]
+            if self._copy_on_access:
+                self._bindings[name] = copy.deepcopy(orig)
+
+            else:
+                self._bindings[name] = orig
+
+            return self._bindings[name]
 
         raise KeyError("%s was not found in the current scope" % name)
 
@@ -164,12 +174,18 @@ class ScopeHandler(object):
     def current(self):
         return self.get_level()
 
+    @property
+    def root(self):
+        return self._current_scope.root
+
     def get_level(self, level=0):
         base = self._current_scope
         while level > 0:
             base = base.parent
             if base is None:
                 raise ValueError("Invalid level")
+
+            level -= 1
 
         return base
 
