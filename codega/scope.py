@@ -162,7 +162,16 @@ class ScopeHandler(object):
 
     @property
     def current(self):
-        return self._current_scope
+        return self.get_level()
+
+    def get_level(self, level=0):
+        base = self._current_scope
+        while level > 0:
+            base = base.parent
+            if base is None:
+                raise ValueError("Invalid level")
+
+        return base
 
     def scope_of(self, key, try_only=False):
         '''Determine the scope of the key'''
