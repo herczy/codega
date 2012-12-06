@@ -168,18 +168,11 @@ ${name} = ${name}_info.get_class(metainfo)
 </%def>
 
 <%def name='AlpList_ast()'>\
-def ${name}(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+${name}_properties = (
+  ('data', ast.REQUIRED),
+)
+${name}_info = ast.Info('${name}', ${name}_properties, base=ast.AstList)
+${name} = ${name}_info.get_class(metainfo)
 </%def>
 
 <%def name='AlpSelection_ast()'>\

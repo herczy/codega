@@ -1,3 +1,5 @@
+import collections
+
 from codega.visitor import VisitorBase
 from codega.ordereddict import OrderedDict
 
@@ -16,7 +18,7 @@ def is_reserved(name):
 
 
 class AstNodeBase(object):
-    ast_location = None
+    ast_location = (None, None)
 
     def __init__(self, *args, **kwargs):
         assert hasattr(self, 'ast_class_info')
@@ -28,10 +30,34 @@ class AstNodeBase(object):
     __repr__ = __str__
 
 
+class AstList(AstNodeBase, collections.Sequence):
+    def __init__(self, *args, **kwargs):
+        body = kwargs.pop('body', ())
+        if isinstance(body, AstList):
+            body = body.data
+
+        if 'head' in kwargs:
+            head = kwargs.pop('head')
+            body = (head,) + body
+
+        if 'tail' in kwargs:
+            tail = kwargs.pop('tail')
+            body = body + (tail,)
+
+        AstNodeBase.__init__(self, data=body)
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __len__(self):
+        return len(self.data)
+
+
 class Info(object):
     '''Stores information about an AST class'''
 
-    def __init__(self, name, properties):
+    def __init__(self, name, properties, base=AstNodeBase):
+        self.__base = base
         self.__name = name
         self.__properties = OrderedDict(properties)
 
@@ -82,7 +108,7 @@ class Info(object):
         members['ast_class_info'] = self
         members['ast_name'] = self.__name
 
-        return metainfo.define_class(self.__name, (AstNodeBase,), members)
+        return metainfo.define_class(self.__name, (self.__base,), members)
 
 
 class Metainfo(object):

@@ -87,18 +87,11 @@ AlpScript_properties = (
 AlpScript_info = ast.Info('AlpScript', AlpScript_properties)
 AlpScript = AlpScript_info.get_class(metainfo)
 
-def AlpHead(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpHead_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpHead_info = ast.Info('AlpHead', AlpHead_properties, base=ast.AstList)
+AlpHead = AlpHead_info.get_class(metainfo)
 
 AlpHeaderEntry_properties = (
     ('key', ast.REQUIRED),
@@ -107,18 +100,11 @@ AlpHeaderEntry_properties = (
 AlpHeaderEntry_info = ast.Info('AlpHeaderEntry', AlpHeaderEntry_properties)
 AlpHeaderEntry = AlpHeaderEntry_info.get_class(metainfo)
 
-def AlpBody(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpBody_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpBody_info = ast.Info('AlpBody', AlpBody_properties, base=ast.AstList)
+AlpBody = AlpBody_info.get_class(metainfo)
 
 # Helper class for selectors!
 def SelMainEntry(arg):
@@ -210,18 +196,11 @@ AlpNodeBody_properties = (
 AlpNodeBody_info = ast.Info('AlpNodeBody', AlpNodeBody_properties)
 AlpNodeBody = AlpNodeBody_info.get_class(metainfo)
 
-def AlpPropertyList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpPropertyList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpPropertyList_info = ast.Info('AlpPropertyList', AlpPropertyList_properties, base=ast.AstList)
+AlpPropertyList = AlpPropertyList_info.get_class(metainfo)
 
 AlpProperty_properties = (
     ('klass', ast.REQUIRED),
@@ -230,18 +209,11 @@ AlpProperty_properties = (
 AlpProperty_info = ast.Info('AlpProperty', AlpProperty_properties)
 AlpProperty = AlpProperty_info.get_class(metainfo)
 
-def AlpRuleList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpRuleList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpRuleList_info = ast.Info('AlpRuleList', AlpRuleList_properties, base=ast.AstList)
+AlpRuleList = AlpRuleList_info.get_class(metainfo)
 
 AlpRule_properties = (
     ('entries', ast.REQUIRED),
@@ -250,18 +222,11 @@ AlpRule_properties = (
 AlpRule_info = ast.Info('AlpRule', AlpRule_properties)
 AlpRule = AlpRule_info.get_class(metainfo)
 
-def AlpRuleEntryList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpRuleEntryList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpRuleEntryList_info = ast.Info('AlpRuleEntryList', AlpRuleEntryList_properties, base=ast.AstList)
+AlpRuleEntryList = AlpRuleEntryList_info.get_class(metainfo)
 
 AlpRuleEntry_properties = (
     ('ignored', ast.OPTIONAL),
@@ -271,57 +236,29 @@ AlpRuleEntry_properties = (
 AlpRuleEntry_info = ast.Info('AlpRuleEntry', AlpRuleEntry_properties)
 AlpRuleEntry = AlpRuleEntry_info.get_class(metainfo)
 
-def AlpModuleName(**kwargs):
-    body = kwargs.pop('body', ())
+AlpModuleName_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpModuleName_info = ast.Info('AlpModuleName', AlpModuleName_properties, base=ast.AstList)
+AlpModuleName = AlpModuleName_info.get_class(metainfo)
 
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
+AlpIdList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpIdList_info = ast.Info('AlpIdList', AlpIdList_properties, base=ast.AstList)
+AlpIdList = AlpIdList_info.get_class(metainfo)
 
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
+AlpRuleMetainfoList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpRuleMetainfoList_info = ast.Info('AlpRuleMetainfoList', AlpRuleMetainfoList_properties, base=ast.AstList)
+AlpRuleMetainfoList = AlpRuleMetainfoList_info.get_class(metainfo)
 
-    return body
-
-def AlpIdList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
-
-def AlpRuleMetainfoList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
-
-def AlpTokenMetainfoList(**kwargs):
-    body = kwargs.pop('body', ())
-
-    if 'head' in kwargs:
-        head = kwargs.pop('head')
-        body = (head,) + body
-
-    if 'tail' in kwargs:
-        tail = kwargs.pop('tail')
-        body = body + (tail,)
-
-    return body
+AlpTokenMetainfoList_properties = (
+  ('data', ast.REQUIRED),
+)
+AlpTokenMetainfoList_info = ast.Info('AlpTokenMetainfoList', AlpTokenMetainfoList_properties, base=ast.AstList)
+AlpTokenMetainfoList = AlpTokenMetainfoList_info.get_class(metainfo)
 
 # Helper class for selectors!
 def AlpRuleMetainfo(arg):

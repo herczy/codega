@@ -1,6 +1,6 @@
 from codega.visitor import ClassVisitor, visitor
 from codega.alp import script
-from codega.alp.ast import is_reserved
+from codega.alp.ast import is_reserved, AstList
 
 
 class ValidationError(Exception):
@@ -232,7 +232,7 @@ class Validator(ClassVisitor):
     def visit_alp_metainfo_precsym(self, ast):
         return 'prec', ast
 
-    @visitor(tuple)
+    @visitor(AstList)
     def visit_list(self, ast):
         res = []
         for entry in ast:
