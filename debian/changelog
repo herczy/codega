@@ -1,3 +1,17 @@
+codega (0.8.0) maverick; urgency=low
+
+  * Moved cgextra functionality to codega
+  * Added some documentation (needs to be updated)
+  * Minor and major bugfixes
+
+ -- Hercinger Viktor <herczy@terminus>  Thu, 06 Dec 2012 20:39:40 +0100
+
+codega (0.7) maverick; urgency=low
+
+  * Added ALP subsystem
+
+ -- Hercinger Viktor <herczy@terminus>  Thu, 06 Dec 2012 20:38:23 +0100
+
 codega (0.6.1) maverick; urgency=low
 
   * Added transform option to source.
