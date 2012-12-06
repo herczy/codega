@@ -37,3 +37,31 @@ class Location(object):
 
     def __repr__(self):
         return 'Location(\'%s\', line %d, column %d, position %d)' % (self.source, self.lineno + 1, self.column + 1, self.position)
+
+
+class LocationRange(object):
+    '''Stores a range of locations (usually start-end)'''
+
+    def __init__(self, start, end):
+        assert isinstance(start, Location)
+        assert isinstance(end, Location)
+        assert start.source == end.source
+
+        self.__start = start
+        self.__end = end
+
+    @property
+    def start(self):
+        return self.__start
+
+    @property
+    def end(self):
+        return self.__end
+
+    def __str__(self):
+        return '%s (%s:%d - %s:%d)' % (self.start.source, \
+                                       self.start.lineno + 1, self.start.column + 1, \
+                                       self.end.lineno + 1, self.end.column + 1)
+
+    def __repr__(self):
+        return 'LocationRange(%r - %r)' % (self.start, self.end)

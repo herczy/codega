@@ -207,16 +207,16 @@ ${rulename} = rule.Rule(${', '.join(args)})
 ${rulename}.precedence = '${metainfo['AlpPrecedenceMetainfo'].prec}'
 % endif
 def p_${name}_${index}(self, p):
+    location = self.get_location(p)
 % if 'AlpErrorMetainfo' in metainfo:
-    self.report_error(${metainfo['AlpErrorMetainfo'].message_format}, self.${rulename}, p)
+    self.report_error(${metainfo['AlpErrorMetainfo'].message_format}, self.${rulename}, p, location)
 % endif
 % if 'AlpWarningMetainfo' in metainfo:
-    self.report_warning(${metainfo['AlpWarningMetainfo'].message_format}, self.${rulename}, p)
+    self.report_warning(${metainfo['AlpWarningMetainfo'].message_format}, self.${rulename}, p, location)
 % endif
 % if not skip_apply:
     p[0] = self.${rulename}(${name}, p[1:])
-    if isinstance(p[0], ast.AstNodeBase):
-        p[0].ast_location = self.get_location(p)
+    p[0].ast_location = location
 % endif
 p_${name}_${index}.__doc__ = rule_${name}_${index}.to_yacc_rule()
 </%def>

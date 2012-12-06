@@ -42,6 +42,20 @@ class Lexer(object):
 
         self.log.info('Created lexer; class ID=lexer-class-%d' % logger.sysid(self.__class__))
 
+    @property
+    def lineno(self):
+        if self.lexer_object is None:
+            return None
+
+        return self.lexer_object.lineno
+
+    @property
+    def lexpos(self):
+        if self.lexer_object is None:
+            return None
+
+        return self.lexer_object.lexpos
+
     def get_location(self, position):
         loc = Location(self.source_name, 0, 0, 0)
         loc.update(self.data[:position])
@@ -94,24 +108,6 @@ class Lexer(object):
 
         self.lexer_object.skip(len(token))
         self.log.error('Error parsing character %r' % token)
-
-    def get_location(self, position):
-        data = self.lexer_object.lexdata
-
-        # Note: I know at first it seems that the condition should be
-        # position >= len(data) but actually len(data) is a valid
-        # position since that points to the end of the input.
-        if position > len(data):
-            raise IndexError("Position invalid")
-
-        nlpos = data.rfind('\n', 0, position)
-
-        if nlpos == -1:
-            return Location(self.source_name, 0, position, position)
-
-        lineno = data.count('\n', 0, position)
-        column = position - nlpos - 1
-        return Location(self.source_name, lineno, column, position)
 
 
 class LexerFactory(object):

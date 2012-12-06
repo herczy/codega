@@ -5,6 +5,7 @@ from codega.decorators import abstract
 
 from tools import replace, cleanup_file_list
 import logger
+from codega.alp.location import LocationRange
 
 
 class ParserBase(object):
@@ -45,7 +46,7 @@ class ParserBase(object):
 
     def parse(self):
         with logger.Progress('Input parsing', self.log.info) as process:
-            res = self.parser_object.parse(lexer=self)
+            res = self.parser_object.parse(lexer=self.lexer_object, tracking=True)
 
             if res is None:
                 process.fail()
@@ -69,14 +70,8 @@ class ParserBase(object):
         return token
 
     def get_location(self, prod):
-        if len(prod) > 1:
-            begin = self.lexer_object.get_location(prod.lexpos(1))
-            end = self.lexer_object.get_location(prod.lexpos(len(prod) - 1))
-
-        else:
-            begin, end = None, None
-
-        return begin, end
+        start, end = (self.lexer_object.get_location(pos) for pos in prod.lexspan(0))
+        return LocationRange(start, end)
 
     def report_error(self, *args, **kwargs):
         self.__report(self.lexer_object.error_context.error, *args, **kwargs)
@@ -96,8 +91,12 @@ class ParserBase(object):
     def subclass(cls, name, members, metacls=type):
         return metacls(name, (cls,), members)
 
-    def __report(self, func, msg, rule, prod):
+    def __report(self, func, msg, rule, prod, location=None):
         args = dict(('prod%d' % (i + 1), repr(entry)) for i, entry in enumerate(prod[1:]))
         args['rule'] = repr(rule)
+        args['start'] = location.start
+        args['end'] = location.end
+        args['location'] = location
+
         exp = replace(msg, **args)
-        func(exp, self.lexer_object.get_location(prod.lexpos(1)))
+        func(exp, location)
