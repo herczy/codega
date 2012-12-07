@@ -222,6 +222,8 @@ class BuildRunner(object):
         self.__init_builders()
 
     def run_task(self, task, *args, **kwargs):
+        guarded = kwargs.pop('guarded', True)
+
         if not self.__builders:
             logger.error("No builders found")
             return False
@@ -237,6 +239,9 @@ class BuildRunner(object):
             except Exception, error:
                 logger.critical('Could not complete %s: %s', task, error)
                 logger.exception()
+                if not guarded:
+                    raise
+
                 return False
 
         return True
@@ -263,6 +268,9 @@ class BuildRunner(object):
         except ParseError, parse_error:
             logger.error('Parse error: %s', parse_error)
             logger.exception()
+            if not kwargs.get('guarded', True):
+                raise
+
             return False
 
         return cls(config, base_path=os.path.dirname(config_path)).run_task(task, **kwargs)
