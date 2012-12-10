@@ -17,7 +17,6 @@ from codega.source import SourceBase
 from codega.alp.lexer import LexerFactory
 from codega.alp.parser import ParserBase
 from codega.alp.errorcontext import ErrorContext
-from codega.alp import tools
 from codega.alp import rule
 from codega.alp import ast
 
@@ -52,6 +51,7 @@ lexer_factory.add_literal('START', 'start')
 lexer_factory.add_literal('PRECEDENCE', 'precedence')
 lexer_factory.add_literal('LEFT', 'left')
 lexer_factory.add_literal('RIGHT', 'right')
+lexer_factory.add_literal('INCLUDE', 'include')
 lexer_factory.add_literal('LANGUAGE', 'language')
 lexer_factory.add_literal('AUTHOR', 'author')
 lexer_factory.add_literal('VERSION', 'version')
@@ -112,6 +112,12 @@ AlpStart_properties = (
 )
 AlpStart_info = ast.Info('AlpStart', AlpStart_properties)
 AlpStart = AlpStart_info.get_class(metainfo)
+
+AlpInclude_properties = (
+    ('path', ast.REQUIRED),
+)
+AlpInclude_info = ast.Info('AlpInclude', AlpInclude_properties)
+AlpInclude = AlpInclude_info.get_class(metainfo)
 
 # Helper class for selectors!
 def SelToken(arg):
@@ -360,19 +366,26 @@ class Parser(ParserBase):
         p[0].ast_location = location
     p_SelMainEntry_0.__doc__ = rule_SelMainEntry_0.to_yacc_rule()
 
-    rule_SelMainEntry_1 = rule.Rule('SelMainEntry', rule.RuleEntry('SelToken', key=None, ignore=None))
+    rule_SelMainEntry_1 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpInclude', key=None, ignore=None))
     def p_SelMainEntry_1(self, p):
         location = self.get_location(p)
         p[0] = self.rule_SelMainEntry_1(SelMainEntry, p[1:])
         p[0].ast_location = location
     p_SelMainEntry_1.__doc__ = rule_SelMainEntry_1.to_yacc_rule()
 
-    rule_SelMainEntry_2 = rule.Rule('SelMainEntry', rule.RuleEntry('SelParser', key=None, ignore=None))
+    rule_SelMainEntry_2 = rule.Rule('SelMainEntry', rule.RuleEntry('SelToken', key=None, ignore=None))
     def p_SelMainEntry_2(self, p):
         location = self.get_location(p)
         p[0] = self.rule_SelMainEntry_2(SelMainEntry, p[1:])
         p[0].ast_location = location
     p_SelMainEntry_2.__doc__ = rule_SelMainEntry_2.to_yacc_rule()
+
+    rule_SelMainEntry_3 = rule.Rule('SelMainEntry', rule.RuleEntry('SelParser', key=None, ignore=None))
+    def p_SelMainEntry_3(self, p):
+        location = self.get_location(p)
+        p[0] = self.rule_SelMainEntry_3(SelMainEntry, p[1:])
+        p[0].ast_location = location
+    p_SelMainEntry_3.__doc__ = rule_SelMainEntry_3.to_yacc_rule()
 
 
     # Rules for node AlpStart
@@ -382,6 +395,15 @@ class Parser(ParserBase):
         p[0] = self.rule_AlpStart_0(AlpStart, p[1:])
         p[0].ast_location = location
     p_AlpStart_0.__doc__ = rule_AlpStart_0.to_yacc_rule()
+
+
+    # Rules for node AlpInclude
+    rule_AlpInclude_0 = rule.Rule('AlpInclude', rule.RuleEntry('INCLUDE', key=None, ignore='-'), rule.RuleEntry('STRING', key=None, ignore=None))
+    def p_AlpInclude_0(self, p):
+        location = self.get_location(p)
+        p[0] = self.rule_AlpInclude_0(AlpInclude, p[1:])
+        p[0].ast_location = location
+    p_AlpInclude_0.__doc__ = rule_AlpInclude_0.to_yacc_rule()
 
 
     # Rules for node SelToken

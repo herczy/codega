@@ -46,6 +46,9 @@ class AstList(AstNodeBase, collections.Sequence):
 
         AstNodeBase.__init__(self, data=body)
 
+    def replace(self, data):
+        return self.__class__(body=tuple(data))
+
     def __getitem__(self, index):
         return self.data[index]
 
