@@ -1,10 +1,22 @@
-from codega.visitor import ClassVisitor, visitor
 from codega.alp import script
 from codega.alp.ast import is_reserved, AstList
+from codega.visitor import ClassVisitor, visitor
 
 
 class ValidationError(Exception):
-    '''Validator-related error'''
+    '''Validation-related error'''
+
+    def __init__(self, msg):
+        super(ValidationError, self).__init__(self, msg)
+
+        self.location = None
+
+    def __str__(self):
+        orig = super(ValidationError, self).__str__()
+        if self.location is None:
+            return orig
+
+        return ('%s: ' % self.location) + orig
 
 
 class MissingSymbolError(ValidationError):
@@ -85,6 +97,14 @@ class Validator(ClassVisitor):
     def get_metainfo_dict(self, ast):
         self.check_metainfo(ast)
         return dict(self.visit(ast.metainfo))
+
+    def visit(self, ast, *args, **kwargs):
+        try:
+            return super(Validator, self).visit(ast, *args, **kwargs)
+
+        except ValidationError, e:
+            e.location = ast.ast_location.start
+            raise
 
     @visitor(script.AlpScript)
     def visit_alp_script(self, ast):
