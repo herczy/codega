@@ -72,7 +72,7 @@ node AlpScript
   required head;
   required body;
 
-  rule head=AlpHead body=AlpBody;
+  rule AlpHead AlpBody;
 };
 
 # Header of the ALP script

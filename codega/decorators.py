@@ -170,7 +170,7 @@ def define(obj):
     return __decorator
 
 
-def bind(value, pos=-1):
+def bind(value, pos= -1):
     '''Bind one of the arguments of a function'''
 
     def __decorator(func):

@@ -42,7 +42,7 @@ class MakoTemplate(TemplateBase):
             self._template.render_context(context)
 
         except:
-            logger.error('Rendering failed, bindings = %r' % _binding_dict)
+            logger.error('Rendering failed')
             raise
 
         return buf.getvalue()

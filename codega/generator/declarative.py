@@ -52,9 +52,9 @@ class Generator(GeneratorBase):
     '''
 
     def __init__(self, parent):
-        self.__parent = parent
-
         super(Generator, self).__init__()
+
+        self.__parent = parent
 
     @property
     def parent(self):

@@ -293,7 +293,7 @@ class Parser(ParserBase):
 
     
     # Rules for node AlpScript
-    rule_AlpScript_0 = rule.Rule('AlpScript', rule.RuleEntry('AlpHead', key='head', ignore=None), rule.RuleEntry('AlpBody', key='body', ignore=None))
+    rule_AlpScript_0 = rule.Rule('AlpScript', rule.RuleEntry('AlpHead', key=None, ignore=None), rule.RuleEntry('AlpBody', key=None, ignore=None))
     def p_AlpScript_0(self, p):
         location = self.get_location(p)
         p[0] = self.rule_AlpScript_0(AlpScript, p[1:])
