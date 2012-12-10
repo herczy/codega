@@ -37,13 +37,9 @@ from codega.source import SourceBase
 from codega.alp.lexer import LexerFactory
 from codega.alp.parser import ParserBase
 from codega.alp.errorcontext import ErrorContext
-from codega.alp import tools
 from codega.alp import rule
 from codega.alp import ast
 
-% for imp in imports:
-${imp}
-% endfor
 
 class ParserError(Exception):
     '''Parse-related errors'''
@@ -111,25 +107,6 @@ class Source(SourceBase):
             resource = resource_locator.find(resource)
 
         return parse_file(resource)
-</%def>
-
-<%def name='AlpImport()'>\
-<%
-
-    asexpr = ''
-    if import_as is not None:
-        asexpr = ' as %s' % import_as
-        
-    if import_from is None:
-        _import_name = '.'.join(import_name)
-    else:
-        _import_name = import_name
-
-%>\
-% if import_from is not None:
-from ${'.'.join(import_from)} \
-% endif
-import ${_import_name}${asexpr}\
 </%def>
 
 <%def name='AlpToken()'>\

@@ -38,9 +38,6 @@ class ParserError(Exception):
 lexer_factory = LexerFactory()
 lexer_factory.add_ignore_token('SPACES', '\\s+');
 lexer_factory.add_ignore_token('COMMENTS', '\\#.*?\\n');
-lexer_factory.add_literal('FROM', 'from')
-lexer_factory.add_literal('IMPORT', 'import')
-lexer_factory.add_literal('AS', 'as')
 lexer_factory.add_literal('TOKEN', 'token')
 lexer_factory.add_literal('KEYWORD', 'keyword')
 lexer_factory.add_literal('LITERAL', 'literal')
@@ -109,14 +106,6 @@ AlpBody = AlpBody_info.get_class(metainfo)
 # Helper class for selectors!
 def SelMainEntry(arg):
     return arg
-
-AlpImport_properties = (
-    ('import_from', ast.OPTIONAL),
-    ('import_name', ast.REQUIRED),
-    ('import_as', ast.OPTIONAL),
-)
-AlpImport_info = ast.Info('AlpImport', AlpImport_properties)
-AlpImport = AlpImport_info.get_class(metainfo)
 
 AlpStart_properties = (
     ('symbol', ast.REQUIRED),
@@ -364,63 +353,26 @@ class Parser(ParserBase):
 
 
     # Rules for node SelMainEntry
-    rule_SelMainEntry_0 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpImport', key=None, ignore=None))
+    rule_SelMainEntry_0 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpStart', key=None, ignore=None))
     def p_SelMainEntry_0(self, p):
         location = self.get_location(p)
         p[0] = self.rule_SelMainEntry_0(SelMainEntry, p[1:])
         p[0].ast_location = location
     p_SelMainEntry_0.__doc__ = rule_SelMainEntry_0.to_yacc_rule()
 
-    rule_SelMainEntry_1 = rule.Rule('SelMainEntry', rule.RuleEntry('AlpStart', key=None, ignore=None))
+    rule_SelMainEntry_1 = rule.Rule('SelMainEntry', rule.RuleEntry('SelToken', key=None, ignore=None))
     def p_SelMainEntry_1(self, p):
         location = self.get_location(p)
         p[0] = self.rule_SelMainEntry_1(SelMainEntry, p[1:])
         p[0].ast_location = location
     p_SelMainEntry_1.__doc__ = rule_SelMainEntry_1.to_yacc_rule()
 
-    rule_SelMainEntry_2 = rule.Rule('SelMainEntry', rule.RuleEntry('SelToken', key=None, ignore=None))
+    rule_SelMainEntry_2 = rule.Rule('SelMainEntry', rule.RuleEntry('SelParser', key=None, ignore=None))
     def p_SelMainEntry_2(self, p):
         location = self.get_location(p)
         p[0] = self.rule_SelMainEntry_2(SelMainEntry, p[1:])
         p[0].ast_location = location
     p_SelMainEntry_2.__doc__ = rule_SelMainEntry_2.to_yacc_rule()
-
-    rule_SelMainEntry_3 = rule.Rule('SelMainEntry', rule.RuleEntry('SelParser', key=None, ignore=None))
-    def p_SelMainEntry_3(self, p):
-        location = self.get_location(p)
-        p[0] = self.rule_SelMainEntry_3(SelMainEntry, p[1:])
-        p[0].ast_location = location
-    p_SelMainEntry_3.__doc__ = rule_SelMainEntry_3.to_yacc_rule()
-
-
-    # Rules for node AlpImport
-    rule_AlpImport_0 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None))
-    def p_AlpImport_0(self, p):
-        location = self.get_location(p)
-        p[0] = self.rule_AlpImport_0(AlpImport, p[1:])
-        p[0].ast_location = location
-    p_AlpImport_0.__doc__ = rule_AlpImport_0.to_yacc_rule()
-
-    rule_AlpImport_1 = rule.Rule('AlpImport', rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
-    def p_AlpImport_1(self, p):
-        location = self.get_location(p)
-        p[0] = self.rule_AlpImport_1(AlpImport, p[1:])
-        p[0].ast_location = location
-    p_AlpImport_1.__doc__ = rule_AlpImport_1.to_yacc_rule()
-
-    rule_AlpImport_2 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None))
-    def p_AlpImport_2(self, p):
-        location = self.get_location(p)
-        p[0] = self.rule_AlpImport_2(AlpImport, p[1:])
-        p[0].ast_location = location
-    p_AlpImport_2.__doc__ = rule_AlpImport_2.to_yacc_rule()
-
-    rule_AlpImport_3 = rule.Rule('AlpImport', rule.RuleEntry('FROM', key=None, ignore='-'), rule.RuleEntry('AlpModuleName', key='import_from', ignore=None), rule.RuleEntry('IMPORT', key=None, ignore='-'), rule.RuleEntry('ID', key='import_name', ignore=None), rule.RuleEntry('AS', key=None, ignore='-'), rule.RuleEntry('ID', key='import_as', ignore=None))
-    def p_AlpImport_3(self, p):
-        location = self.get_location(p)
-        p[0] = self.rule_AlpImport_3(AlpImport, p[1:])
-        p[0].ast_location = location
-    p_AlpImport_3.__doc__ = rule_AlpImport_3.to_yacc_rule()
 
 
     # Rules for node AlpStart

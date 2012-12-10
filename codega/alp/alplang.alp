@@ -6,11 +6,6 @@ language alp;
 ignore SPACES '\\s+';
 ignore COMMENTS '\\#.*?\\n';
 
-# Python-style import tokens
-literal FROM 'from';
-literal IMPORT 'import';
-literal AS 'as';
-
 # Tokenizer tokens
 literal TOKEN 'token';
 literal KEYWORD 'keyword';
@@ -103,22 +98,9 @@ list AlpBody
 # Main entry types
 selection SelMainEntry
 {
-  rule AlpImport;
   rule AlpStart;
   rule SelToken;
   rule SelParser;
-};
-
-node AlpImport
-{
-  optional import_from;
-  required import_name;
-  optional import_as;
-
-  rule -IMPORT import_name=AlpModuleName;
-  rule -IMPORT import_name=AlpModuleName -AS import_as=ID;
-  rule -FROM import_from=AlpModuleName -IMPORT import_name=ID;
-  rule -FROM import_from=AlpModuleName -IMPORT import_name=ID -AS import_as=ID;
 };
 
 node AlpStart

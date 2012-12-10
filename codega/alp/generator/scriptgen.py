@@ -79,15 +79,6 @@ class AlpScriptGenerator(ScriptBaseGenerator):
         return result
 
 
-class AlpImportGenerator(ScriptBaseGenerator):
-    __matcher__ = matcher.cls(script.AlpImport)
-
-    template = 'AlpImport'
-
-    def get_bindings(self, source, context):
-        return dict(source.ast_properties)
-
-
 class TokenGeneratorBase(ScriptBaseGenerator):
     __base__ = True
 
