@@ -22,16 +22,9 @@ class ParserBase(object):
         # Create logger for parser
         self.log = logger.getLogger('parser-%d' % logger.sysid(self))
 
-        # The temporary parsetab.py file should be generated in /tmp.
-        parse_tab = tempfile.NamedTemporaryFile(prefix='parsetab-')
-        # This is a hack, since ply appends a .py to the supplied tabmodule name.
-        # So not only do we create a file for nothing but if not cleaned up manually
-        # a tempfile will be leaked. Thanks, David Beazley. ;-)
-        cleanup_file_list.append(parse_tab.name + '.py')
-
         # Create ply parser
         log_wrapper = logger.PlyLoggerWrapping(self.log)
-        self.parser_object = yacc.yacc(module=self, debuglog=log_wrapper, errorlog=log_wrapper, debug=1, tabmodule=parse_tab.name)
+        self.parser_object = yacc.yacc(module=self, debuglog=log_wrapper, errorlog=log_wrapper, debug=1, outputdir='/tmp', write_tables=False)
 
         self.log.info('Created parser; class ID=%d' % logger.sysid(self.__class__))
 
